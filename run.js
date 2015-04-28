@@ -1,14 +1,20 @@
 var Ask = require('./RootCommand'),
-	api = new Ask('root');
+	app = new Ask('root');
 
-api
-	.addCommand('test', function (request, whatever) {
-		/* controller logic */
-	});
+var command1a = app.addCommand('1a'),
+	command1b = app.addCommand('1b'),
+	command1c = app.addCommand('1c')
+		.addOption('optiona', 'a', 'Option A')
+		.addOption('optionb', 'b', 'Option B (required)', true),
+	command1d = app.addCommand('1d')
+		.addOption('fuck', 'f')
+		//.addParameter('parama', 'Parameter A')
+		.addCommand('2a')
+	.addParameter('paramb', 'Parameter B');
 
-api.
+app.
 	// Return a Request object containing all the info to execute it
-	request(['test'], { f: 'Banana' })
+	request(['1d', '2a'], { f: 'Banana' })
 
 	// Execute controller for found command (supplementing it with `whatever`)
 	// and promise it's return value

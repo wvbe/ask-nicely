@@ -10,9 +10,9 @@ api
         /* controller logic */
     });
 
-api.
+api
     // Return a Request object containing all the info to execute it
-    request(['test'], { f: 'Banana' })
+    .request(['test'], { f: 'Banana' })
 
     // Execute controller for found command (supplementing it with `whatever`)
     // and promise it's return value
@@ -21,8 +21,13 @@ api.
 ```
 
 ## To-do
-- Test coverage
+- Keeping tests up-to-date
 - Use minimist for a quick text-to-controller path (`executeFromInput()`?)
+- Injectable validators for options and parameters
+- Injectable autocompleter for parameters
+- Write greedy pile to a Request attribute so it can be used
+- Decide if there's really a difference between RootCommand and Command. What does a multitude of RootCommand mean?
+- Test traversing up & down from different starting points
 
 ## License
 Copyright (c) 2015 Wybe Minnebo
