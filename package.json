@@ -1,0 +1,22 @@
+{
+  "name": "ask-nicely",
+  "version": "0.0.1",
+  "description": "Much more likely to be of help that way",
+  "main": "RootCommand.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:wvbe/ask-nicely.git"
+  },
+  "keywords": [
+    "terminal",
+    "command"
+  ],
+  "author": "wvbe",
+  "license": "MIT",
+  "dependencies": {
+    "q": "^1"
+  }
+}
