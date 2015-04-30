@@ -1,7 +1,7 @@
 var assert = require('assert');
 
-var RootCommand = require('../RootCommand'),
-	app = new RootCommand();
+var Root = require('../Root'),
+	app = new Root();
 
 var command1a = app.addCommand('1a'),
 
@@ -41,7 +41,7 @@ describe('ask-nicely', function() {
 			}, 'throws when making wrongful use of helper method');
 
 			assert.throws(function () {
-				app.addCommand(new RootCommand.Command());
+				app.addCommand(new Root.Command());
 			}, 'throws when an otherwise perfectly fine Command doesnt have a name');
 		});
 
@@ -76,6 +76,13 @@ describe('ask-nicely', function() {
 			);
 		});
 
+		it('command serializes to a concatenation of parent names', function () {
+			assert.strictEqual(
+				app.getCommandForRoute(['1e', 'param1value', '2b', 'param2value']).toJSON(),
+				['1e', '2b'].join(' ')
+			);
+		});
+
 		it('children have parents have parents', function () {
 			var lineage = command2a.getLineage();
 			assert.strictEqual(lineage[0], app, 'Includes the root command as first array item');
@@ -84,7 +91,7 @@ describe('ask-nicely', function() {
 
 		it('parent must be instanceof Command', function () {
 			assert.throws(function () {
-				new RootCommand.Command('gets-a-parent-afterwards').setParent({});
+				new Root.Command('gets-a-parent-afterwards').setParent({});
 			});
 		});
 

@@ -2,7 +2,7 @@
   "name": "ask-nicely",
   "version": "0.0.1",
   "description": "Much more likely to be of help that way",
-  "main": "RootCommand.js",
+  "main": "Root.js",
   "scripts": {
     "test": "istanbul cover _mocha --spec"
   },
@@ -18,5 +18,8 @@
   "license": "MIT",
   "dependencies": {
     "q": "^1"
+  },
+  "devDependencies": {
+    "minimist": "^1"
   }
 }

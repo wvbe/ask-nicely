@@ -22,11 +22,9 @@ api
 
 ## To-do
 - Keeping tests up-to-date
-- Use minimist for a quick text-to-controller path (`executeFromInput()`?)
 - Injectable validators for options and parameters
 - Injectable autocompleter for parameters
 - Write greedy pile to a Request attribute so it can be used
-- Decide if there's really a difference between RootCommand and Command. What does a multitude of RootCommand mean?
 - Test traversing up & down from different starting points
 
 ## License
