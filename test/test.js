@@ -67,7 +67,7 @@ describe('ask-nicely', function() {
 			});
 		});
 
-		it('can be traversed', function () {
+		it('can be traversed up an down', function () {
 			assert.strictEqual(
 				command1a
 					.getParent()
@@ -76,10 +76,26 @@ describe('ask-nicely', function() {
 			);
 		});
 
-		it('command serializes to a concatenation of parent names', function () {
+		it('can be traversed with an array path', function () {
+			// Regular (from Root). Notice how Root is not named, which is why it doesnt need a name either
 			assert.strictEqual(
-				app.getCommandForRoute(['1e', 'param1value', '2b', 'param2value']).toJSON(),
-				['1e', '2b'].join(' ')
+				app.getCommandForRoute(['1e', 'param1value', '2b', 'param2value', 'also', 'it', 'is', 'greedy']),
+				command2b
+			);
+
+			// You can search relative from another command (for all practical purposes, your search root),
+			// but be sure to include the parameters of that command if it expects them.
+			assert.strictEqual(
+				command1e.getCommandForRoute(['param1value', '2b', 'param2value', 'also', 'it', 'is', 'greedy']),
+				command2b
+			);
+		});
+
+		it('command serializes to route- and parameter names', function () {
+			assert.strictEqual(
+				app.getCommandForRoute(
+					['1e', 'param1value', '2b', 'param2value']).toJSON(),
+					['1e', '{param1}', '2b', '{param2}'].join(' ')
 			);
 		});
 
@@ -113,6 +129,19 @@ describe('ask-nicely', function() {
 			});
 		});
 	});
+
+	describe('root', function () {
+		var newRoot = new Root()
+			.addParameter('rootparam');
+		newRoot.addCommand('child');
+		var newRequest = newRoot.request(['rootparamvalue', 'child']);
+
+		it('would transclude parameters to every child command', function () {
+			assert.strictEqual(newRequest.command.name, 'child'); // CHeck we did indeed find the right command
+			assert.strictEqual(newRequest.parameters.rootparam, 'rootparamvalue'); // CHeck parameter value
+		})
+	});
+
 
 	describe('options', function () {
 		var requestOptions = app.request(['1c'], {

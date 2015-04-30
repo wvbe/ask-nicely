@@ -86,24 +86,28 @@ Command.prototype.getCommandForRoute = function (route, returnClosestMatch) {
 
 	for (var i = 0; i < route.length; ++i) {
 		var routePiece = route[i];
-		if (!routePiece)
-			continue; // skip
 
+		// If route piece has no value, skip
+		if (!routePiece)
+			continue;
+
+		// If we're expecting a parameter here, skip
 		if (parentCommand.parameters.length > stashedParameters) {
 			++stashedParameters;
 			continue;
 		}
 
+		// Look up the new child command that matches our piece
 		lastCommand = parentCommand.getCommandByName(routePiece);
 
 		if (!lastCommand) {
-
+			// If we're not looking for a 100% match, this is the closest we're gonna get
 			if (returnClosestMatch)
 				break; // End loop peacefully
 
+			// If we were looking for a 100% match, we won't get it so throw an error.
+			// Not just programmers may get this error, thus make a human speech effort.
 			var parentRoute = parentCommand.getRoute();
-
-			// Not just programmers may get this error, thus make a human speech effort
 			throw new Error('Could not find command "' + route[i] + '"' + (
 				parentRoute.length > 0
 					? ' in "' + parentRoute.join(' ') + '"'
@@ -111,14 +115,19 @@ Command.prototype.getCommandForRoute = function (route, returnClosestMatch) {
 			));
 		}
 
+		// Finish one iteration
 		parentCommand = lastCommand;
-		stashedParameters = 0;
+
+		// If greedy, that means all the rest is part of this command's list parameters,
+		// so stop traversing
 		if (parentCommand.greedy)
 			break;
 
+		// Reset the amount of parameters we're expecting
+		stashedParameters = 0;
 	}
 
-	return parentCommand || this;
+	return parentCommand;
 };
 
 /**
@@ -156,13 +165,20 @@ Command.prototype.getLineage = function () {
 
 /**
  * Get an array of command names that leads up to the current command.
- * @todo Include placeholders for parameters, such as `['test', '{param1}', 'blaat']`
  * @returns {Array<String>}
  */
 Command.prototype.getRoute = function () {
-	return this.getLineage().slice(1).map(function (command) {
-		return command.name;
-	})
+	return this.getLineage().reduce(function (route, ancestor) {
+		if(ancestor.getParent()) // in other words, if it is a root
+			route.push(ancestor.name);
+
+		if(ancestor.parameters.length)
+			route = route.concat(ancestor.parameters.map(function (param) {
+				return '{' + param.name + '}';
+			}));
+
+		return route;
+	}, []);
 };
 
 /**

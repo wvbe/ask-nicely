@@ -19,6 +19,7 @@ Root.prototype.constructor = Object.create(Root);
 
 /**
  * Return a fully formed and executable Request. Consists of the Command and parsed options and/or parameters for it.
+ * @todo maybe move this to Command class.
  * @param {Array<String>} route
  * @param {Object} [options]
  * @returns {Request}
