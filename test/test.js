@@ -15,7 +15,8 @@ var command1a = app.addCommand('1a'),
 		.addOption('option1', 'a', 'Option 1/A', true)
 		.addOption('option2', 'b', 'Option 2/B (required)', true),
 
-	command1d = app.addCommand('1d'),
+	command1d = app.addCommand('1d')
+		.addOption('parent', 'p', 'Parent option', true),
 
 	command1e = app.addCommand('1e', function () {
 		return req.parameters;
@@ -176,8 +177,28 @@ describe('ask-nicely', function() {
 			assert.strictEqual(returnError.message.indexOf('option2') >= 0, true); // Erorr message *is* about undefined value
 		});
 
+		it('throws an error if a parent required option is undefined', function () {
+			var req = app.request(['1d', '2a'], {
+				s: null
+			});
+			assert.throws(function () {
+				req.command.validateOptions(req.options);
+			});
+		});
+
 		it('forgets undescribed options if command is not hungry', function () {
 			assert.strictEqual(Object.keys(requestOptions).length, 2);
+		});
+
+
+		it('merges with parent options', function () {
+			var opts = app.request(['1d', '2a'], {
+				s: 'child',
+				p: 'parent'
+			}).options;
+
+			assert.strictEqual(opts.long, 'child');
+			assert.strictEqual(opts.parent, 'parent');
 		});
 
 		it('merges with undescribed options if command is hungry', function () {
@@ -222,12 +243,11 @@ describe('ask-nicely', function() {
 			assert.strictEqual(request.parameters.param1, 'param1value');
 		});
 
-		// @TODO: Oops! route is currently not stored with the request (because it can be reconstructed from
-		// the Command), but indeed it's greedy remnants should
-		//it('leaves all route and parameter parts intact', function () {
-		//	// get the route back from the command and compare it to th
-		//	assert.strictEqual(request.route.length, 7);
-		//});
+		it('gathers greedy parameters', function () {
+			// get the route back from the command and compare it to th
+			assert.strictEqual(request.parameters._[0], 'crap');
+		});
+
 	});
 
 	// execution

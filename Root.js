@@ -43,6 +43,56 @@ Root.prototype.request = function (route, options) {
 	);
 };
 
+Root.prototype.input = function (pieces) {
+
+	console.log(pieces);
+
+	var options = {},
+		route = [],
+		lastNamedOption = null;
+
+	for(var i = 0, max = pieces.length; i < max; ++i) {
+		var piece = pieces[i];
+
+		// If it is the long notation of an option
+		if(piece.indexOf('--') === 0) {
+			lastNamedOption = piece.substr(2);
+			Array.isArray(options[lastNamedOption])
+				? options[lastNamedOption].push(true)
+				: options[lastNamedOption] = [true];
+
+			continue;
+		}
+
+		// If it is (a block of) short notations of options
+		if(piece.indexOf('-') === 0) {
+			for(var j = 0; j < piece.length - 1; ++j) {
+				lastNamedOption = piece.substr(j + 1, 1);
+				Array.isArray(options[lastNamedOption])
+					? options[lastNamedOption].push(true)
+					: options[lastNamedOption] = [true];
+			}
+			continue;
+		}
+
+		// When it is a value to a previously declared option
+		if(lastNamedOption) {
+			var currentOptionValue = options[lastNamedOption];
+			if(currentOptionValue[currentOptionValue.length - 1] === true)
+				currentOptionValue[currentOptionValue.length - 1] = piece;
+			else
+				currentOptionValue.push(piece);
+
+			continue;
+		}
+
+		// If it is not an option
+		route.push(piece);
+	}
+
+	return this.request(route, options);
+};
+
 module.exports = Root;
 module.exports.Command = Command;
 module.exports.Request = Request;

@@ -6,6 +6,9 @@ function Request(command, options, parameters) {
 	this.parameters = parameters; // Values to the Command.parameters definition
 }
 
+Request.prototype.validate = function() {
+	this.command.validateOptions(this.options);
+};
 /**
  *
  * @returns {Promise}
@@ -13,7 +16,7 @@ function Request(command, options, parameters) {
 Request.prototype.execute = function() {
 	// Expected to throw an error when execution is prevented by option errors
 	try {
-		this.command.validateOptions(this.options);
+		this.validate();
 	} catch (err) {
 		return q.reject(err);
 	}

@@ -42,7 +42,7 @@ Command.prototype.execute = function () {
  * @returns {boolean} If it doesnt throw, it returns TRUE
  */
 Command.prototype.validateOptions = function (options) {
-	this.options.forEach(function (option) {
+	this.getAllOptions().forEach(function (option) {
 		if (option.required && options[option.long] === undefined)
 			// Not just programmers may get this error, thus make a human speech effort
 			// @TODO: Do that
@@ -137,8 +137,8 @@ Command.prototype.getCommandForRoute = function (route, returnClosestMatch) {
  * @returns {Object}
  */
 Command.prototype.parseParametersFromRoute = function (route) {
-	var indexRoute = 0;
-	return this.getLineage().reduce(function (parameters, command, index) {
+	var indexRoute = 0,
+		parameters = this.getLineage().reduce(function (parameters, command, index) {
 			command.parameters.forEach(function (paramDesc) {
 				parameters[paramDesc.name] = route[indexRoute];
 
@@ -147,6 +147,12 @@ Command.prototype.parseParametersFromRoute = function (route) {
 			++indexRoute;
 			return parameters;
 		}, {});
+
+	if (indexRoute < route.length) {
+		parameters._ = route.slice(indexRoute - 1);
+	}
+
+	return parameters;
 };
 
 /**
@@ -300,6 +306,12 @@ Command.prototype.addCommand = function (name, controller) {
 	return child;
 };
 
+Command.prototype.getAllOptions = function () {
+	return this.getLineage().reduce(function (allOptions, command) {
+		return allOptions.concat(command.options);
+	}, []);
+};
+
 Command.prototype.normalizeOptions = function (dirty) {
 	if (!dirty)
 		return {};
@@ -309,28 +321,28 @@ Command.prototype.normalizeOptions = function (dirty) {
 		allowUnknownOptions = this.hungry;
 
 	// Check each described option
-	this.options.forEach(function (option) {
-		// If long name is used, copy to clean
-		if (dirty[option.long] !== undefined) {
-			clean[option.long] = dirty[option.long];
+	this.getAllOptions().forEach(function (option) {
+			// If long name is used, copy to clean
+			if (dirty[option.long] !== undefined) {
+				clean[option.long] = dirty[option.long];
 
-		// Else try short name
-		} else if (dirty[option.short] !== undefined) {
-			clean[option.long] = dirty[option.short];
-		}
+				// Else try short name
+			} else if (dirty[option.short] !== undefined) {
+				clean[option.long] = dirty[option.short];
+			}
 
-		// If not looking for unknown options, return from forEach
-		if (!allowUnknownOptions)
-			return;
+			// If not looking for unknown options, return from forEach
+			if (!allowUnknownOptions)
+				return;
 
-		// If longname is marked as dirty, unmark because we've cleaned it
-		if (dirtyKeys.indexOf(option.long) >= 0)
-			dirtyKeys.splice(dirtyKeys.indexOf(option.long), 1);
+			// If longname is marked as dirty, unmark because we've cleaned it
+			if (dirtyKeys.indexOf(option.long) >= 0)
+				dirtyKeys.splice(dirtyKeys.indexOf(option.long), 1);
 
-		// If option has a shortname, and it is marked dirty, unmark
-		if (option.short && dirtyKeys.indexOf(option.short) >= 0)
-			dirtyKeys.splice(dirtyKeys.indexOf(option.short), 1);
-	});
+			// If option has a shortname, and it is marked dirty, unmark
+			if (option.short && dirtyKeys.indexOf(option.short) >= 0)
+				dirtyKeys.splice(dirtyKeys.indexOf(option.short), 1);
+		});
 
 	// If not interested in undescribed options or if there's no other data, return
 	if (!allowUnknownOptions || !dirtyKeys.length)

@@ -20,8 +20,6 @@ var Root = require('../Root'), // is 'ask-nicely' when installed through NPM
 	q = require('q'),
 	readline = require('readline');
 
-
-
 // A few shitty helper functions for basic formatting of stuff that is dumped to console
 function inspect (data, depth) {
 	console.log(indent(util.inspect(data, { depth: depth || 3, colors: true })));
