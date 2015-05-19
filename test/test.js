@@ -231,6 +231,7 @@ describe('ask-nicely', function() {
 		it('parses parameters up till and including the first greedy command', function () {
 			assert.strictEqual(request.parameters.param2, 'param2value');
 			assert.strictEqual(request.parameters.param3, undefined);
+			assert.strictEqual(request.command, command2b, '3a command should not be reachable');
 		});
 
 		// @TODO: Might have to do something about this
@@ -243,11 +244,73 @@ describe('ask-nicely', function() {
 			assert.strictEqual(request.parameters.param1, 'param1value');
 		});
 
+		// 1e param1value 2b param2value 3a param3value crap
 		it('gathers greedy parameters', function () {
-			// get the route back from the command and compare it to th
-			assert.strictEqual(request.parameters._[0], 'crap');
+			assert.strictEqual(request.parameters._[0], '3a', 'param3value', 'crap');
 		});
 
+	});
+
+	describe('input()', function () {
+
+		function compareInput(stringInput, route, options) {
+				var inputRequest = app.interpret(stringInput);
+				assert.deepEqual(
+					inputRequest,
+					app.request(route, options)
+				);
+		}
+
+		// @TODO: To be expanded once parameters can be described with number of expected values, etc.
+		it('parses the route like it normally would', function () {
+			compareInput(
+				'1e param1value 2b param2value 3a param3value crap',
+				['1e', 'param1value', '2b', 'param2value', '3a', 'param3value', 'crap']
+			);
+		});
+
+		it('if option is declared as TRUE multiple times, flatten', function () {
+			compareInput(
+				'1c -a -a -a',
+				['1c'], { option1: true}
+			);
+		});
+
+		it('otherwise, they would be accumulated', function () {
+			compareInput(
+				'1c -a value -a value -a value',
+				['1c'], { option1: ['value', 'value', 'value'] }
+			);
+		});
+
+		it('any TRUE values in between are ignored', function () {
+			compareInput(
+				'1c -a value -a -a',
+				['1c'], {option1: 'value'}
+			);
+			compareInput(
+				'1c -a value1 -a value2 -a',
+				['1c'], { option1: ['value1', 'value2']}
+			);
+			compareInput(
+				'1c -a value1 -a -a value2',
+				['1c'], { option1: ['value1', 'value2']}
+			);
+		});
+
+		it('using the long option name obsoletes the short option', function () {
+			compareInput(
+				'1c -a value1 --option1 value2 -a',
+				['1c'], {option1: 'value2'}
+			);
+		});
+
+		it('handles options enclosed by quotes which may contain spaces', function () {
+			compareInput(
+				'1c -a "value 1" "value 2" value 3',
+				['1c'], {option1: ['value 1', 'value 2', 'value', '3']}
+			);
+		});
 	});
 
 	// execution

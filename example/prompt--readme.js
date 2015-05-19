@@ -9,22 +9,19 @@ root.addCommand('test', function (request) {
 	.isGreedy() // Command regards all latter route parts as undescribed parameters
 	.isHungry(); // Command allows undescribed options
 
-
-var argvs = process.argv.slice(2);
-console.log(argvs);
 // Find the argv that matter to form the request
-root.input(argvs)
+root.interpret(process.argv.slice(2))
 
 	// and use it as input to execute
 	.execute()
 
 	// The good times:
 	.then(function(response) {
-		console.log(require('util').inspect(response, { depth: 4}));
+		console.log(require('util').inspect(response, { depth: 2, colors: true}));
 	})
 
 	// And the bad times:
 	.catch(function (error) {
-		console.log(indent(error.stack || error.message || error));
+		console.log(error.stack || error.message || error);
 	});
 

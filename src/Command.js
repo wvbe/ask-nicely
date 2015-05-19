@@ -139,17 +139,20 @@ Command.prototype.getCommandForRoute = function (route, returnClosestMatch) {
 Command.prototype.parseParametersFromRoute = function (route) {
 	var indexRoute = 0,
 		parameters = this.getLineage().reduce(function (parameters, command, index) {
+			if(command.parent)
+				++indexRoute;
+
 			command.parameters.forEach(function (paramDesc) {
 				parameters[paramDesc.name] = route[indexRoute];
 
 				++indexRoute;
 			});
-			++indexRoute;
+
 			return parameters;
 		}, {});
 
 	if (indexRoute < route.length) {
-		parameters._ = route.slice(indexRoute - 1);
+		parameters._ = route.slice(indexRoute);
 	}
 
 	return parameters;
@@ -322,14 +325,11 @@ Command.prototype.normalizeOptions = function (dirty) {
 
 	// Check each described option
 	this.getAllOptions().forEach(function (option) {
-			// If long name is used, copy to clean
-			if (dirty[option.long] !== undefined) {
-				clean[option.long] = dirty[option.long];
-
-				// Else try short name
-			} else if (dirty[option.short] !== undefined) {
-				clean[option.long] = dirty[option.short];
-			}
+			// Using the long name for an option makes the short options redundant. This avoids ordering problems
+			if (dirty[option.long] !== undefined)
+				clean[option.long] = Array.isArray(dirty[option.long]) ? dirty[option.long] : [dirty[option.long]];
+			else if (dirty[option.short] !== undefined)
+				clean[option.long] = Array.isArray(dirty[option.short]) ? dirty[option.short] : [dirty[option.short]];
 
 			// If not looking for unknown options, return from forEach
 			if (!allowUnknownOptions)
@@ -344,13 +344,20 @@ Command.prototype.normalizeOptions = function (dirty) {
 				dirtyKeys.splice(dirtyKeys.indexOf(option.short), 1);
 		});
 
-	// If not interested in undescribed options or if there's no other data, return
-	if (!allowUnknownOptions || !dirtyKeys.length)
-		return clean;
+	// If interested in undescribed options, patch it on
+	if (allowUnknownOptions && dirtyKeys.length)
+		dirtyKeys.forEach(function (dirtyKey) {
+			clean[dirtyKey] = Array.isArray(dirty[dirtyKey]) ? dirty[dirtyKey] : [dirty[dirtyKey]];
+		});
 
-	// Patch dirty data unto cleaned object :(
-	dirtyKeys.forEach(function (dirtyKey) {
-		clean[dirtyKey] = dirty[dirtyKey];
+	// Normalize the TRUE values away + flatten 1-length arrays
+	Object.keys(clean).forEach(function (optionName) {
+		clean[optionName] = clean[optionName].filter(function (val) {
+			return val !== true;
+		});
+
+		if(clean[optionName].length <= 1)
+			clean[optionName] = clean[optionName][0] || true;
 	});
 
 	return clean;
