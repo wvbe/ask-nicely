@@ -1,14 +1,21 @@
 var q = require('q');
 
 function Request(root, route, options) {
-	// The command that this request is for
-	this.command = this.parseRoute(root, route);
+	try {
+		// The command that this request is for
+		this.command = this.parseRoute(root, route);
 
-	// Values to the Command.parameters definition
-	this.parameters = this.parseParameters(this.command, route);
+		// Values to the Command.parameters definition
+		this.parameters = this.parseParameters(this.command, route);
 
-	// Values to the Command.options definition
-	this.options = this.parseOptions(this.command, options);
+		// Values to the Command.options definition
+		this.options = this.parseOptions(this.command, options);
+
+		// See if it all makes sense
+		this.validate();
+	} catch (error) {
+		this.error = error;
+	}
 }
 
 Request.fromInput = function (root, pieces) {
@@ -84,7 +91,6 @@ Request.prototype.validate = function() {
 Request.prototype.parseRoute = function (parentCommand, route, returnClosestMatch) {
 	var lastCommand = null,
 		stashedParameters = 0;
-
 
 	for (var i = 0; i < route.length; ++i) {
 		var routePiece = route[i];
@@ -217,12 +223,9 @@ Request.prototype.parseOptions = function (command, dirty) {
  * @returns {Promise}
  */
 Request.prototype.execute = function() {
+	if (this.error)
+		return q.reject(this.error);
 	// Expected to throw an error when execution is prevented by option errors
-	try {
-		this.validate();
-	} catch (err) {
-		return q.reject(err);
-	}
 
 	// Call the Command execute() method with this request as first argument,
 	// and whatever other arguments there are after that.

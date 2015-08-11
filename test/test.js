@@ -68,7 +68,7 @@ describe('ask-nicely', function() {
 			});
 		});
 
-		it('can be traversed up an down', function () {
+		it('can be traversed up and down', function () {
 			assert.strictEqual(
 				command1a
 					.getParent()
