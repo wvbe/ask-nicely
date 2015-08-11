@@ -2,13 +2,13 @@ var q = require('q');
 
 function Request(root, route, options) {
 	// The command that this request is for
-	this.command = root.getCommandForRoute(route);
+	this.command = this.parseRoute(root, route);
 
 	// Values to the Command.parameters definition
-	this.parameters = this.command.parseParametersFromRoute(route);
+	this.parameters = this.parseParameters(this.command, route);
 
 	// Values to the Command.options definition
-	this.options = this.command.normalizeOptions(options);
+	this.options = this.parseOptions(this.command, options);
 }
 
 Request.fromInput = function (root, pieces) {
@@ -69,9 +69,149 @@ Request.fromInput = function (root, pieces) {
 	return new Request(root, route, options);
 };
 
+
 Request.prototype.validate = function() {
 	this.command.validateOptions(this.options);
 };
+
+/**
+ * Look up a descendant command by an array of command names
+ * @param {Array<String>} route
+ * @param {Boolean} [returnClosestMatch] Returns the command that was expected to have the first unfound child,
+ *                                       defaults to false
+ * @returns {Command}
+ */
+Request.prototype.parseRoute = function (parentCommand, route, returnClosestMatch) {
+	var lastCommand = null,
+		stashedParameters = 0;
+
+
+	for (var i = 0; i < route.length; ++i) {
+		var routePiece = route[i];
+
+		// If route piece has no value, skip
+		if (!routePiece)
+			continue;
+
+		// If we're expecting a parameter here, skip
+		if (parentCommand.parameters.length > stashedParameters) {
+			++stashedParameters;
+			continue;
+		}
+
+		// Look up the new child command that matches our piece
+		lastCommand = parentCommand.getCommandByName(routePiece);
+
+		if (!lastCommand) {
+			// If we're not looking for a 100% match, this is the closest we're gonna get
+			if (returnClosestMatch)
+				break; // End loop peacefully
+
+			// If we were looking for a 100% match, we won't get it so throw an error.
+			// Not just programmers may get this error, thus make a human speech effort.
+			var parentRoute = parentCommand.getRoute();
+			throw new Error('Could not find command "' + route[i] + '"' + (
+				parentRoute.length > 0
+					? ' in "' + parentRoute.join(' ') + '"'
+					: ''
+			));
+		}
+
+		// Finish one iteration
+		parentCommand = lastCommand;
+
+		// If greedy, that means all the rest is part of this command's list parameters,
+		// so stop traversing
+		if (parentCommand.greedy)
+			break;
+
+		// Reset the amount of parameters we're expecting
+		stashedParameters = 0;
+	}
+
+	return parentCommand;
+};
+
+
+
+/**
+ * Parses parameters interleaved in this command's route path, mapping the parameter values
+ * into an object using the param configuration.
+ * @param {Command} root
+ * @param {Array<String>} route
+ * @returns {Object}
+ */
+Request.prototype.parseParameters = function (root, route) {
+	var indexRoute = 0,
+		parameters = root.getLineage().reduce(function (parameters, command, index) {
+			if(command.parent)
+				++indexRoute;
+
+			command.parameters.forEach(function (paramDesc) {
+				parameters[paramDesc.name] = route[indexRoute];
+
+				++indexRoute;
+			});
+
+			return parameters;
+		}, {});
+
+	if (indexRoute < route.length) {
+		parameters._ = route.slice(indexRoute);
+	}
+
+	return parameters;
+};
+
+
+Request.prototype.parseOptions = function (command, dirty) {
+	if (!dirty)
+		return {};
+
+	var clean = {},
+		dirtyKeys = Object.keys(dirty),
+		allowUnknownOptions = command.hungry;
+
+	// Check each described option
+	command.getAllOptions().forEach(function (option) {
+		// Using the long name for an option makes the short options redundant. This avoids ordering problems
+		if (dirty[option.long] !== undefined)
+			clean[option.long] = Array.isArray(dirty[option.long]) ? dirty[option.long] : [dirty[option.long]];
+		else if (dirty[option.short] !== undefined)
+			clean[option.long] = Array.isArray(dirty[option.short]) ? dirty[option.short] : [dirty[option.short]];
+
+		// If not looking for unknown options, return from forEach
+		if (!allowUnknownOptions)
+			return;
+
+		// If longname is marked as dirty, unmark because we've cleaned it
+		if (dirtyKeys.indexOf(option.long) >= 0)
+			dirtyKeys.splice(dirtyKeys.indexOf(option.long), 1);
+
+		// If option has a shortname, and it is marked dirty, unmark
+		if (option.short && dirtyKeys.indexOf(option.short) >= 0)
+			dirtyKeys.splice(dirtyKeys.indexOf(option.short), 1);
+	});
+
+	// If interested in undescribed options, patch it on
+	if (allowUnknownOptions && dirtyKeys.length)
+		dirtyKeys.forEach(function (dirtyKey) {
+			clean[dirtyKey] = Array.isArray(dirty[dirtyKey]) ? dirty[dirtyKey] : [dirty[dirtyKey]];
+		});
+
+	// Normalize the TRUE values away + flatten 1-length arrays
+	Object.keys(clean).forEach(function (optionName) {
+		clean[optionName] = clean[optionName].filter(function (val) {
+			return val !== true;
+		});
+
+		if(clean[optionName].length <= 1)
+			clean[optionName] = clean[optionName][0] || true;
+	});
+
+	return clean;
+};
+
 /**
  *
  * @returns {Promise}

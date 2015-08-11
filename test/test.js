@@ -80,22 +80,22 @@ describe('ask-nicely', function() {
 		it('can be traversed with an array path', function () {
 			// Regular (from Root). Notice how Root is not named, which is why it doesnt need a name either
 			assert.strictEqual(
-				app.getCommandForRoute(['1e', 'param1value', '2b', 'param2value', 'also', 'it', 'is', 'greedy']),
+				app.request(['1e', 'param1value', '2b', 'param2value', 'also', 'it', 'is', 'greedy']).command,
 				command2b
 			);
 
-			// You can search relative from another command (for all practical purposes, your search root),
-			// but be sure to include the parameters of that command if it expects them.
-			assert.strictEqual(
-				command1e.getCommandForRoute(['param1value', '2b', 'param2value', 'also', 'it', 'is', 'greedy']),
-				command2b
-			);
+			//// You can search relative from another command (for all practical purposes, your search root),
+			//// but be sure to include the parameters of that command if it expects them.
+			//assert.strictEqual(
+			//	command1e.getCommandForRoute(['param1value', '2b', 'param2value', 'also', 'it', 'is', 'greedy']),
+			//	command2b
+			//);
 		});
 
 		it('command serializes to route- and parameter names', function () {
 			assert.strictEqual(
-				app.getCommandForRoute(
-					['1e', 'param1value', '2b', 'param2value']).toJSON(),
+				app.request(
+					['1e', 'param1value', '2b', 'param2value']).command.toJSON(),
 					['1e', '{param1}', '2b', '{param2}'].join(' ')
 			);
 		});
@@ -110,18 +110,6 @@ describe('ask-nicely', function() {
 			assert.throws(function () {
 				new Root.Command('gets-a-parent-afterwards').setParent({});
 			});
-		});
-
-		it('eats an array representing the hierarchical path', function () {
-			assert.strictEqual(
-				app.getCommandForRoute(['1d', '2a']),
-				command2a
-			);
-			assert.strictEqual(
-				app.getCommandForRoute(['1d', '2a']),
-				app.getCommandForRoute([undefined, '1d', null, '2a', false]),
-				'ignores empty route parts'
-			);
 		});
 
 		it('throws if not found', function () {
