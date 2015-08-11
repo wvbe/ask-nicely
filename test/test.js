@@ -83,13 +83,6 @@ describe('ask-nicely', function() {
 				app.request(['1e', 'param1value', '2b', 'param2value', 'also', 'it', 'is', 'greedy']).command,
 				command2b
 			);
-
-			//// You can search relative from another command (for all practical purposes, your search root),
-			//// but be sure to include the parameters of that command if it expects them.
-			//assert.strictEqual(
-			//	command1e.getCommandForRoute(['param1value', '2b', 'param2value', 'also', 'it', 'is', 'greedy']),
-			//	command2b
-			//);
 		});
 
 		it('command serializes to route- and parameter names', function () {
