@@ -104,12 +104,6 @@ describe('ask-nicely', function() {
 				new Root.Command('gets-a-parent-afterwards').setParent({});
 			});
 		});
-
-		it('throws if not found', function () {
-			assert.throws(function () {
-				app.request(['1a', 'nonexistant', 'blaat']);
-			});
-		});
 	});
 
 	describe('root', function () {

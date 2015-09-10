@@ -6,6 +6,7 @@ function Command(name, controller) {
 	this.parameters = [];
 
 	this._controller = controller;
+	this._preControllers = [];
 }
 
 /**
@@ -25,15 +26,25 @@ Command.prototype.toJSON = function () {
  * @returns {Promise}
  */
 Command.prototype.execute = function () {
+	var args = arguments;
+	var resolve = this.getLineage()
+		.reduce(function (preControllers, command) {
+			if(command.hasPreControllers())
+				return preControllers.concat(command._preControllers);
+			return preControllers;
+		}, [])
+		.reduce(function (res, preController) {
+			return res.then(function () {
+				return preController.apply(null, args);
+			});
+		}, q.resolve());
+
 	if (!this.hasController())
-		return q.resolve();
+		return resolve;
 
-	var response = this._controller.apply(null, arguments);
-
-	if (!isPromised(response))
-		return q.resolve(response);
-
-	return response;
+	return resolve.then(function () {
+		return this._controller.apply(null, args);
+	}.bind(this));
 };
 
 /**
@@ -154,6 +165,14 @@ Command.prototype.addDescription = function (description) {
 Command.prototype.hasController = function () {
 	return typeof this._controller === 'function';
 };
+Command.prototype.hasPreControllers = function () {
+	return this._preControllers.length;
+};
+Command.prototype.addPreController = function (cb) {
+	this._preControllers.push(cb);
+
+	return this;
+}
 /**
  * Describe an option
  * @param {String} long - The identifying name of this option
