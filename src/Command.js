@@ -34,15 +34,19 @@ Command.prototype.execute = function () {
 			return preControllers;
 		}, [])
 		.reduce(function (res, preController) {
-			return res.then(function () {
+			return res.then(function (previousVal) {
+				if(previousVal === false)
+					return previousVal;
 				return preController.apply(null, args);
 			});
-		}, q.resolve());
+		}, q.resolve(true));
 
 	if (!this.hasController())
 		return resolve;
 
-	return resolve.then(function () {
+	return resolve.then(function (previousVal) {
+		if(previousVal === false)
+			return previousVal;
 		return this._controller.apply(null, args);
 	}.bind(this));
 };
