@@ -144,8 +144,11 @@ Command.prototype.getParent = function () {
 	return this.parent;
 };
 
-// wether or not all succeeding route words are swallowed by this command, meaning
-// traversing into a tree stops at this node.
+/**
+ * Mark the command to stop traversing into it's children, effectively swallowing all following route words
+ * @param {boolean} isGreedy
+ * @returns {Command}
+ */
 Command.prototype.isGreedy = function (isGreedy) {
 	this.greedy = isGreedy === undefined ? true : !!isGreedy;
 
@@ -154,29 +157,54 @@ Command.prototype.isGreedy = function (isGreedy) {
 
 // wether or not request options that are not described with addOption() are normalized
 // away in normalizeOptions()
+
+/**
+ * Mark the command to parse undocumented options to the request object
+ * @param {boolean} isHungry
+ * @returns {Command}
+ */
 Command.prototype.isHungry = function (isHungry) {
 	this.hungry = isHungry === undefined ? true : !!isHungry;
 
 	return this;
 };
 
+/**
+ *
+ * @param {String} description
+ * @returns {Command}
+ */
 Command.prototype.addDescription = function (description) {
 	this.description = description;
 
 	return this;
 };
 
+/**
+ * @returns {boolean}
+ */
 Command.prototype.hasController = function () {
 	return typeof this._controller === 'function';
 };
+
+/**
+ * @returns {boolean}
+ */
 Command.prototype.hasPreControllers = function () {
 	return this._preControllers.length;
 };
+
+/**
+ * Add a controller function that is ran before its own controller, or any of it's descendants controller
+ * @param cb
+ * @returns {Command}
+ */
 Command.prototype.addPreController = function (cb) {
 	this._preControllers.push(cb);
 
 	return this;
-}
+};
+
 /**
  * Describe an option
  * @param {String} long - The identifying name of this option
@@ -188,7 +216,7 @@ Command.prototype.addPreController = function (cb) {
 Command.prototype.addOption = function (long, short, description, required) {
 
 	// Combat programmers who are goofing around
-	if (this.options.length && this.options.some(function (opt) {
+	if (this.getAllOptions().some(function (opt) {
 		return opt.long === long || (short && short === opt.short);
 	}))
 		throw new Error('Already an option with either this long "' + long + '" or short  "' + short + '"');
@@ -246,6 +274,10 @@ Command.prototype.addCommand = function (name, controller) {
 	return child;
 };
 
+/**
+ * Get options for itself and all ancestors
+ * @returns {*}
+ */
 Command.prototype.getAllOptions = function () {
 	return this.getLineage().reduce(function (allOptions, command) {
 		return allOptions.concat(command.options);
