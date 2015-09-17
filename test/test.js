@@ -12,11 +12,15 @@ var command1a = app.addCommand('1a'),
 	command1c = app.addCommand('1c', function (req) {
 		return req.options;
 	})
-		.addOption('option1', 'a', 'Option 1/A', true)
-		.addOption('option2', 'b', 'Option 2/B (required)', true),
+		.addOption('option1', 'a', 'Option 1/A', true).next()
+		.addOption('option2', 'b', 'Option 2/B (required)', true)
+			.addValidator(function cannotContainXyz(value) {
+				if(value.indexOf('xyz') >= 0)
+					throw new Error('Your option contains the last three letters of the alphabet, bad omen!');
+			}).next(),
 
 	command1d = app.addCommand('1d')
-		.addOption('parent', 'p', 'Parent option', true),
+		.addOption('parent', 'p', 'Parent option', true).next(),
 
 	command1e = app.addCommand('1e', function () {
 		return req.parameters;
@@ -24,14 +28,14 @@ var command1a = app.addCommand('1a'),
 		.addParameter('param1', 'Parameter 1');
 
 var command2a = command1d.addCommand('2a')
-		.addOption('long', 's', 'LONG and Short option')
+		.addOption('long', 's', 'LONG and Short option').next()
 		.isHungry(),
 	command2b = command1e.addCommand('2b')
 		.addParameter('param2', 'Parameter 2')
 		.isGreedy();
 
 var command3a = command2b.addCommand('3a')
-	.addParameter('param3', 'Parameter 3')
+	.addParameter('param3', 'Parameter 3', true)
 	.isGreedy();
 
 describe('ask-nicely', function() {
@@ -187,17 +191,6 @@ describe('ask-nicely', function() {
 			assert.strictEqual(opts.long, 'overwrite');
 			assert.strictEqual(opts.random, 'kept');
 		});
-
-		it('can not redeclare options', function () {
-			assert.throws(function () {
-				command1c.addOption('option1', 'X');
-			}, 'if longname is already in use');
-
-			assert.throws(function () {
-				command1c.addOption('unique', 'a');
-			}, 'if shortname is already in use');
-
-		});
 	});
 
 	describe('parameters', function () {
@@ -224,6 +217,11 @@ describe('ask-nicely', function() {
 			assert.strictEqual(request.parameters._[0], '3a', 'param3value', 'crap');
 		});
 
+		it('can be configured with custom validators', function () {
+			assert.throws(function () {
+				app.request(['1c'], { a: 'whatever', b: 'containsxyz'}).validate();
+			});
+		});
 	});
 
 	describe('input()', function () {

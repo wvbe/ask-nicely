@@ -28,7 +28,7 @@ A "command" is basically the description of a controller and the options/paramet
 var flight = api.addCommand('flight');
 
 // Register a description, may be used in generating help files
-flight.addDescription('Various flight-related actions');
+flight.setDescription('Various flight-related actions');
 
 // Register a parameter (which is parsed from the route)
 flight.addParameter('code', 'The flight number');

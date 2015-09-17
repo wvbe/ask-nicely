@@ -1,4 +1,5 @@
-var q = require('q');
+var q = require('q'),
+	RequestData = require('./RequestData');
 
 function Command(name, controller) {
 	this.name = name;
@@ -53,15 +54,12 @@ Command.prototype.execute = function () {
 
 /**
  * Throws an error if an option invalidates a Request to execute
- * @param {Object} options
+ * @param {Object} optionValues
  * @returns {boolean} If it doesnt throw, it returns TRUE
  */
-Command.prototype.validateOptions = function (options) {
-	this.getAllOptions().forEach(function (option) {
-		if (option.required && options[option.long] === undefined)
-			// Not just programmers may get this error, thus make a human speech effort
-			// @TODO: Do that
-			throw new Error('Wrong argument, option "'+option.long+'" can not be undefined.');
+Command.prototype.validateOptions = function (optionValues) {
+	this.getAllOptions().forEach(function (optionSpec) {
+		return optionSpec.validate(optionValues[optionSpec.name]);
 	});
 
 	return true;
@@ -170,7 +168,7 @@ Command.prototype.isHungry = function (isHungry) {
  * @param {String} description
  * @returns {Command}
  */
-Command.prototype.addDescription = function (description) {
+Command.prototype.setDescription = function (description) {
 	this.description = description;
 
 	return this;
@@ -210,19 +208,18 @@ Command.prototype.addPreController = function (cb) {
  * @returns {Command}
  */
 Command.prototype.addOption = function (long, short, description, required) {
-	if (this.getAllOptions().some(function (opt) {
-		return opt.long === long || (short && short === opt.short);
-	}))
-		throw new Error('Already an option with either this long "' + long + '" or short  "' + short + '"');
+	var isNewApi = !!(long instanceof RequestData),
+		option = (isNewApi
+				? long
+				: new RequestData(long)
+					.setShort(short)
+					.setDescription(description)
+					.setRequired(required)
+			).forCommand(this);
 
-	this.options.push({
-		long: long,
-		short: short,
-		description: description,
-		required: !!required
-	});
+	this.options.push(option);
 
-	return this;
+	return option;
 };
 
 /**

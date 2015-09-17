@@ -198,18 +198,18 @@ Request.prototype.parseOptions = function (command, dirty) {
 	// Check each described option
 	command.getAllOptions().forEach(function (option) {
 		// Using the long name for an option makes the short options redundant. This avoids ordering problems
-		if (dirty[option.long] !== undefined)
-			clean[option.long] = Array.isArray(dirty[option.long]) ? dirty[option.long] : [dirty[option.long]];
+if (dirty[option.name] !== undefined)
+			clean[option.name] = Array.isArray(dirty[option.name]) ? dirty[option.name] : [dirty[option.name]];
 		else if (dirty[option.short] !== undefined)
-			clean[option.long] = Array.isArray(dirty[option.short]) ? dirty[option.short] : [dirty[option.short]];
+			clean[option.name] = Array.isArray(dirty[option.short]) ? dirty[option.short] : [dirty[option.short]];
 
 		// If not looking for unknown options, return from forEach
 		if (!allowUnknownOptions)
 			return;
 
 		// If longname is marked as dirty, unmark because we've cleaned it
-		if (dirtyKeys.indexOf(option.long) >= 0)
-			dirtyKeys.splice(dirtyKeys.indexOf(option.long), 1);
+		if (dirtyKeys.indexOf(option.name) >= 0)
+			dirtyKeys.splice(dirtyKeys.indexOf(option.name), 1);
 
 		// If option has a shortname, and it is marked dirty, unmark
 		if (option.short && dirtyKeys.indexOf(option.short) >= 0)
