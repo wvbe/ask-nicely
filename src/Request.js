@@ -1,5 +1,11 @@
 var q = require('q');
 
+/**
+ * @param {String} root
+ * @param {Array.<String>} [route]
+ * @param {Object} [options]
+ * @constructor
+ */
 function Request(root, route, options) {
 	try {
 		// The command that this request is for
@@ -18,6 +24,12 @@ function Request(root, route, options) {
 	}
 }
 
+/**
+ * Create a request object for a descendant command specified with query pieces (argv)
+ * @param root
+ * @param pieces
+ * @returns {Request}
+ */
 Request.fromInput = function (root, pieces) {
 	var options = {},
 		route = [],
@@ -76,7 +88,9 @@ Request.fromInput = function (root, pieces) {
 	return new Request(root, route, options);
 };
 
-
+/**
+ * Validate all there is to validate. Expected to throw an error if some shit fails.
+ */
 Request.prototype.validate = function() {
 	this.command.validateOptions(this.options);
 };
@@ -138,8 +152,6 @@ Request.prototype.parseRoute = function (parentCommand, route, returnClosestMatc
 	return parentCommand;
 };
 
-
-
 /**
  * Parses parameters interleaved in this command's route path, mapping the parameter values
  * into an object using the param configuration.
@@ -169,7 +181,12 @@ Request.prototype.parseParameters = function (root, route) {
 	return parameters;
 };
 
-
+/**
+ * Parses values from option flags. An option may contain one or more value, and/or may be given twice
+ * @param command
+ * @param dirty
+ * @returns {{}}
+ */
 Request.prototype.parseOptions = function (command, dirty) {
 	if (!dirty)
 		return {};
@@ -219,13 +236,13 @@ Request.prototype.parseOptions = function (command, dirty) {
 };
 
 /**
- *
+ * Execute command controller, or reject if errors were found
+ * @param {*} ... Zero or many arguments to pass on to controller
  * @returns {Promise}
  */
 Request.prototype.execute = function() {
 	if (this.error)
 		return q.reject(this.error);
-	// Expected to throw an error when execution is prevented by option errors
 
 	// Call the Command execute() method with this request as first argument,
 	// and whatever other arguments there are after that.

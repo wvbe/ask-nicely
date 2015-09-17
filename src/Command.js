@@ -155,9 +155,6 @@ Command.prototype.isGreedy = function (isGreedy) {
 	return this;
 };
 
-// wether or not request options that are not described with addOption() are normalized
-// away in normalizeOptions()
-
 /**
  * Mark the command to parse undocumented options to the request object
  * @param {boolean} isHungry
@@ -170,7 +167,6 @@ Command.prototype.isHungry = function (isHungry) {
 };
 
 /**
- *
  * @param {String} description
  * @returns {Command}
  */
@@ -207,15 +203,13 @@ Command.prototype.addPreController = function (cb) {
 
 /**
  * Describe an option
- * @param {String} long - The identifying name of this option
- * @param {String} [short] - A one-character alias of this option
+ * @param {String} long - The identifying name of this option, unique for its ancestry
+ * @param {String} [short] - A one-character alias of this option, unique for its ancestry
  * @param {String} [description]
  * @param {Boolean} [required] - If true, an omittance would throw an error
  * @returns {Command}
  */
 Command.prototype.addOption = function (long, short, description, required) {
-
-	// Combat programmers who are goofing around
 	if (this.getAllOptions().some(function (opt) {
 		return opt.long === long || (short && short === opt.short);
 	}))
@@ -259,8 +253,6 @@ Command.prototype.addCommand = function (name, controller) {
 
 	var child = name instanceof Command ? name : new Command(name, controller);
 
-
-
 	if (this.children && this.children[child.name])
 		throw Error('Child command "' + name + '" already exists, cannot be re-registered.');
 
@@ -295,9 +287,7 @@ function isPromised(promise) {
 		return false;
 	if (!promise.finally || typeof promise.finally !== 'function')
 		return false;
-
 	return true;
 }
-
 
 module.exports = Command;
