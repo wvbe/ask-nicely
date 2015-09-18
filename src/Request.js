@@ -93,6 +93,7 @@ Request.fromInput = function (root, pieces) {
  */
 Request.prototype.validate = function() {
 	this.command.validateOptions(this.options);
+	this.command.validateParameters(this.parameters);
 };
 
 /**
@@ -161,7 +162,7 @@ Request.prototype.parseRoute = function (parentCommand, route, returnClosestMatc
  */
 Request.prototype.parseParameters = function (root, route) {
 	var indexRoute = 0,
-		parameters = root.getLineage().reduce(function (parameters, command, index) {
+		parameters = root.getLineage().reduce(function (parameters, command) {
 			if(command.parent)
 				++indexRoute;
 

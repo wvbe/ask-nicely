@@ -1,7 +1,12 @@
-var assert = require('assert');
-
-var Root = require('../Root'),
+var assert = require('assert'),
+	Root = require('../Root'),
 	app = new Root();
+
+
+function cannotContainXyz(errCode, value) {
+	if(typeof value === 'string' && value.indexOf('xyz') >= 0)
+		throw new Error(errCode);
+}
 
 var command1a = app.addCommand('1a'),
 
@@ -9,34 +14,36 @@ var command1a = app.addCommand('1a'),
 
 	}).isHungry(),
 
-	command1c = app.addCommand('1c', function (req) {
-		return req.options;
-	})
-		.addOption('option1', 'a', 'Option 1/A', true).next()
-		.addOption('option2', 'b', 'Option 2/B (required)', true)
-			.addValidator(function cannotContainXyz(value) {
-				if(value.indexOf('xyz') >= 0)
-					throw new Error('Your option contains the last three letters of the alphabet, bad omen!');
-			}).next(),
-
 	command1d = app.addCommand('1d')
 		.addOption('parent', 'p', 'Parent option', true).next(),
 
 	command1e = app.addCommand('1e', function () {
 		return req.parameters;
 	})
-		.addParameter('param1', 'Parameter 1');
+		.addParameter('param1', 'Parameter 1').next();
 
 var command2a = command1d.addCommand('2a')
 		.addOption('long', 's', 'LONG and Short option').next()
 		.isHungry(),
 	command2b = command1e.addCommand('2b')
-		.addParameter('param2', 'Parameter 2')
+		.addParameter('param2', 'Parameter 2').next()
 		.isGreedy();
 
-var command3a = command2b.addCommand('3a')
-	.addParameter('param3', 'Parameter 3', true)
+command2b.addCommand('3a')
+	.addParameter('param3', 'Parameter 3').next()
 	.isGreedy();
+
+app.addCommand('1c', function (req) {
+	return req.options;
+})
+	.addOption('option1', 'a', 'Option 1/A', true).next()
+	.addOption('option2', 'b', 'Option 2/B (required)', true)
+	.addValidator(cannotContainXyz.bind(null, 'option-validator')).next();
+app.addCommand('1f')
+	.addParameter('derp', 'Required', cannotContainXyz.bind(null, 'parameter-validator'))
+		.next()
+	.addCommand('2c')
+		.addParameter('nerf', 'Also required', true).next();
 
 describe('ask-nicely', function() {
 	describe('hierarchy', function () {
@@ -53,7 +60,7 @@ describe('ask-nicely', function() {
 		it('root contains all the top-level commands', function () {
 			assert.strictEqual(
 				app.listCommands().length,
-				5
+				6
 			);
 		});
 
@@ -62,7 +69,7 @@ describe('ask-nicely', function() {
 				app.listCommands().reduce(function (childCommands, parentCommand) {
 					return childCommands.concat(parentCommand.listCommands())
 				}, []).length,
-				2
+				3
 			);
 		});
 
@@ -112,7 +119,7 @@ describe('ask-nicely', function() {
 
 	describe('root', function () {
 		var newRoot = new Root()
-			.addParameter('rootparam');
+			.addParameter('rootparam').next();
 		newRoot.addCommand('child');
 		var newRequest = newRoot.request(['rootparamvalue', 'child']);
 
@@ -191,6 +198,13 @@ describe('ask-nicely', function() {
 			assert.strictEqual(opts.long, 'overwrite');
 			assert.strictEqual(opts.random, 'kept');
 		});
+
+
+		it('can be configured with custom validators', function () {
+			assert.throws(function () {
+				app.request(['1c'], { a: 'whatever', b: 'containsxyz'}).validate();
+			}, function (err) { return err.message === 'option-validator'; });
+		});
 	});
 
 	describe('parameters', function () {
@@ -219,13 +233,12 @@ describe('ask-nicely', function() {
 
 		it('can be configured with custom validators', function () {
 			assert.throws(function () {
-				app.request(['1c'], { a: 'whatever', b: 'containsxyz'}).validate();
-			});
+				app.request(['1f', 'nerfxyz']).validate();
+			}, function (err) { return err.message === 'parameter-validator'; });
 		});
 	});
 
 	describe('input()', function () {
-
 		function compareInput(stringInput, route, options) {
 				var inputRequest = app.interpret(stringInput);
 				assert.deepEqual(

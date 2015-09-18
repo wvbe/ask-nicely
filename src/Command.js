@@ -65,6 +65,14 @@ Command.prototype.validateOptions = function (optionValues) {
 	return true;
 };
 
+Command.prototype.validateParameters = function (paramValue) {
+	this.getAllParameters().forEach(function (paramSpec) {
+		return paramSpec.validate(paramValue[paramSpec.name]);
+	});
+
+	return true;
+};
+
 /**
  * Produce an array of child commands
  * @returns {Array}
@@ -223,18 +231,23 @@ Command.prototype.addOption = function (long, short, description, required) {
 };
 
 /**
- * Describes a parameter
+ * Describes a parameter. Notice tat if a command has child commands, *required is implied for all ancestor parameters
+ * (and child cmd names will be mistaken for parameters if some is missing)
  * @param {String} name
  * @param {String} [description]
  */
-Command.prototype.addParameter = function (name, description) {
-	this.parameters.push({
-		name: name,
-		description: description
-		//required: required
-	});
+Command.prototype.addParameter = function (name, description, required) {
+	var isNewApi = !!(name instanceof RequestData),
+		parameter = (isNewApi
+				? name
+				: new RequestData(name)
+				.setDescription(description)
+				.setRequired(required)
+		).forCommand(this);
 
-	return this;
+	this.parameters.push(parameter);
+
+	return parameter;
 };
 
 /**
@@ -263,13 +276,15 @@ Command.prototype.addCommand = function (name, controller) {
 	return child;
 };
 
-/**
- * Get options for itself and all ancestors
- * @returns {*}
- */
 Command.prototype.getAllOptions = function () {
 	return this.getLineage().reduce(function (allOptions, command) {
 		return allOptions.concat(command.options);
+	}, []);
+};
+
+Command.prototype.getAllParameters = function () {
+	return this.getLineage().reduce(function (allParameters, command) {
+		return allParameters.concat(command.parameters);
 	}, []);
 };
 

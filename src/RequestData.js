@@ -9,6 +9,7 @@ RequestData.prototype.setDescription = function (description) {
 	this.description = description;
 	return this;
 };
+
 RequestData.prototype.setShort = function (short) {
 	this.short = short;
 	return this;
@@ -43,8 +44,13 @@ RequestData.prototype.forCommand = function (command) {
 };
 
 RequestData.prototype.validate = function (value) {
-	if (this.required && value === undefined)
+	if (this.required && value === undefined) {
 		throw new Error('Wrong argument, option "' + this.name + '" can not be undefined.');
+	}
+	else if(!this.required && value === undefined) {
+		// Skip other validators because we already have a certainly valid situation
+		return;
+	}
 
 	this.validators.forEach(function (validator) {
 		validator(value);
