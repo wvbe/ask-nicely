@@ -8,42 +8,68 @@ function cannotContainXyz(errCode, value) {
 		throw new Error(errCode);
 }
 
-var command1a = app.addCommand('1a'),
+app
+	.addCommand('1a')
+		.getParent()
 
-	command1b = app.addCommand('1b', function () {
+	.addCommand('1b')
+		.isHungry()
+		.getParent()
 
-	}).isHungry(),
+	.addCommand('1c', function (req) {
+		return req.options;
+	})
+		.addOption('option1', 'a', 'Option 1/A (required)', true)
+			.next()
+		.addOption('option2', 'b', 'Option 2/B (required)', true)
+			.addValidator(cannotContainXyz.bind(null, 'option-validator'))
+			.next()
+		.addOption('option3', 'c', 'Option 3/C (not required)', false)
+			.addValidator(cannotContainXyz.bind(null, 'option-validator'))
+			.next()
+		.getParent()
 
-	command1d = app.addCommand('1d')
-		.addOption('parent', 'p', 'Parent option', true).next(),
+	.addCommand('1d')
+		.addOption('parent', 'p', 'Parent option', true)
+			.next()
 
-	command1e = app.addCommand('1e', function () {
+		.addCommand('2a')
+			.isHungry()
+			.addOption('long', 's', 'LONG and Short option')
+				.next()
+			.getParent()
+
+		.getParent()
+
+	.addCommand('1e', function () {
 		return req.parameters;
 	})
-		.addParameter('param1', 'Parameter 1').next();
+		.addParameter('param1', 'Parameter 1')
+			.next()
 
-var command2a = command1d.addCommand('2a')
-		.addOption('long', 's', 'LONG and Short option').next()
-		.isHungry(),
-	command2b = command1e.addCommand('2b')
-		.addParameter('param2', 'Parameter 2').next()
-		.isGreedy();
+		.addCommand('2b')
+			.isGreedy()
+			.addParameter('param2', 'Parameter 2')
+				.next()
+			.addCommand('3a')
+				.isGreedy()
+				.addParameter('param3', 'Parameter 3')
+					.next()
+				.getParent()
 
-command2b.addCommand('3a')
-	.addParameter('param3', 'Parameter 3').next()
-	.isGreedy();
+			.getParent()
 
-app.addCommand('1c', function (req) {
-	return req.options;
-})
-	.addOption('option1', 'a', 'Option 1/A', true).next()
-	.addOption('option2', 'b', 'Option 2/B (required)', true)
-	.addValidator(cannotContainXyz.bind(null, 'option-validator')).next();
-app.addCommand('1f')
-	.addParameter('derp', 'Required', cannotContainXyz.bind(null, 'parameter-validator'))
-		.next()
-	.addCommand('2c')
-		.addParameter('nerf', 'Also required', true).next();
+		.getParent()
+
+	.addCommand('1f')
+		.addParameter('derp', 'Required', cannotContainXyz.bind(null, 'parameter-validator'))
+			.next()
+		.addCommand('2c')
+			.addParameter('nerf', 'Also required', true)
+				.next()
+;
+
+console.log(app.children);
 
 describe('ask-nicely', function() {
 	describe('hierarchy', function () {
@@ -81,18 +107,18 @@ describe('ask-nicely', function() {
 
 		it('can be traversed up and down', function () {
 			assert.strictEqual(
-				command1a
+				app.interpret('1a').command
 					.getParent()
 					.getCommandByName('1b'),
-				command1b
+				app.interpret('1b').command
 			);
 		});
 
 		it('can be traversed with an array path', function () {
 			// Regular (from Root). Notice how Root is not named, which is why it doesnt need a name either
 			assert.strictEqual(
-				app.request(['1e', 'param1value', '2b', 'param2value', 'also', 'it', 'is', 'greedy']).command,
-				command2b
+				app.request(['1e', 'param1value', '2b', 'param2value', 'also', 'it', 'is', 'greedy']).command.name,
+				'2b'
 			);
 		});
 
@@ -105,9 +131,10 @@ describe('ask-nicely', function() {
 		});
 
 		it('children have parents have parents', function () {
-			var lineage = command2a.getLineage();
+			var command = app.interpret('1d 2a').command,
+				lineage = command.getLineage();
 			assert.strictEqual(lineage[0], app, 'Includes the root command as first array item');
-			assert.strictEqual(lineage.indexOf(command2a), lineage.length - 1, 'Include itself at the end');
+			assert.strictEqual(lineage.indexOf(command), lineage.length - 1, 'Include itself at the end');
 		});
 
 		it('parent must be instanceof Command', function () {
@@ -117,24 +144,11 @@ describe('ask-nicely', function() {
 		});
 	});
 
-	describe('root', function () {
-		var newRoot = new Root()
-			.addParameter('rootparam').next();
-		newRoot.addCommand('child');
-		var newRequest = newRoot.request(['rootparamvalue', 'child']);
-
-		it('would transclude parameters to every child command', function () {
-			assert.strictEqual(newRequest.command.name, 'child'); // CHeck we did indeed find the right command
-			assert.strictEqual(newRequest.parameters.rootparam, 'rootparamvalue'); // CHeck parameter value
-		})
-	});
-
-
 	describe('options', function () {
 		var requestOptions = app.request(['1c'], {
 				a: true,
 				b: true,
-				c: true,
+				setherhrj: true,
 				'option1': 'priority'
 			}).options,
 			returnError;
@@ -202,7 +216,7 @@ describe('ask-nicely', function() {
 
 		it('can be configured with custom validators', function () {
 			assert.throws(function () {
-				app.request(['1c'], { a: 'whatever', b: 'containsxyz'}).validate();
+				app.request(['1c'], { a: 'whatever', b: 'containsxyz', c: undefined }).validate();
 			}, function (err) { return err.message === 'option-validator'; });
 		});
 	});
@@ -213,12 +227,12 @@ describe('ask-nicely', function() {
 		it('parses parameters up till and including the first greedy command', function () {
 			assert.strictEqual(request.parameters.param2, 'param2value');
 			assert.strictEqual(request.parameters.param3, undefined);
-			assert.strictEqual(request.command, command2b, '3a command should not be reachable');
+			assert.strictEqual(request.command.name, '2b', '3a command should not be reachable');
 		});
 
 		// @TODO: Might have to do something about this
 		it('greedy commands exclude reachable child commands', function () {
-			assert.strictEqual(request.command, command2b);
+			assert.strictEqual(request.command.name, '2b');
 		});
 
 		it('include parent command parameters', function () {

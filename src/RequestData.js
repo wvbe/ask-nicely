@@ -57,7 +57,9 @@ RequestData.prototype.validate = function (value) {
 	});
 };
 RequestData.prototype.next = function () {
-	return this._cmd;
+	var cmd = this._cmd;
+	this._cmd = null;
+	return cmd;
 };
 
 module.exports = RequestData;
