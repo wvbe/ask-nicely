@@ -222,12 +222,12 @@ Command.prototype.addOption = function (long, short, description, required) {
 				: new RequestData(long)
 					.setShort(short)
 					.setDescription(description)
-					.setRequired(required)
+					.isRequired(required)
 			).forCommand(this);
 
 	this.options.push(option);
 
-	return option;
+	return this;
 };
 
 /**
@@ -242,12 +242,12 @@ Command.prototype.addParameter = function (name, description, required) {
 				? name
 				: new RequestData(name)
 				.setDescription(description)
-				.setRequired(required)
+				.isRequired(required)
 		).forCommand(this);
 
 	this.parameters.push(parameter);
 
-	return parameter;
+	return this;
 };
 
 /**

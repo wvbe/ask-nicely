@@ -19,7 +19,7 @@ RequestData.prototype.setShort = function (short) {
  * @param {boolean|Function} required - If this is a function, acts as a short-hand for addValidator() as well
  * @returns {RequestData}
  */
-RequestData.prototype.setRequired = function (required) {
+RequestData.prototype.isRequired = function (required) {
 	this.required = !!required;
 
 	return (typeof required === 'function')

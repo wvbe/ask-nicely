@@ -7,29 +7,28 @@ function optionTestCommand (request) {
 }
 
 root.addCommand('test', optionTestCommand)
-	.addParameter('derp', 'Ja!', false)
+	.addParameter(new root.RequestData('derp')
+		.setDescription('Ja!')
 		.addValidator(function (val) {
 			if(val.indexOf('x') >= 0)
 				throw new Error('derp parameter cannot contain x')
-		})
-		.next()
+		}))
 	.setDescription('Test command which only dumps OPTION information')
 	.addOption('alpha')
 		.setDescription('Regular option (like the old API one)')
-		.setRequired(true)
+		.isRequired(true)
 		.setShort('a')
 		.next()
-	.addOption('beta')
+	.addOption(new root.RequestData('beta')
 		.setDescription('An option that must contain "x" and cannot contain "y"')
-		.setRequired(function checkIfIsAwesome (value) {
+		.isRequired(function checkIfIsAwesome (value) {
 			if (value.indexOf('x') === -1)
 				throw new Error('Your option must contain the letter "x"')
 		})
 		.addValidator(function anotherRandomCheck (value) {
 			if (value.indexOf('y') >= 0)
 				throw new Error('Your option cannot contain a "y"');
-		})
-		.next()
+		}))
 	.addCommand('test2')
 		.addParameter('harr', 'nerf', true);
 	;

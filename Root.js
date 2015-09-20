@@ -1,4 +1,5 @@
 var Request = require('./src/Request'),
+	RequestData = require('./src/RequestData'),
 	Command = require('./src/Command');
 
 /**
@@ -12,6 +13,8 @@ var Request = require('./src/Request'),
  */
 function Root (name, controller) {
 	Command.call(this, name, controller);
+
+	this.RequestData = RequestData;
 }
 
 Root.prototype = Object.create(Command.prototype);
@@ -26,5 +29,7 @@ Root.prototype.interpret = function (pieces) {
 };
 
 module.exports = Root;
+
 module.exports.Command = Command;
 module.exports.Request = Request;
+module.exports.RequestData = RequestData;

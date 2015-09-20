@@ -92,6 +92,8 @@ Request.fromInput = function (root, pieces) {
  * Validate all there is to validate. Expected to throw an error if some shit fails.
  */
 Request.prototype.validate = function() {
+	if(!this.command)
+		throw new Error('Command does not exist');
 	this.command.validateOptions(this.options);
 	this.command.validateParameters(this.parameters);
 };
