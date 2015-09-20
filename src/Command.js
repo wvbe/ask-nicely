@@ -65,12 +65,34 @@ Command.prototype.validateOptions = function (optionValues) {
 	return true;
 };
 
-Command.prototype.validateParameters = function (paramValue) {
+Command.prototype.validateParameters = function (paramValues) {
 	this.getAllParameters().forEach(function (paramSpec) {
-		return paramSpec.validate(paramValue[paramSpec.name]);
+		return paramSpec.validate(paramValues[paramSpec.name]);
 	});
 
 	return true;
+};
+
+function resolveRequestData (specs, values) {
+	return q.all(specs
+		.map(function (spec) {
+			return spec.resolver
+				? spec.resolver(values[spec.name])
+				: values[spec.name];
+		}))
+		.then(function (resolvedOptionValues) {
+			specs.forEach(function (spec, i) {
+				values[spec.name] = resolvedOptionValues[i];
+			});
+			return values;
+		});
+}
+Command.prototype.resolveOptions = function (optionValues) {
+	return resolveRequestData(this.getAllOptions(), optionValues);
+};
+
+Command.prototype.resolveParameters = function (paramValues) {
+	return resolveRequestData(this.getAllParameters(), paramValues);
 };
 
 /**

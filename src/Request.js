@@ -16,9 +16,6 @@ function Request(root, route, options) {
 
 		// Values to the Command.options definition
 		this.options = this.parseOptions(this.command, options);
-
-		// See if it all makes sense
-		this.validate();
 	} catch (error) {
 		this.error = error;
 	}
@@ -247,15 +244,27 @@ Request.prototype.execute = function() {
 	if (this.error)
 		return q.reject(this.error);
 
-	// Call the Command execute() method with this request as first argument,
-	// and whatever other arguments there are after that.
 	var args = arguments;
-	return this.command.execute.apply(
-		this.command,
-		[this].concat(Object.keys(args).map(function (argName) {
-			return args[argName];
-		}))
-	);
+
+	return q.all([
+			this.command.resolveOptions(this.options),
+			this.command.resolveParameters(this.parameters)
+		])
+		.then(function (resolvedInput) {
+			this.options = resolvedInput[0];
+			this.parameters = resolvedInput[1];
+			this.validate();
+		}.bind(this))
+		.then(function () {
+			// Call the Command execute() method with this request as first argument,
+			// and whatever other arguments there are after that.
+			return this.command.execute.apply(
+				this.command,
+				[this].concat(Object.keys(args).map(function (argName) {
+					return args[argName];
+				}))
+			);
+		}.bind(this));
 };
 
 module.exports = Request;

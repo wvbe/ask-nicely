@@ -31,6 +31,10 @@ RequestData.prototype.addValidator = function (validator) {
 	this.validators.push(validator);
 	return this;
 };
+RequestData.prototype.setResolver = function (resolver) {
+	this.resolver = resolver;
+	return this;
+};
 
 // RequestData#setNumeric()
 // RequestData#alwaysAsPrimitive()
