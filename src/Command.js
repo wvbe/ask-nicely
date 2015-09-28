@@ -1,25 +1,60 @@
 var q = require('q'),
-	RequestData = require('./RequestData');
+
+	NamedSyntaxPart = require('./NamedSyntaxPart'),
+	Option = require('./Option'),
+	Parameter= require('./Parameter');
+
+function arrayFind(parts, cb) {
+	for(var i = 0; i<parts.length; ++i) {
+		if(cb(parts[i], i, parts))
+			return parts[i];
+	}
+}
 
 function Command(name, controller) {
+	NamedSyntaxPart.call(this);
+
 	this.name = name;
+	this.children = [];
 	this.options = [];
 	this.parameters = [];
 
-	this._controller = controller;
-	this._preControllers = [];
+	this.controller = controller;
+	this.preControllers = [];
 }
 
-/**
- * Override serialization method to avoid circulatory bullshit. Produces something like "jetpack start",
- * reflecting the hierarchical path. Route parameters are seperated by a space
- * since this character has the same reserved status in terminals. Does not include parameters.
- * @TODO: Include parameter names, like "jetpack approach {destination}"
- * @returns {String}
- */
-Command.prototype.toJSON = function () {
-	return this.getRoute().join(' ');
+Command.prototype = Object.create(NamedSyntaxPart.prototype);
+Command.prototype.constructor = Command;
+
+Command.prototype.match = function (value) {
+	return !!this.getCommandByName(value);
 };
+
+Command.prototype.updateTiersAfterMatch = function (scopes, match) {
+	scopes.splice(scopes.indexOf(this), 1);
+
+	if(match instanceof Command) {
+		scopes.splice.apply(scopes, [0, 0].concat(match.parameters).concat(match));
+		scopes._.splice.apply(scopes._, [0, 0].concat(match.options));
+	}
+
+	return scopes;
+};
+
+// doe er iets mee, geef descendants wat over blijft
+// is executed before validate()
+Command.prototype.spliceInputFromParts = function (parts) {
+	return this.getCommandByName(parts.shift());
+};
+
+
+
+
+Command.prototype.exportWithInput = function (request, value) {
+	if(value)
+		request.command = value;
+};
+
 
 /**
  * Execute the controller and makes sure it's output is returned as something that can be "thenned".
@@ -27,11 +62,11 @@ Command.prototype.toJSON = function () {
  * @returns {Promise}
  */
 Command.prototype.execute = function () {
-	var args = arguments;
+	var args = Array.prototype.slice.call(arguments);
 	var resolve = this.getLineage()
 		.reduce(function (preControllers, command) {
 			if(command.hasPreControllers())
-				return preControllers.concat(command._preControllers);
+				return preControllers.concat(command.preControllers);
 			return preControllers;
 		}, [])
 		.reduce(function (res, preController) {
@@ -48,51 +83,8 @@ Command.prototype.execute = function () {
 	return resolve.then(function (previousVal) {
 		if(previousVal === false)
 			return previousVal;
-		return this._controller.apply(null, args);
+		return this.controller.apply(null, args);
 	}.bind(this));
-};
-
-/**
- * Throws an error if an option invalidates a Request to execute
- * @param {Object} optionValues
- * @returns {boolean} If it doesnt throw, it returns TRUE
- */
-Command.prototype.validateOptions = function (optionValues) {
-	this.getAllOptions().forEach(function (optionSpec) {
-		return optionSpec.validate(optionValues[optionSpec.name]);
-	});
-
-	return true;
-};
-
-Command.prototype.validateParameters = function (paramValues) {
-	this.getAllParameters().forEach(function (paramSpec) {
-		return paramSpec.validate(paramValues[paramSpec.name]);
-	});
-
-	return true;
-};
-
-function resolveRequestData (specs, values) {
-	return q.all(specs
-		.map(function (spec) {
-			return spec.resolver
-				? spec.resolver(values[spec.name])
-				: values[spec.name];
-		}))
-		.then(function (resolvedOptionValues) {
-			specs.forEach(function (spec, i) {
-				values[spec.name] = resolvedOptionValues[i];
-			});
-			return values;
-		});
-}
-Command.prototype.resolveOptions = function (optionValues) {
-	return resolveRequestData(this.getAllOptions(), optionValues);
-};
-
-Command.prototype.resolveParameters = function (paramValues) {
-	return resolveRequestData(this.getAllParameters(), paramValues);
 };
 
 /**
@@ -100,9 +92,7 @@ Command.prototype.resolveParameters = function (paramValues) {
  * @returns {Array}
  */
 Command.prototype.listCommands = function () {
-	return this.children ? Object.keys(this.children).map(function (key) {
-		return this.children[key];
-	}.bind(this)) : [];
+	return this.children;
 };
 
 /**
@@ -111,87 +101,9 @@ Command.prototype.listCommands = function () {
  * @returns {Command|undefined}
  */
 Command.prototype.getCommandByName = function (name) {
-	return this.children ? this.children[name] : undefined;
-};
-
-
-/**
- * Returns an array starting at the Root, ending with the current Command and containing all Commands in between
- * @returns {Array<Command>}
- */
-Command.prototype.getLineage = function () {
-	var lineage = [],
-		self = this; // highest-level parents first, closest last
-	do {
-		lineage.unshift(self);
-	} while(self = self.getParent());
-
-	return lineage;
-};
-
-/**
- * Get an array of command names that leads up to the current command.
- * @returns {Array<String>}
- */
-Command.prototype.getRoute = function () {
-	return this.getLineage().reduce(function (route, ancestor) {
-		if(ancestor.getParent()) // in other words, if it is a root
-			route.push(ancestor.name);
-
-		if(ancestor.parameters.length)
-			route = route.concat(ancestor.parameters.map(function (param) {
-				return '{' + param.name + '}';
-			}));
-
-		return route;
-	}, []);
-};
-
-/**
- * Register another Command as it's parent
- * @note if used manually you might forget to register the command amongst it's parents children.
- * @todo rename to _setParent to denote its preferably internal use
- * @param {Command} command
- * @returns {Command} itself
- */
-Command.prototype.setParent = function (command) {
-	// Combat programmers who are goofing around
-	if (!(command instanceof Command))
-		throw new Error('Parent for "' + this.name + '" is of wrong type');
-
-	this.parent = command;
-
-	return this;
-};
-
-/**
- *
- * @returns {Command|undefined}
- */
-Command.prototype.getParent = function () {
-	return this.parent;
-};
-
-/**
- * Mark the command to stop traversing into it's children, effectively swallowing all following route words
- * @param {boolean} isGreedy
- * @returns {Command}
- */
-Command.prototype.isGreedy = function (isGreedy) {
-	this.greedy = isGreedy === undefined ? true : !!isGreedy;
-
-	return this;
-};
-
-/**
- * Mark the command to parse undocumented options to the request object
- * @param {boolean} isHungry
- * @returns {Command}
- */
-Command.prototype.isHungry = function (isHungry) {
-	this.hungry = isHungry === undefined ? true : !!isHungry;
-
-	return this;
+	return arrayFind(this.children, function (child) {
+		return child.name === name;
+	});
 };
 
 /**
@@ -208,14 +120,14 @@ Command.prototype.setDescription = function (description) {
  * @returns {boolean}
  */
 Command.prototype.hasController = function () {
-	return typeof this._controller === 'function';
+	return typeof this.controller === 'function';
 };
 
 /**
  * @returns {boolean}
  */
 Command.prototype.hasPreControllers = function () {
-	return this._preControllers.length;
+	return this.preControllers.length;
 };
 
 /**
@@ -224,7 +136,7 @@ Command.prototype.hasPreControllers = function () {
  * @returns {Command}
  */
 Command.prototype.addPreController = function (cb) {
-	this._preControllers.push(cb);
+	this.preControllers.push(cb);
 
 	return this;
 };
@@ -238,14 +150,14 @@ Command.prototype.addPreController = function (cb) {
  * @returns {Command}
  */
 Command.prototype.addOption = function (long, short, description, required) {
-	var isNewApi = !!(long instanceof RequestData),
+	var isNewApi = !!(long instanceof Option),
 		option = (isNewApi
 				? long
-				: new RequestData(long)
+				: new Option(long)
 					.setShort(short)
 					.setDescription(description)
 					.isRequired(required)
-			).forCommand(this);
+			);
 
 	this.options.push(option);
 
@@ -259,13 +171,13 @@ Command.prototype.addOption = function (long, short, description, required) {
  * @param {String} [description]
  */
 Command.prototype.addParameter = function (name, description, required) {
-	var isNewApi = !!(name instanceof RequestData),
+	var isNewApi = !!(name instanceof Parameter),
 		parameter = (isNewApi
 				? name
-				: new RequestData(name)
-				.setDescription(description)
-				.isRequired(required)
-		).forCommand(this);
+				: new Parameter(name)
+					.setDescription(description)
+					.isRequired(required)
+		);
 
 	this.parameters.push(parameter);
 
@@ -280,22 +192,49 @@ Command.prototype.addParameter = function (name, description, required) {
  * @returns {Command} The child command
  */
 Command.prototype.addCommand = function (name, controller) {
-	if (!name || (name instanceof Command && !name.name))
-		throw new Error('Child command must have a name');
-
 	var child = name instanceof Command ? name : new Command(name, controller);
 
-	if (this.children && this.children[child.name])
-		throw Error('Child command "' + name + '" already exists, cannot be re-registered.');
+	child.parent = this;
 
-	child.setParent(this);
-
-	if (!this.children)
-		this.children = {};
-
-	this.children[name] = child;
+	this.children.push(child);
 
 	return child;
+};
+
+
+/**
+ * Override serialization method to avoid circulatory bullshit. Produces something like "jetpack start",
+ * reflecting the hierarchical path. Route parameters are seperated by a space
+ * since this character has the same reserved status in terminals. Does not include parameters.
+ * @TODO: Include parameter names, like "jetpack approach {destination}"
+ * @returns {String}
+ */
+Command.prototype.toJSON = function () {
+	return this.getRoute().join(' ');
+};
+/**
+ * Get an array of command names that leads up to the current command.
+ * @returns {Array<String>}
+ */
+Command.prototype.getRoute = function () {
+	return (this.parent ? this.parent.getRoute().concat([this.name]) : [])
+		.concat(this.parameters.length ? this.parameters.map(function (param) {
+			return '{' + param.name + '}';
+		}) : []);
+};
+
+/**
+ * Returns an array starting at the Root, ending with the current Command and containing all Commands in between
+ * @returns {Array<Command>}
+ */
+Command.prototype.getLineage = function () {
+	var lineage = [],
+		self = this; // highest-level parents first, closest last
+	do {
+		lineage.unshift(self);
+	} while(self = self.parent);
+
+	return lineage;
 };
 
 Command.prototype.getAllOptions = function () {
@@ -309,19 +248,5 @@ Command.prototype.getAllParameters = function () {
 		return allParameters.concat(command.parameters);
 	}, []);
 };
-
-function isPromised(promise) {
-	if (promise instanceof q.Promise)
-		return true;
-	if (!promise)
-		return false;
-	if (!promise.then || typeof promise.then !== 'function')
-		return false;
-	if (!promise.catch || typeof promise.catch !== 'function')
-		return false;
-	if (!promise.finally || typeof promise.finally !== 'function')
-		return false;
-	return true;
-}
 
 module.exports = Command;

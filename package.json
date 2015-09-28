@@ -4,7 +4,8 @@
   "description": "Much more likely to be of help that way",
   "main": "Root.js",
   "scripts": {
-    "test": "istanbul cover _mocha --spec"
+    "test-bare": "mocha test",
+    "test": "istanbul cover _mocha"
   },
   "repository": {
     "type": "git",
