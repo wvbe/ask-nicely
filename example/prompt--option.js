@@ -5,7 +5,6 @@ function optionTestCommand (request) {
 	console.log(require('util').inspect(request.command.parameters, { depth: 2, colors: true}));
 	console.log(require('util').inspect(request.parameters, { depth: 2, colors: true}));
 }
-
 root.addCommand('test', optionTestCommand)
 	.addParameter(new root.Parameter('derp')
 		.setDescription('Ja!')
@@ -40,14 +39,11 @@ function test (str) {
 	root.interpret(str)
 		.then(function (res) {
 			console.log();
-			res.command = res.command.getRoute();
-			console.log('TESTING ' + str);
 			console.log(res);
 			console.log();
 		})
 		.catch(function (err) {
 			console.log();
-			console.log('TESTING ' + str);
 			console.log(err.stack);
 			console.log();
 		});
