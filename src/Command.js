@@ -47,52 +47,40 @@ Command.prototype.spliceInputFromParts = function (parts) {
 	return this.getCommandByName(parts.shift());
 };
 
-
-
-
 Command.prototype.exportWithInput = function (request, value) {
 	if(value)
 		request.command = value;
 };
 
-
-/**
- * Execute the controller and makes sure it's output is returned as something that can be "thenned".
- * All arguments to this call are used into the controller call.
- * @returns {Promise}
- */
-Command.prototype.execute = function () {
+Command.prototype.executePreControllers = function () {
 	var args = Array.prototype.slice.call(arguments);
-	var resolve = this.getLineage()
-		.reduce(function (preControllers, command) {
-			if(command.hasPreControllers())
-				return preControllers.concat(command.preControllers);
-			return preControllers;
-		}, [])
+	return this.preControllers
 		.reduce(function (res, preController) {
 			return res.then(function (previousVal) {
 				if(previousVal === false)
 					return previousVal;
+
 				return preController.apply(null, args);
 			});
-		}, q.resolve(true));
-
-	if (!this.hasController())
-		return resolve;
-
-	return resolve.then(function (previousVal) {
-		if(previousVal === false)
-			return previousVal;
-		return this.controller.apply(null, args);
-	}.bind(this));
+		}, this.parent
+			? this.parent.executePreControllers.apply(this.parent, args)
+			: q.resolve(true)
+		);
 };
 
 /**
- * Produce an array of child commands
- * @returns {Array}
+ * @returns {Promise}
  */
-Command.prototype.listCommands = function () {
-	return this.children;
+Command.prototype.execute = function () {
+	var args = Array.prototype.slice.call(arguments);
+
+	return this.executePreControllers.apply(this, args)
+		.then(function (previousValue) {
+			if(previousValue === false || typeof this.controller !== 'function')
+				return previousValue;
+
+			return this.controller.apply(null, args);
+		}.bind(this));
 };
 
 /**
@@ -114,20 +102,6 @@ Command.prototype.setDescription = function (description) {
 	this.description = description;
 
 	return this;
-};
-
-/**
- * @returns {boolean}
- */
-Command.prototype.hasController = function () {
-	return typeof this.controller === 'function';
-};
-
-/**
- * @returns {boolean}
- */
-Command.prototype.hasPreControllers = function () {
-	return this.preControllers.length;
 };
 
 /**
@@ -199,54 +173,6 @@ Command.prototype.addCommand = function (name, controller) {
 	this.children.push(child);
 
 	return child;
-};
-
-
-/**
- * Override serialization method to avoid circulatory bullshit. Produces something like "jetpack start",
- * reflecting the hierarchical path. Route parameters are seperated by a space
- * since this character has the same reserved status in terminals. Does not include parameters.
- * @TODO: Include parameter names, like "jetpack approach {destination}"
- * @returns {String}
- */
-Command.prototype.toJSON = function () {
-	return this.getRoute().join(' ');
-};
-/**
- * Get an array of command names that leads up to the current command.
- * @returns {Array<String>}
- */
-Command.prototype.getRoute = function () {
-	return (this.parent ? this.parent.getRoute().concat([this.name]) : [])
-		.concat(this.parameters.length ? this.parameters.map(function (param) {
-			return '{' + param.name + '}';
-		}) : []);
-};
-
-/**
- * Returns an array starting at the Root, ending with the current Command and containing all Commands in between
- * @returns {Array<Command>}
- */
-Command.prototype.getLineage = function () {
-	var lineage = [],
-		self = this; // highest-level parents first, closest last
-	do {
-		lineage.unshift(self);
-	} while(self = self.parent);
-
-	return lineage;
-};
-
-Command.prototype.getAllOptions = function () {
-	return this.getLineage().reduce(function (allOptions, command) {
-		return allOptions.concat(command.options);
-	}, []);
-};
-
-Command.prototype.getAllParameters = function () {
-	return this.getLineage().reduce(function (allParameters, command) {
-		return allParameters.concat(command.parameters);
-	}, []);
 };
 
 module.exports = Command;

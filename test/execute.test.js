@@ -1,0 +1,42 @@
+var assert = require('assert'),
+	utils = require('./test-utils'),
+	Root = require('../Root'),
+	app = new Root(),
+	assertPromiseExecutionEqual = utils.assertPromiseExecutionEqual.bind(undefined, app);
+
+function returnRequestData (req) {
+	return req;
+}
+app
+	.addCommand('a', returnRequestData)
+		.addPreController(function (req) {
+			req.firstPreController = true;
+		})
+		.addCommand('aa', returnRequestData)
+			.addPreController(function (req) {
+				req.secondPreController = true;
+			});
+app
+	.addCommand('b', returnRequestData)
+		.addPreController(function (req) {
+			req.first = true;
+			return false;
+		})
+		.addPreController(function (req) {
+			req.second = true;
+		});
+
+describe('execute', function () {
+	it('are serialized into route string', function (done) {
+		assertPromiseExecutionEqual('a aa', done, function (req) {
+			assert.strictEqual(req.firstPreController, true);
+			assert.strictEqual(req.secondPreController, true);
+		});
+	});
+	it('are serialized into route string', function (done) {
+		assertPromiseExecutionEqual('b', done, function (req) {
+			assert.strictEqual(req.first, true);
+			assert.strictEqual(req.second, undefined);
+		});
+	});
+});

@@ -63,7 +63,7 @@ function resolveInputSpecs (root, parts) {
 		}
 
 		var matchingValue = matchingScope.spliceInputFromParts(parts);
-		resolvedInputSpecs.push([matchingScope, matchingValue]); // @TODO not use .name property of course, this is just debug shits
+		resolvedInputSpecs.push([matchingScope, matchingValue]);
 
 		scopes = matchingScope.updateTiersAfterMatch(scopes, matchingValue);
 	}
@@ -120,13 +120,11 @@ Request.resolve = function (root, parts) {
  * @returns {Promise}
  */
 Request.prototype.execute = function() {
-	var args = arguments;
+	var args = Array.prototype.slice.call(arguments);
 
 	return this.command.execute.apply(
 		this.command,
-		[this].concat(Object.keys(args).map(function (argName) {
-			return args[argName];
-		}))
+		[this].concat(args)
 	);
 };
 
