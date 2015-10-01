@@ -49,6 +49,8 @@ function resolveInputSpecs (root, parts) {
 
 	scopes._ = [];
 
+	root.updateTiersAfterMatch(scopes, root);
+
 	// Match and validate syntax parts based on input
 	while (parts.length) {
 		var expectedScopes = scopes._.concat(scopes);
