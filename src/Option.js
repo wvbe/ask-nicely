@@ -16,7 +16,6 @@ OptionSyntaxPart.prototype.match = function (value) {
 		|| value === '--' + this.name;
 };
 OptionSyntaxPart.prototype.updateTiersAfterMatch = function (tiers) {
-	//tiers._.splice(tiers._.indexOf(this), 1);
 	return tiers;
 };
 

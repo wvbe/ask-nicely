@@ -8,6 +8,10 @@ NamedSyntaxPart.prototype.match = function(part) {
 NamedSyntaxPart.prototype.updateTiersAfterMatch = function(tiers) {
 	throw new Error('Not implemented.');
 };
+NamedSyntaxPart.prototype.updateInputSpecsAfterMatch = function(resolvedInputSpecs, inputValue) {
+	resolvedInputSpecs.push([this, inputValue]);
+	return resolvedInputSpecs;
+};
 NamedSyntaxPart.prototype.spliceInputFromParts = function(parts) {
 	throw new Error('Not implemented.');
 };

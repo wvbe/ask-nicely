@@ -63,7 +63,8 @@ function resolveInputSpecs (root, parts) {
 		}
 
 		var matchingValue = matchingScope.spliceInputFromParts(parts);
-		resolvedInputSpecs.push([matchingScope, matchingValue]);
+
+		resolvedInputSpecs = matchingScope.updateInputSpecsAfterMatch(resolvedInputSpecs, matchingValue);
 
 		scopes = matchingScope.updateTiersAfterMatch(scopes, matchingValue);
 	}
@@ -84,16 +85,21 @@ function resolveInputSpecs (root, parts) {
 }
 
 function resolveValueSpecs(request, inputSpecs) {
-	return q.all(inputSpecs.map(function (inputSpec) {
-			try {
-				inputSpec[0].validateInput(inputSpec[1]);
-			} catch(e) {
-				return q.reject(e);
-			}
+	try {
+		inputSpecs.forEach(function (inputSpec) {
+			inputSpec[0].validateInput(inputSpec[1]);
+		});
+	} catch (e) {
+		return q.reject(e);
+	}
 
-			return inputSpec[0].resolver
-				? q.resolve(inputSpec[0].resolver(inputSpec[1])).then(function (input) { return [inputSpec[0], input]; })
-				: inputSpec;
+	return q.all(inputSpecs.map(function (inputSpec) {
+			return !inputSpec[0].resolver
+				? inputSpec
+				: q.resolve(inputSpec[0].resolver(inputSpec[1]))
+					.then(function (input) {
+						return [inputSpec[0], input];
+					});
 		}))
 		.then(function (valueSpecs) {
 			valueSpecs.forEach(function (valueSpec) {

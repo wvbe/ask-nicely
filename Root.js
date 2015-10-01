@@ -1,5 +1,6 @@
 var Request = require('./src/Request'),
 	Option = require('./src/Option'),
+	IsolatedOption = require('./src/IsolatedOption'),
 	Parameter = require('./src/Parameter'),
 	Command = require('./src/Command');
 
@@ -13,6 +14,7 @@ function Root (name, controller) {
 
 	this.Command = Command;
 	this.Option = Option;
+	this.IsolatedOption = IsolatedOption;
 	this.Parameter = Parameter;
 }
 

@@ -30,11 +30,11 @@ app
 describe('parameters', function () {
 	var input = ['a', 'param1value', 'aa', 'param2value', 'aaa', 'param3value'].join(' ');
 
-	it('are serialized into route string', function (done) {
-		assertPromiseEqual(input, done, function (req) {
-			assert.strictEqual(req.command.toJSON(), 'a {param1} aa {param2} aaa {param3}');
-		});
-	});
+	//it('are serialized into route string', function (done) {
+	//	assertPromiseEqual(input, done, function (req) {
+	//		assert.strictEqual(req.command.toJSON(), 'a {param1} aa {param2} aaa {param3}');
+	//	});
+	//});
 
 	it('include parent command parameters', function (done) {
 		assertPromiseEqual(input, done, function (req) {
