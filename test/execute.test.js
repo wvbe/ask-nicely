@@ -27,13 +27,13 @@ app
 		});
 
 describe('execute', function () {
-	it('are serialized into route string', function (done) {
+	it('precontrollers are ran for all parents before the actual controller', function (done) {
 		assertPromiseExecutionEqual('a aa', done, function (req) {
 			assert.strictEqual(req.firstPreController, true);
 			assert.strictEqual(req.secondPreController, true);
 		});
 	});
-	it('are serialized into route string', function (done) {
+	it('returning FALSE prevents executing consecutive (pre) controllers', function (done) {
 		assertPromiseExecutionEqual('b', done, function (req) {
 			assert.strictEqual(req.first, true);
 			assert.strictEqual(req.second, undefined);

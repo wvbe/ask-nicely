@@ -92,7 +92,7 @@ function resolveValueSpecs(request, inputSpecs) {
 			}
 
 			return inputSpec[0].resolver
-				? inputSpec[0].resolver(inputSpec[1]).then(function (input) { return [inputSpec[0], input]; })
+				? q.resolve(inputSpec[0].resolver(inputSpec[1])).then(function (input) { return [inputSpec[0], input]; })
 				: inputSpec;
 		}))
 		.then(function (valueSpecs) {
