@@ -16,11 +16,5 @@
     "command"
   ],
   "author": "wvbe",
-  "license": "MIT",
-  "dependencies": {
-    "q": "^1"
-  },
-  "devDependencies": {
-    "minimist": "^1"
-  }
+  "license": "MIT"
 }

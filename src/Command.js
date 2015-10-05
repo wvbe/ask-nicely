@@ -1,8 +1,6 @@
 'use strict';
 
-var q = require('q'),
-
-	NamedSyntaxPart = require('./NamedSyntaxPart'),
+var NamedSyntaxPart = require('./NamedSyntaxPart'),
 	Option = require('./Option'),
 	Parameter= require('./Parameter');
 
@@ -56,7 +54,7 @@ class Command extends NamedSyntaxPart {
 				});
 			}, this.parent
 				? this.parent.executePreControllers.apply(this.parent, args)
-				: q.resolve(true)
+				: Promise.resolve(true)
 		);
 	}
 

@@ -1,5 +1,3 @@
-var q = require('q');
-
 /**
  * @param {String} root
  * @param {Array.<String>} [route]
@@ -73,13 +71,13 @@ function resolveValueSpecs(request, inputSpecs) {
 			inputSpec[0].validateInput(inputSpec[1]);
 		});
 	} catch (e) {
-		return q.reject(e);
+		return Promise.reject(e);
 	}
 
-	return q.all(inputSpecs.map(function (inputSpec) {
+	return Promise.all(inputSpecs.map(function (inputSpec) {
 			return !inputSpec[0].resolver
 				? inputSpec
-				: q.resolve(inputSpec[0].resolver(inputSpec[1]))
+				: Promise.resolve(inputSpec[0].resolver(inputSpec[1]))
 					.then(function (input) {
 						return [inputSpec[0], input];
 					});
@@ -99,7 +97,7 @@ Request.resolve = function (root, parts) {
 	try {
 		return resolveValueSpecs(new Request(), resolveInputSpecs(root, parts));
 	} catch (e) {
-		return q.reject(e);
+		return Promise.reject(e);
 	}
 };
 
