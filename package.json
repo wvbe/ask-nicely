@@ -5,7 +5,7 @@
   "main": "AskNicely.js",
   "scripts": {
     "test-bare": "mocha test",
-    "test": "istanbul cover _mocha"
+    "test": "isparta cover _mocha"
   },
   "repository": {
     "type": "git",

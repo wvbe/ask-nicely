@@ -1,58 +1,60 @@
+'use strict';
+
 var VariableSyntaxPart = require('./VariableSyntaxPart');
 
-function Option(name) {
-	VariableSyntaxPart.call(this, name);
-}
 
-Option.prototype = Object.create(VariableSyntaxPart.prototype);
-Option.prototype.constructor = Option;
+class Option extends VariableSyntaxPart {
 
-Option.prototype.match = function (value) {
-	if(value.indexOf('-') !== 0)
-		return false;
-	return (this.short
-		&& value.substr(1,1) !== '-'
-		&& value.substr(1).indexOf(this.short) >= 0)
-		|| value === '--' + this.name;
-};
-Option.prototype.updateTiersAfterMatch = function (tiers) {
-	return tiers;
-};
-
-Option.prototype.spliceInputFromParts = function (parts) {
-	if (this.short && parts[0].substr(1,1) !== '-') {
-		parts[0] = parts[0].replace(this.short, '');
-
-		// if all that' remains is a dash
-		if(parts[0] !== '-')
-			return this.default || true;
+	constructor (name) {
+		super(name);
 	}
 
-	parts.shift();
+	match (value) {
+		if(value.indexOf('-') !== 0)
+			return false;
+		return (this.short
+			&& value.substr(1,1) !== '-'
+			&& value.substr(1).indexOf(this.short) >= 0)
+			|| value === '--' + this.name;
+	}
 
-	// if value is a dash, set actual value to TRUE
-	if(parts[0] === '-') {
+	updateTiersAfterMatch (tiers) {
+		return tiers;
+	}
+
+	spliceInputFromParts  (parts) {
+		if (this.short && parts[0].substr(1,1) !== '-') {
+			parts[0] = parts[0].replace(this.short, '');
+
+			// if all that' remains is a dash
+			if(parts[0] !== '-')
+				return this.default || true;
+		}
+
 		parts.shift();
-		return this.default || true;
+
+		// if value is a dash, set actual value to TRUE
+		if(parts[0] === '-') {
+			parts.shift();
+			return this.default || true;
+		}
+
+		return (parts[0] && parts[0].indexOf('-') !== 0 && parts[0])
+			? parts.shift()
+			: this.default || true;
 	}
 
-	return (parts[0] && parts[0].indexOf('-') !== 0 && parts[0])
-		? parts.shift()
-		: this.default || true;
-};
+	exportWithInput (request, value) {
+		if(!request.options)
+			request.options = {};
 
-Option.prototype.exportWithInput = function(request, value) {
-	if(!request.options)
-		request.options = {};
+		request.options[this.name] = value === undefined ? this.default : value;
+	}
 
-	request.options[this.name] = value === undefined ? this.default : value;
-};
-
-
-
-Option.prototype.setShort = function (short) {
-	this.short = short;
-	return this;
-};
+	setShort (short) {
+		this.short = short;
+		return this;
+	}
+}
 
 module.exports = Option;

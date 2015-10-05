@@ -1,3 +1,5 @@
+'use strict';
+
 var Request = require('./src/Request'),
 	Option = require('./src/Option'),
 	DeepOption = require('./src/DeepOption'),
@@ -5,34 +7,33 @@ var Request = require('./src/Request'),
 	Parameter = require('./src/Parameter'),
 	Command = require('./src/Command');
 
-/**
- * @param {String} [name]
- * @param {Function} [controller]
- * @constructor
- */
-function AskNicely (name, controller) {
-	Command.call(this, name || 'AskNicely', controller);
 
-	this.Command = Command;
-	this.Option = Option;
-	this.DeepOption = DeepOption;
-	this.IsolatedOption = IsolatedOption;
-	this.Parameter = Parameter;
+class AskNicely extends Command {
+	/**
+	 * @param {String} [name]
+	 * @param {Function} [controller]
+	 * @constructor
+	 */
+	constructor (name, controller) {
+		super(name, controller);
+
+		this.Command = Command;
+		this.Option = Option;
+		this.DeepOption = DeepOption;
+		this.IsolatedOption = IsolatedOption;
+		this.Parameter = Parameter;
+	}
+
+	/**
+	 * @param {String|Array<String>} [pieces]
+	 * @returns {Promise}
+	 */
+	interpret (pieces) {
+		return Request.resolve(this, pieces || []);
+	}
 }
 
-AskNicely.prototype = Object.create(Command.prototype);
-AskNicely.prototype.constructor = AskNicely;
-
-/**
- * @param {String|Array<String>} [pieces]
- * @returns {Promise}
- */
-AskNicely.prototype.interpret = function (pieces) {
-	return Request.resolve(this, pieces || []);
-};
-
 module.exports = AskNicely;
-
 module.exports.Command = Command;
 module.exports.Option = Option;
 module.exports.DeepOption = DeepOption;

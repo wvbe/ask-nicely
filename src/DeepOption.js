@@ -1,25 +1,6 @@
+'use strict';
+
 var Option = require('./Option');
-
-function DeepOption(name) {
-	Option.call(this, name);
-}
-
-DeepOption.prototype = Object.create(Option.prototype);
-DeepOption.prototype.constructor = DeepOption;
-
-DeepOption.prototype.match = function (value) {
-	return value.indexOf('--' + this.name + '.') === 0;
-};
-
-DeepOption.prototype.spliceInputFromParts = function (parts) {
-	var optionName = parts.shift();
-
-	optionName = optionName.substr(optionName.indexOf('.') + 1);
-
-	return (parts[0] && parts[0].indexOf('-') !== 0 && parts[0])
-		? [optionName, parts.shift()]
-		: [optionName, this.default || true];
-};
 
 function assignValueToPath (nameParts, resultObj, value) {
 	var name = nameParts.shift();
@@ -31,23 +12,43 @@ function assignValueToPath (nameParts, resultObj, value) {
 	return resultObj;
 }
 
-DeepOption.prototype.exportWithInput = function(request, value) {
-	if(!request.options)
-		request.options = {};
-
-	if(!request.options[this.name])
-		request.options[this.name] = this.default || {};
-
-	if(value === undefined) {
-		return;
+class DeepOption extends Option {
+	constructor (name) {
+		super (name);
 	}
 
-	request.options[this.name] = assignValueToPath(
-		value[0].split('.'),
-		request.options[this.name] || {},
-		value[1]
-	);
-};
+	match (value) {
+		return value.indexOf('--' + this.name + '.') === 0;
+	}
 
+	spliceInputFromParts (parts) {
+		var optionName = parts.shift();
+
+		optionName = optionName.substr(optionName.indexOf('.') + 1);
+
+		return (parts[0] && parts[0].indexOf('-') !== 0 && parts[0])
+			? [optionName, parts.shift()]
+			: [optionName, this.default || true];
+	}
+
+
+	exportWithInput (request, value) {
+		if(!request.options)
+			request.options = {};
+
+		if(!request.options[this.name])
+			request.options[this.name] = this.default || {};
+
+		if(value === undefined) {
+			return;
+		}
+
+		request.options[this.name] = assignValueToPath(
+			value[0].split('.'),
+			request.options[this.name] || {},
+			value[1]
+		);
+	}
+}
 
 module.exports = DeepOption;

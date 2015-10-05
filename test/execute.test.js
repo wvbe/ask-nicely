@@ -1,3 +1,5 @@
+'use strict';
+
 var assert = require('assert'),
 	utils = require('./test-utils'),
 	AskNicely = require('../AskNicely'),
@@ -10,32 +12,32 @@ function returnRequestData (req) {
 
 root
 	.addCommand(new root.Command('a', returnRequestData))
-		.addPreController(function (req) {
+		.addPreController((req) => {
 			req.firstPreController = true;
 		})
 		.addCommand('aa', returnRequestData)
-			.addPreController(function (req) {
+			.addPreController((req) => {
 				req.secondPreController = true;
 			});
 root
 	.addCommand('b', returnRequestData)
-		.addPreController(function (req) {
+		.addPreController((req) => {
 			req.first = true;
 			return false;
 		})
-		.addPreController(function (req) {
+		.addPreController((req) => {
 			req.second = true;
 		});
 
-describe('execute', function () {
-	it('precontrollers are ran for all parents before the actual controller', function (done) {
-		assertPromiseExecutionEqual('a aa', done, function (req) {
+describe('execute', () => {
+	it('precontrollers are ran for all parents before the actual controller', (done) => {
+		assertPromiseExecutionEqual('a aa', done, (req) => {
 			assert.strictEqual(req.firstPreController, true);
 			assert.strictEqual(req.secondPreController, true);
 		});
 	});
-	it('returning FALSE prevents executing consecutive (pre) controllers', function (done) {
-		assertPromiseExecutionEqual('b', done, function (req) {
+	it('returning FALSE prevents executing consecutive (pre) controllers', (done) => {
+		assertPromiseExecutionEqual('b', done, (req) => {
 			assert.strictEqual(req.first, true);
 			assert.strictEqual(req.second, undefined);
 		});
