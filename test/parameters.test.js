@@ -25,19 +25,14 @@ root
 	.addCommand('b')
 		.addParameter('derp', 'Required', cannotContainXyz.bind(null, 'parameter-validator'))
 		.addCommand('ba')
-			.addParameter('nerf', 'Also required', true);
+			.addParameter('nerf', 'Also required', true)
+			.addParameter('smack', 'Also required')
+			.addParameter(new root.Parameter('bam').setDefault('!!!'));
 
 describe('parameters', function () {
-	var input = ['a', 'param1value', 'aa', 'param2value', 'aaa', 'param3value'].join(' ');
-
-	//it('are serialized into route string', function (done) {
-	//	assertPromiseEqual(input, done, function (req) {
-	//		assert.strictEqual(req.command.toJSON(), 'a {param1} aa {param2} aaa {param3}');
-	//	});
-	//});
 
 	it('include parent command parameters', function (done) {
-		assertPromiseEqual(input, done, function (req) {
+		assertPromiseEqual(['a', 'param1value', 'aa', 'param2value', 'aaa', 'param3value'], done, function (req) {
 			assert.strictEqual(req.parameters.param1, 'param1value');
 		});
 	});
@@ -56,6 +51,12 @@ describe('parameters', function () {
 		assertPromiseEqual(['a', 'param1'], done, function (res) {
 			assert.strictEqual(res.parameters.param1, 'param1');
 			assert.strictEqual(res.parameters.param2, undefined);
+		});
+	});
+	it('handles default values for unspecified parameters', function (done) {
+		assertPromiseEqual(['b', 'req', 'ba', 'something'], done, function (res) {
+			assert.strictEqual(res.parameters.smack, undefined);
+			assert.strictEqual(res.parameters.bam, '!!!');
 		});
 	});
 });

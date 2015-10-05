@@ -25,7 +25,7 @@ Option.prototype.spliceInputFromParts = function (parts) {
 
 		// if all that' remains is a dash
 		if(parts[0] !== '-')
-			return true;
+			return this.default || true;
 	}
 
 	parts.shift();
@@ -33,19 +33,19 @@ Option.prototype.spliceInputFromParts = function (parts) {
 	// if value is a dash, set actual value to TRUE
 	if(parts[0] === '-') {
 		parts.shift();
-		return true;
+		return this.default || true;
 	}
 
 	return (parts[0] && parts[0].indexOf('-') !== 0 && parts[0])
 		? parts.shift()
-		: true;
+		: this.default || true;
 };
 
 Option.prototype.exportWithInput = function(request, value) {
 	if(!request.options)
 		request.options = {};
 
-	request.options[this.name] = value;
+	request.options[this.name] = value === undefined ? this.default : value;
 };
 
 

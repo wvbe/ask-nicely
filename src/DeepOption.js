@@ -18,7 +18,7 @@ DeepOption.prototype.spliceInputFromParts = function (parts) {
 
 	return (parts[0] && parts[0].indexOf('-') !== 0 && parts[0])
 		? [optionName, parts.shift()]
-		: [optionName, true];
+		: [optionName, this.default || true];
 };
 
 function assignValueToPath (nameParts, resultObj, value) {
@@ -34,6 +34,13 @@ function assignValueToPath (nameParts, resultObj, value) {
 DeepOption.prototype.exportWithInput = function(request, value) {
 	if(!request.options)
 		request.options = {};
+
+	if(!request.options[this.name])
+		request.options[this.name] = this.default || {};
+
+	if(value === undefined) {
+		return;
+	}
 
 	request.options[this.name] = assignValueToPath(
 		value[0].split('.'),

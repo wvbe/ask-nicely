@@ -30,6 +30,10 @@ VariableSyntaxPart.prototype.setResolver = function (resolver) {
 	this.resolver = resolver;
 	return this;
 };
+VariableSyntaxPart.prototype.setDefault = function (value) {
+	this.default = value;
+	return this;
+};
 
 // Ran before input is resolved (possibly asynchronously) into value
 VariableSyntaxPart.prototype.validateInput = function (input) {

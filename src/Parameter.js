@@ -24,7 +24,7 @@ Parameter.prototype.exportWithInput = function(request, value) {
 	if(!request.parameters)
 		request.parameters = {};
 
-	request.parameters[this.name] = value;
+	request.parameters[this.name] = value === undefined ? this.default : value;
 };
 
 
