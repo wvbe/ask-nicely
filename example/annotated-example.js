@@ -1,3 +1,5 @@
+'use strict';
+
 var helpCommand = require('./command.help'),
 	AskNicely = require('../AskNicely');
 
@@ -29,11 +31,10 @@ root
 		.setShort('h')
 		.setDescription('Usage information, just try it')
 	)
-	.addPreController((req) => {
-		req.options.help
-			? helpCommand.apply(this, arguments)
-			: true;
-	});
+	.addPreController((req) => req.options.help
+			? helpCommand.call(this, req)
+			: true
+	);
 
 // Add a sub command to root:
 // Calling addCommand() would return the (chainable) subcommand that you just created. The validator on the {flightId}
@@ -62,7 +63,11 @@ root.interpret(process.argv.slice(2))
 	// commands, options and parameters. Option/parameter resolvers have been fulfilled.
 	.then((req) => {
 		// Execute all the ancestry's preControllers and one final controller.
-		req.execute();
+		return req.execute();
+	})
+
+	.then((req) => {
+		console.log('Derp', req);
 	})
 
 	// Determine for yourself how you would handle any errors along the way

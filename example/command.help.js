@@ -1,9 +1,7 @@
-module.exports = function helpCommand(req) {
-	console.log('>>');
-	console.log(req);
-	console.log('<<');
-	var command = req.command;
+'use strict';
 
+module.exports = function helpCommand(req) {
+	var command = req.command;
 	console.log('Name:');
 	console.log('\t' + (command.name || '(no name)'));
 

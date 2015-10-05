@@ -1,3 +1,5 @@
+'use strict';
+
 /**
  * @param {String} root
  * @param {Array.<String>} [route]

@@ -1,3 +1,5 @@
+'use strict';
+
 var assert = require('assert'),
 	utils = require('./test-utils'),
 	AskNicely = require('../AskNicely'),

@@ -1,3 +1,5 @@
+'use strict';
+
 var AskNicely = require('../AskNicely'),
 	root = new AskNicely();
 

@@ -1,3 +1,5 @@
+'use strict';
+
 module.exports = {
 	assertPromiseEqual: assertPromiseEqual,
 	assertPromiseExecutionEqual: assertPromiseExecutionEqual
