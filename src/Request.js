@@ -1,17 +1,5 @@
 var q = require('q');
 
-
-if(!Array.prototype.find) {
-	Array.prototype.find = function find(cb) {
-		for(var i = 0; i<this.length; ++i) {
-			if(cb(this[i], i, this))
-				return this[i];
-		}
-
-		return undefined;
-	}
-}
-
 /**
  * @param {String} root
  * @param {Array.<String>} [route]
@@ -22,12 +10,7 @@ function Request() {
 }
 
 Request.prototype.assign = function (obj) {
-	// @TODO use Object.assign()
-	Object.keys(obj || {}).forEach(function (key) {
-		this[key] = obj[key];
-	}.bind(this));
-
-	return this;
+	return Object.assign(this, obj);
 };
 
 

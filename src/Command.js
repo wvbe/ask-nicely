@@ -4,13 +4,6 @@ var q = require('q'),
 	Option = require('./Option'),
 	Parameter= require('./Parameter');
 
-function arrayFind(parts, cb) {
-	for(var i = 0; i<parts.length; ++i) {
-		if(cb(parts[i], i, parts))
-			return parts[i];
-	}
-}
-
 function Command(name, controller) {
 	NamedSyntaxPart.call(this);
 
@@ -89,7 +82,7 @@ Command.prototype.execute = function () {
  * @returns {Command|undefined}
  */
 Command.prototype.getCommandByName = function (name) {
-	return arrayFind(this.children, function (child) {
+	return this.children.find(function (child) {
 		return child.name === name;
 	});
 };

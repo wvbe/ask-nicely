@@ -28,7 +28,11 @@ root
 	.addCommand('b')
 		.addOption('parent', 'p', 'Parent option', true)
 		.addCommand('ba')
-			.addOption('long', 's', 'LONG and Short option');
+			.addOption('long', 's', 'LONG and Short option')
+			.parent
+		.parent
+	.addCommand('c')
+		.addOption(new root.DeepOption('config'));
 
 
 describe('options', function () {
@@ -73,6 +77,14 @@ describe('options', function () {
 			//console.log(req);
 			assert.strictEqual(req.command.name, 'aa');
 			assert.strictEqual(req.options.option1, true);
+		});
+	});
+	it('deepoption is deep', function (done) {
+		assertPromiseEqual('c --config.blaat --config.durka.durka --config.durka.nerf derp', done, function (req) {
+			//console.log(req);
+			assert.strictEqual(req.options.config.blaat, true);
+			assert.strictEqual(req.options.config.durka.durka, true);
+			assert.strictEqual(req.options.config.durka.nerf, 'derp');
 		});
 	});
 });

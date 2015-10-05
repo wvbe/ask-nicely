@@ -2,9 +2,9 @@ var AskNicely = require('../AskNicely'),
 	root = new AskNicely();
 
 function optionTestCommand (request) {
-	console.log(require('util').inspect(request.command.parameters, { depth: 2, colors: true}));
-	console.log(require('util').inspect(request.parameters, { depth: 2, colors: true}));
 }
+root.addCommand('set', optionTestCommand)
+	.addOption(new root.DeepOption('config'));
 root.addCommand('test', optionTestCommand)
 	.addParameter(new root.Parameter('derp')
 		.setDescription('Ja!')
@@ -37,9 +37,9 @@ root.addCommand('test', optionTestCommand)
 
 function test (str) {
 	root.interpret(str)
-		.then(function (res) {
+		.then(function (request) {
 			console.log();
-			console.log(res);
+			console.log(require('util').inspect(request, { depth: 4, colors: true}));
 			console.log();
 		})
 		.catch(function (err) {
@@ -49,10 +49,7 @@ function test (str) {
 		});
 }
 
-
-
-test();
-test('test param1  -b x -ac');
+test('set --config.bool --config.str derp --config.nerf.jihad --config.nerf.durka.nurka "mohamed jihad!"');
 //test('test param1 -a nerf -b x some test2 durka -c extra yotta');
 //test('test param1 -ab y some test2 durka -c');
 
