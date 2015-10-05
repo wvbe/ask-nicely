@@ -7,8 +7,9 @@ var assert = require('assert'),
 function returnRequestData (req) {
 	return req;
 }
+
 root
-	.addCommand('a', returnRequestData)
+	.addCommand(new root.Command('a', returnRequestData))
 		.addPreController(function (req) {
 			req.firstPreController = true;
 		})

@@ -41,7 +41,12 @@ root
 			yikes: { argh: 'fabl' },
 			djoeken: { shanken: 'tsjoepen' },
 			smack: true
-		}));
+		}))
+		.parent
+	.addCommand('d')
+		.addOption(new root.Option('something').isRequired(cannotContainXyz.bind(null, 'option-validator-2')))
+		.addOption('else', null, null, true)
+		.addOption(new root.IsolatedOption('help'));
 
 
 describe('options', function () {
@@ -107,6 +112,14 @@ describe('options', function () {
 			assert.strictEqual(req.options.d.smack, true);
 			assert.strictEqual(req.options.d.djoeken.shanken, 'tsjoepen');
 			assert.strictEqual(req.options.d.yikes.argh, 'eeks');
+		});
+	});
+
+	it('isolated options rule out all other option parsing/validating', function (done) {
+		assertPromiseEqual('d --something containsxyz --help please', done, function (req) {
+			assert.strictEqual(req.options.something, undefined);
+			assert.strictEqual(req.options.else, undefined);
+			assert.strictEqual(req.options.help, 'please');
 		});
 	});
 });
