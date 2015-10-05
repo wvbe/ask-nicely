@@ -31,8 +31,6 @@ class Command extends NamedSyntaxPart {
 		return scopes;
 	}
 
-	// doe er iets mee, geef descendants wat over blijft
-	// is executed before validate()
 	spliceInputFromParts (parts) {
 		return this.getCommandByName(parts.shift());
 	}
@@ -96,7 +94,7 @@ class Command extends NamedSyntaxPart {
 
 	/**
 	 * Add a controller function that is ran before its own controller, or any of it's descendants controller
-	 * @param cb
+	 * @param {Function} cb
 	 * @returns {Command}
 	 */
 	addPreController (cb) {

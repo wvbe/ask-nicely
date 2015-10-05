@@ -51,6 +51,11 @@ class Option extends VariableSyntaxPart {
 		request.options[this.name] = value === undefined ? this.default : value;
 	}
 
+	/**
+	 * Set a one-letter alias for a flag.
+	 * @param {String} short
+	 * @returns {Option}
+	 */
 	setShort (short) {
 		this.short = short;
 		return this;
