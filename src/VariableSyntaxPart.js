@@ -1,6 +1,6 @@
 'use strict';
 
-var NamedSyntaxPart = require('./NamedSyntaxPart');
+let NamedSyntaxPart = require('./NamedSyntaxPart');
 
 class VariableSyntaxPart extends NamedSyntaxPart {
 	constructor (name) {

@@ -29,8 +29,8 @@ root
 		.setShort('h')
 		.setDescription('Usage information, just try it')
 	)
-	.addPreController(function (req) {
-		return req.options.help
+	.addPreController((req) => {
+		req.options.help
 			? helpCommand.apply(this, arguments)
 			: true;
 	});
@@ -45,9 +45,7 @@ root
 	.addParameter(new root.Parameter('flightId')
 		.isRequired(true)
 		.addValidator(azAZ09Validator)
-		.setResolver(function transformIntoLowercase (flightId) {
-			return /* value or Promise */ flightId.toLowerCase();
-		})
+		.setResolver((flightId) => /* value or Promise */ flightId.toLowerCase())
 	)
 
 	// Add a sub command to `root flight {flightId}`:
@@ -62,13 +60,13 @@ root.interpret(process.argv.slice(2))
 
 	// At this point the Request object for the input is parsed out according to the configured
 	// commands, options and parameters. Option/parameter resolvers have been fulfilled.
-	.then(function(req) {
+	.then((req) => {
 		// Execute all the ancestry's preControllers and one final controller.
-		return req.execute();
+		req.execute();
 	})
 
 	// Determine for yourself how you would handle any errors along the way
-	.catch(function (error) {
+	.catch((error) => {
 		console.log(error.stack || error.message || error);
 	});
 

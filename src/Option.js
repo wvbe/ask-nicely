@@ -1,6 +1,6 @@
 'use strict';
 
-var VariableSyntaxPart = require('./VariableSyntaxPart');
+let VariableSyntaxPart = require('./VariableSyntaxPart');
 
 
 class Option extends VariableSyntaxPart {

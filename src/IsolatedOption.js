@@ -1,6 +1,6 @@
 'use strict';
 
-var Command = require('./Command'),
+let Command = require('./Command'),
 	Option = require('./Option');
 
 class IsolatedOption extends Option {
@@ -17,7 +17,7 @@ class IsolatedOption extends Option {
 
 	// By emptying out parts there should be no further attempts to match
 	spliceInputFromParts (parts) {
-		var input = Option.prototype.spliceInputFromParts.apply(this, arguments);
+		let input = Option.prototype.spliceInputFromParts.apply(this, arguments);
 
 		parts.splice(0, parts.length);
 

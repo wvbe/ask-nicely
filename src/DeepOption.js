@@ -1,9 +1,9 @@
 'use strict';
 
-var Option = require('./Option');
+let Option = require('./Option');
 
 function assignValueToPath (nameParts, resultObj, value) {
-	var name = nameParts.shift();
+	let name = nameParts.shift();
 
 	resultObj[name] = nameParts.length
 		? assignValueToPath(nameParts, resultObj[name] || {}, value)
@@ -22,7 +22,7 @@ class DeepOption extends Option {
 	}
 
 	spliceInputFromParts (parts) {
-		var optionName = parts.shift();
+		let optionName = parts.shift();
 
 		optionName = optionName.substr(optionName.indexOf('.') + 1);
 

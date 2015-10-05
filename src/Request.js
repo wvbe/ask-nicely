@@ -25,7 +25,7 @@ function resolveInputSpecs (root, parts) {
 			return str.replace(/['"]+/g, '');
 		});
 
-	var scopes = [root],
+	let scopes = [root],
 		resolvedInputSpecs = [[root,root]];
 
 	scopes._ = [];
@@ -34,8 +34,8 @@ function resolveInputSpecs (root, parts) {
 
 	// Match and validate syntax parts based on input
 	while (parts.length) {
-		var expectedScopes = scopes._.concat(scopes);
-		var matchingScope = expectedScopes.find(function (scope) {
+		let expectedScopes = scopes._.concat(scopes);
+		let matchingScope = expectedScopes.find(function (scope) {
 			return scope.match(parts[0]);
 		});
 
@@ -43,7 +43,7 @@ function resolveInputSpecs (root, parts) {
 			throw new Error('Could not find a match for input "' + parts[0] + '"');
 		}
 
-		var matchingValue = matchingScope.spliceInputFromParts(parts);
+		let matchingValue = matchingScope.spliceInputFromParts(parts);
 
 		resolvedInputSpecs = matchingScope.updateInputSpecsAfterMatch(resolvedInputSpecs, matchingValue);
 
@@ -51,7 +51,7 @@ function resolveInputSpecs (root, parts) {
 	}
 
 	// Find everything that is still open to match, and map it to the same format as resolvedScopeValues
-	var unresolvedInputSpecs = scopes._.concat(scopes)
+	let unresolvedInputSpecs = scopes._.concat(scopes)
 		.reduce(function (leftovers, tierOptions) {
 			return leftovers.concat(tierOptions);
 		}, [])
@@ -107,7 +107,7 @@ Request.resolve = function (root, parts) {
  * @returns {Promise}
  */
 Request.prototype.execute = function() {
-	var args = Array.prototype.slice.call(arguments);
+	let args = Array.prototype.slice.call(arguments);
 
 	return this.command.execute.apply(
 		this.command,

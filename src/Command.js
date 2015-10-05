@@ -1,6 +1,6 @@
 'use strict';
 
-var NamedSyntaxPart = require('./NamedSyntaxPart'),
+let NamedSyntaxPart = require('./NamedSyntaxPart'),
 	Option = require('./Option'),
 	Parameter= require('./Parameter');
 
@@ -43,7 +43,7 @@ class Command extends NamedSyntaxPart {
 	}
 
 	executePreControllers () {
-		var args = Array.prototype.slice.call(arguments);
+		let args = Array.prototype.slice.call(arguments);
 		return this.preControllers
 			.reduce(function (res, preController) {
 				return res.then(function (previousVal) {
@@ -62,7 +62,7 @@ class Command extends NamedSyntaxPart {
 	 * @returns {Promise}
 	 */
 	execute () {
-		var args = Array.prototype.slice.call(arguments);
+		let args = Array.prototype.slice.call(arguments);
 
 		return this.executePreControllers.apply(this, args)
 			.then(function (previousValue) {
@@ -114,7 +114,7 @@ class Command extends NamedSyntaxPart {
 	 * @returns {Command}
 	 */
 	addOption (long, short, description, required) {
-		var isNewApi = !!(long instanceof Option),
+		let isNewApi = !!(long instanceof Option),
 			option = (isNewApi
 					? long
 					: new Option(long)
@@ -135,7 +135,7 @@ class Command extends NamedSyntaxPart {
 	 * @param {String} [description]
 	 */
 	addParameter (name, description, required) {
-		var isNewApi = !!(name instanceof Parameter),
+		let isNewApi = !!(name instanceof Parameter),
 			parameter = (isNewApi
 					? name
 					: new Parameter(name)
@@ -156,7 +156,7 @@ class Command extends NamedSyntaxPart {
 	 * @returns {Command} The child command
 	 */
 	addCommand (name, controller) {
-		var child = name instanceof Command ? name : new Command(name, controller);
+		let child = name instanceof Command ? name : new Command(name, controller);
 
 		child.parent = this;
 
