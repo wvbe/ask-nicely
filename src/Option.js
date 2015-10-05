@@ -1,13 +1,13 @@
 var VariableSyntaxPart = require('./VariableSyntaxPart');
 
-function OptionSyntaxPart(name) {
+function Option(name) {
 	VariableSyntaxPart.call(this, name);
 }
 
-OptionSyntaxPart.prototype = Object.create(VariableSyntaxPart.prototype);
-OptionSyntaxPart.prototype.constructor = OptionSyntaxPart;
+Option.prototype = Object.create(VariableSyntaxPart.prototype);
+Option.prototype.constructor = Option;
 
-OptionSyntaxPart.prototype.match = function (value) {
+Option.prototype.match = function (value) {
 	if(value.indexOf('-') !== 0)
 		return false;
 	return (this.short
@@ -15,11 +15,11 @@ OptionSyntaxPart.prototype.match = function (value) {
 		&& value.substr(1).indexOf(this.short) >= 0)
 		|| value === '--' + this.name;
 };
-OptionSyntaxPart.prototype.updateTiersAfterMatch = function (tiers) {
+Option.prototype.updateTiersAfterMatch = function (tiers) {
 	return tiers;
 };
 
-OptionSyntaxPart.prototype.spliceInputFromParts = function (parts) {
+Option.prototype.spliceInputFromParts = function (parts) {
 	if (this.short && parts[0].substr(1,1) !== '-') {
 		parts[0] = parts[0].replace(this.short, '');
 
@@ -41,7 +41,7 @@ OptionSyntaxPart.prototype.spliceInputFromParts = function (parts) {
 		: true;
 };
 
-OptionSyntaxPart.prototype.exportWithInput = function(request, value) {
+Option.prototype.exportWithInput = function(request, value) {
 	if(!request.options)
 		request.options = {};
 
@@ -50,9 +50,9 @@ OptionSyntaxPart.prototype.exportWithInput = function(request, value) {
 
 
 
-OptionSyntaxPart.prototype.setShort = function (short) {
+Option.prototype.setShort = function (short) {
 	this.short = short;
 	return this;
 };
 
-module.exports = OptionSyntaxPart;
+module.exports = Option;

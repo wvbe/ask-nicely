@@ -9,8 +9,8 @@ var Request = require('./src/Request'),
  * @param {Function} [controller]
  * @constructor
  */
-function Root (name, controller) {
-	Command.call(this, name || 'root', controller);
+function AskNicely (name, controller) {
+	Command.call(this, name || 'AskNicely', controller);
 
 	this.Command = Command;
 	this.Option = Option;
@@ -18,19 +18,20 @@ function Root (name, controller) {
 	this.Parameter = Parameter;
 }
 
-Root.prototype = Object.create(Command.prototype);
-Root.prototype.constructor = Root;
+AskNicely.prototype = Object.create(Command.prototype);
+AskNicely.prototype.constructor = AskNicely;
 
 /**
  * @param {String|Array<String>} [pieces]
  * @returns {Promise}
  */
-Root.prototype.interpret = function (pieces) {
+AskNicely.prototype.interpret = function (pieces) {
 	return Request.resolve(this, pieces || []);
 };
 
-module.exports = Root;
+module.exports = AskNicely;
 
 module.exports.Command = Command;
 module.exports.Option = Option;
+module.exports.IsolatedOption = IsolatedOption;
 module.exports.Parameter = Parameter;

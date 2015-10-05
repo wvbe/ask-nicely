@@ -1,13 +1,13 @@
 var assert = require('assert'),
 	utils = require('./test-utils'),
-	Root = require('../Root'),
-	app = new Root(),
-	assertPromiseExecutionEqual = utils.assertPromiseExecutionEqual.bind(undefined, app);
+	AskNicely = require('../AskNicely'),
+	root = new AskNicely(),
+	assertPromiseExecutionEqual = utils.assertPromiseExecutionEqual.bind(undefined, root);
 
 function returnRequestData (req) {
 	return req;
 }
-app
+root
 	.addCommand('a', returnRequestData)
 		.addPreController(function (req) {
 			req.firstPreController = true;
@@ -16,7 +16,7 @@ app
 			.addPreController(function (req) {
 				req.secondPreController = true;
 			});
-app
+root
 	.addCommand('b', returnRequestData)
 		.addPreController(function (req) {
 			req.first = true;

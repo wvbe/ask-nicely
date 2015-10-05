@@ -1,24 +1,24 @@
 var assert = require('assert'),
 	utils = require('./test-utils'),
-	Root = require('../Root'),
-	app = new Root(),
-	assertPromiseEqual = utils.assertPromiseEqual.bind(undefined, app);
+	AskNicely = require('../AskNicely'),
+	root = new AskNicely(),
+	assertPromiseEqual = utils.assertPromiseEqual.bind(undefined, root);
 
 function cannotContainXyz(errCode, value) {
 	if(typeof value === 'string' && value.indexOf('xyz') >= 0)
 		throw new Error(errCode);
 }
-app
+root
 	.addCommand('a', function (req) {
 		return req.options;
 	})
 		.addOption('option1', 'a', 'Option 1/A (required)', true)
-		.addOption(new app.Option('option2')
+		.addOption(new root.Option('option2')
 			.setShort('b')
 			.setDescription('Option 2/B (required)')
 			.isRequired(true)
 			.addValidator(cannotContainXyz.bind(null, 'option-validator-1')))
-		.addOption(new app.Option('option3')
+		.addOption(new root.Option('option3')
 			.setShort('c')
 			.setDescription('Option 3/C (not required)')
 			.addValidator(cannotContainXyz.bind(null, 'option-validator-2')))

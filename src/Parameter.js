@@ -1,26 +1,26 @@
 var VariableSyntaxPart = require('./VariableSyntaxPart');
 
-function ParameterSyntaxPart(name) {
+function Parameter(name) {
 	VariableSyntaxPart.call(this, name);
 }
 
-ParameterSyntaxPart.prototype = Object.create(VariableSyntaxPart.prototype);
-ParameterSyntaxPart.prototype.constructor = ParameterSyntaxPart;
+Parameter.prototype = Object.create(VariableSyntaxPart.prototype);
+Parameter.prototype.constructor = Parameter;
 
-ParameterSyntaxPart.prototype.match = function (value) {
+Parameter.prototype.match = function (value) {
 	return value.substr(0,1) !== '-';
 };
 
-ParameterSyntaxPart.prototype.updateTiersAfterMatch = function (tiers) {
+Parameter.prototype.updateTiersAfterMatch = function (tiers) {
 	tiers.shift();
 	return tiers;
 };
 
-ParameterSyntaxPart.prototype.spliceInputFromParts = function (parts) {
+Parameter.prototype.spliceInputFromParts = function (parts) {
 	return parts.shift();
 };
 
-ParameterSyntaxPart.prototype.exportWithInput = function(request, value) {
+Parameter.prototype.exportWithInput = function(request, value) {
 	if(!request.parameters)
 		request.parameters = {};
 
@@ -28,4 +28,4 @@ ParameterSyntaxPart.prototype.exportWithInput = function(request, value) {
 };
 
 
-module.exports = ParameterSyntaxPart;
+module.exports = Parameter;

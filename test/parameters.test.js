@@ -1,15 +1,15 @@
 var assert = require('assert'),
 	utils = require('./test-utils'),
-	Root = require('../Root'),
-	app = new Root(),
-	assertPromiseEqual = utils.assertPromiseEqual.bind(undefined, app);
+	AskNicely = require('../AskNicely'),
+	root = new AskNicely(),
+	assertPromiseEqual = utils.assertPromiseEqual.bind(undefined, root);
 
 function cannotContainXyz(errCode, value) {
 	if(typeof value === 'string' && value.indexOf('xyz') >= 0)
 		throw new Error(errCode);
 }
 
-app
+root
 	.addCommand('a', function () {
 		return req.parameters;
 	})

@@ -1,5 +1,5 @@
-var Root = require('../Root'),
-	root = new Root();
+var AskNicely = require('../AskNicely'),
+	root = new AskNicely();
 
 function optionTestCommand (request) {
 	console.log(require('util').inspect(request.command.parameters, { depth: 2, colors: true}));

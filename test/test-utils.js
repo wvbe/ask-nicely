@@ -2,8 +2,9 @@ module.exports = {
 	assertPromiseEqual: assertPromiseEqual,
 	assertPromiseExecutionEqual: assertPromiseExecutionEqual
 };
-function assertPromiseExecutionEqual(app, str, done, cb, errcb) {
-	app.interpret(str)
+
+function assertPromiseExecutionEqual(root, str, done, cb, errcb) {
+	root.interpret(str)
 		.then(function (req) {
 			return req.execute().then(function () {
 				return req;
