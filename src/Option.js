@@ -1,6 +1,7 @@
 'use strict';
 
-let VariableSyntaxPart = require('./VariableSyntaxPart');
+let symbols = require('./symbols'),
+	VariableSyntaxPart = require('./VariableSyntaxPart');
 
 
 class Option extends VariableSyntaxPart {
@@ -9,20 +10,18 @@ class Option extends VariableSyntaxPart {
 		super(name);
 	}
 
-	match (value) {
-		if(value.indexOf('-') !== 0)
-			return false;
-		return (this.short
-			&& value.substr(1,1) !== '-'
-			&& value.substr(1).indexOf(this.short) >= 0)
-			|| value === '--' + this.name;
+	[symbols.isMatchForPart] (value) {
+		return (value.indexOf('-') !== 0)
+			? false
+			: (this.short && value.substr(1,1) !== '-' && value.substr(1).indexOf(this.short) >= 0)
+			|| value === `--${this.name}`;
 	}
 
-	updateTiersAfterMatch (tiers) {
+	[symbols.updateTiersAfterMatch] (tiers) {
 		return tiers;
 	}
 
-	spliceInputFromParts  (parts) {
+	[symbols.spliceInputFromParts]  (parts) {
 		if (this.short && parts[0].substr(1,1) !== '-') {
 			parts[0] = parts[0].replace(this.short, '');
 
@@ -44,7 +43,7 @@ class Option extends VariableSyntaxPart {
 			: this.default || true;
 	}
 
-	exportWithInput (request, value) {
+	[symbols.exportWithInput] (request, value) {
 		if(!request.options)
 			request.options = {};
 

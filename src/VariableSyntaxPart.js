@@ -1,6 +1,7 @@
 'use strict';
 
-let NamedSyntaxPart = require('./NamedSyntaxPart');
+let symbols = require('./symbols'),
+	NamedSyntaxPart = require('./NamedSyntaxPart');
 
 class VariableSyntaxPart extends NamedSyntaxPart {
 	/**
@@ -55,9 +56,9 @@ class VariableSyntaxPart extends NamedSyntaxPart {
 		return this;
 	}
 
-	validateInput (input) {
+	[symbols.validateInput] (input) {
 		if (this.required && input === undefined)
-			throw new Error('"' + this.name + '" can not be undefined.');
+			throw new Error(`"${this.name}" can not be undefined.`);
 	}
 
 	validateValue (value) {

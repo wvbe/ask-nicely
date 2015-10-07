@@ -1,6 +1,7 @@
 'use strict';
 
-let NamedSyntaxPart = require('./NamedSyntaxPart'),
+let symbols = require('./symbols'),
+	NamedSyntaxPart = require('./NamedSyntaxPart'),
 	Option = require('./Option'),
 	Parameter= require('./Parameter');
 
@@ -16,11 +17,11 @@ class Command extends NamedSyntaxPart {
 		this.preControllers = [];
 	}
 
-	match (value) {
+	[symbols.isMatchForPart] (value) {
 		return !!this.getCommandByName(value);
 	}
 
-	updateTiersAfterMatch (scopes, match) {
+	[symbols.updateTiersAfterMatch] (scopes, match) {
 		scopes.splice(scopes.indexOf(this), 1);
 
 		if(match instanceof Command) {
@@ -31,44 +32,39 @@ class Command extends NamedSyntaxPart {
 		return scopes;
 	}
 
-	spliceInputFromParts (parts) {
+	[symbols.spliceInputFromParts] (parts) {
 		return this.getCommandByName(parts.shift());
 	}
 
-	exportWithInput (request, value) {
+	[symbols.exportWithInput] (request, value) {
 		if(value)
 			request.command = value;
 	}
 
 	executePreControllers () {
 		let args = Array.prototype.slice.call(arguments);
-		return this.preControllers
-			.reduce(function (res, preController) {
-				return res.then(function (previousVal) {
-					if(previousVal === false)
-						return previousVal;
-
-					return preController.apply(null, args);
-				});
-			}, this.parent
+		return this.preControllers.reduce(
+			(res, preController) => res.then((previousVal) => previousVal === false
+				? previousVal
+				: preController.apply(null, args)
+			),
+			this.parent
 				? this.parent.executePreControllers.apply(this.parent, args)
 				: Promise.resolve(true)
 		);
 	}
 
 	/**
+	 * @todo Use rest parameters
 	 * @returns {Promise}
 	 */
 	execute () {
 		let args = Array.prototype.slice.call(arguments);
 
 		return this.executePreControllers.apply(this, args)
-			.then(function (previousValue) {
-				if(previousValue === false || typeof this.controller !== 'function')
-					return previousValue;
-
-				return this.controller.apply(null, args);
-			}.bind(this));
+			.then((previousValue) => (previousValue === false || typeof this.controller !== 'function')
+				? previousValue
+				: this.controller.apply(null, args));
 	}
 
 	/**
@@ -77,9 +73,7 @@ class Command extends NamedSyntaxPart {
 	 * @returns {Command|undefined}
 	 */
 	getCommandByName (name) {
-		return this.children.find(function (child) {
-			return child.name === name;
-		});
+		return this.children.find((child) => child.name === name);
 	}
 
 	/**
@@ -105,23 +99,20 @@ class Command extends NamedSyntaxPart {
 
 	/**
 	 * Describe an option
-	 * @param {String} long - The identifying name of this option, unique for its ancestry
+	 * @param {Option|String} long - The identifying name of this option, unique for its ancestry
 	 * @param {String} [short] - A one-character alias of this option, unique for its ancestry
 	 * @param {String} [description]
 	 * @param {Boolean} [required] - If true, an omittance would throw an error
 	 * @returns {Command}
 	 */
 	addOption (long, short, description, required) {
-		let isNewApi = !!(long instanceof Option),
-			option = (isNewApi
-					? long
-					: new Option(long)
-					.setShort(short)
-					.setDescription(description)
-					.isRequired(required)
-			);
-
-		this.options.push(option);
+		this.options.push((long instanceof Option)
+			? long
+			: new Option(long)
+				.setShort(short)
+				.setDescription(description)
+				.isRequired(required)
+		);
 
 		return this;
 	}
@@ -129,19 +120,18 @@ class Command extends NamedSyntaxPart {
 	/**
 	 * Describes a parameter. Notice tat if a command has child commands, *required is implied for all ancestor parameters
 	 * (and child cmd names will be mistaken for parameters if some is missing)
-	 * @param {String} name
+	 * @param {Parameter|String} name
 	 * @param {String} [description]
+	 * @param {Boolean} [required]
+	 * @returns {Command}
 	 */
 	addParameter (name, description, required) {
-		let isNewApi = !!(name instanceof Parameter),
-			parameter = (isNewApi
-					? name
-					: new Parameter(name)
-					.setDescription(description)
-					.isRequired(required)
-			);
-
-		this.parameters.push(parameter);
+		this.parameters.push((name instanceof Parameter)
+			? name
+			: new Parameter(name)
+				.setDescription(description)
+				.isRequired(required)
+		);
 
 		return this;
 	}

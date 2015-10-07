@@ -1,26 +1,27 @@
 'use strict';
 
-let VariableSyntaxPart = require('./VariableSyntaxPart');
+let symbols = require('./symbols'),
+	VariableSyntaxPart = require('./VariableSyntaxPart');
 
 class Parameter extends  VariableSyntaxPart {
 	constructor (name) {
 		super(name);
 	}
 
-	match (value) {
+	[symbols.isMatchForPart] (value) {
 		return value.substr(0,1) !== '-';
 	}
 
-	updateTiersAfterMatch (tiers) {
+	[symbols.updateTiersAfterMatch] (tiers) {
 		tiers.shift();
 		return tiers;
 	}
 
-	spliceInputFromParts (parts) {
+	[symbols.spliceInputFromParts] (parts) {
 		return parts.shift();
 	}
 
-	exportWithInput (request, value) {
+	[symbols.exportWithInput] (request, value) {
 		if(!request.parameters)
 			request.parameters = {};
 

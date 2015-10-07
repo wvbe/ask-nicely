@@ -1,6 +1,7 @@
 'use strict';
 
-let Option = require('./Option');
+let symbols = require('./symbols'),
+	Option = require('./Option');
 
 function assignValueToPath (nameParts, resultObj, value) {
 	let name = nameParts.shift();
@@ -17,11 +18,11 @@ class DeepOption extends Option {
 		super (name);
 	}
 
-	match (value) {
-		return value.indexOf('--' + this.name + '.') === 0;
+	[symbols.isMatchForPart] (value) {
+		return value.indexOf(`--${this.name}.`) === 0;
 	}
 
-	spliceInputFromParts (parts) {
+	[symbols.spliceInputFromParts] (parts) {
 		let optionName = parts.shift();
 
 		optionName = optionName.substr(optionName.indexOf('.') + 1);
@@ -31,8 +32,7 @@ class DeepOption extends Option {
 			: [optionName, this.default || true];
 	}
 
-
-	exportWithInput (request, value) {
+	[symbols.exportWithInput] (request, value) {
 		if(!request.options)
 			request.options = {};
 
@@ -45,7 +45,7 @@ class DeepOption extends Option {
 
 		request.options[this.name] = assignValueToPath(
 			value[0].split('.'),
-			request.options[this.name] || {},
+			request.options[this.name],
 			value[1]
 		);
 	}

@@ -1,5 +1,7 @@
 'use strict';
 
+let symbols = require('./symbols');
+
 class NamedSyntaxPart {
 	/**
 	 * @param {String} name
@@ -13,7 +15,7 @@ class NamedSyntaxPart {
 	 * @param part
 	 * @returns {Boolean}
 	 */
-	match (part) {
+	[symbols.isMatchForPart] (part) {
 		throw new Error('Not implemented.');
 	}
 
@@ -23,7 +25,7 @@ class NamedSyntaxPart {
 	 * @param {*} inputValue
 	 * @returns {Array}
 	 */
-	updateInputSpecsAfterMatch (resolvedInputSpecs, inputValue) {
+	[symbols.updateInputSpecsAfterMatch] (resolvedInputSpecs, inputValue) {
 		resolvedInputSpecs.push([this, inputValue]);
 		return resolvedInputSpecs;
 	}
@@ -34,7 +36,7 @@ class NamedSyntaxPart {
 	 * @param parts
 	 * @returns {*}
 	 */
-	spliceInputFromParts (parts) {
+	[symbols.spliceInputFromParts] (parts) {
 		throw new Error('Not implemented.');
 	}
 
@@ -44,7 +46,7 @@ class NamedSyntaxPart {
 	 * @param {Request} request
 	 * @param {*} input
 	 */
-	exportWithInput (request, input) {
+	[symbols.exportWithInput] (request, input) {
 		throw new Error('Not implemented.');
 	}
 
@@ -54,7 +56,7 @@ class NamedSyntaxPart {
 	 * @param input
 	 * @returns {boolean}
 	 */
-	validateInput (input) {
+	[symbols.validateInput] (input) {
 
 	}
 
@@ -63,7 +65,7 @@ class NamedSyntaxPart {
 	 * otherwise.
 	 * @param input
 	 */
-	validateValue (input) {
+	validateValue (value) {
 
 	}
 
@@ -72,7 +74,7 @@ class NamedSyntaxPart {
 	 * @param {Array} tiers
 	 * @returns {Array}
 	 */
-	updateTiersAfterMatch (tiers) {
+	[symbols.updateTiersAfterMatch] (tiers) {
 		throw new Error('Not implemented.');
 	}
 
