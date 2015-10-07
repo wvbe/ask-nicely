@@ -29,7 +29,7 @@ class AskNicely extends Command {
 	 * @returns {Promise}
 	 */
 	interpret (pieces) {
-		return Request.resolve(this, pieces || []);
+		return Request.resolve(this, pieces);
 	}
 }
 

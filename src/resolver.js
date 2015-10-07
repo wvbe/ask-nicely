@@ -8,7 +8,9 @@ let symbols = require('./symbols');
  * @returns {Array<[]>}
  */
 function resolveInputSpecs (root, parts) {
-	if(typeof parts === 'string')
+	if (!parts)
+		parts = [];
+	else if(typeof parts === 'string')
 		parts = parts.match(/(".*?"|[^"\s]+)+(?=\s*|\s*$)/g).map((str) => str.replace(/['"]+/g, ''));
 
 	let scopes = [root],
