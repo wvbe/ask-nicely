@@ -1,6 +1,8 @@
 'use strict';
 
-var Request = require('./src/Request'),
+var interpreter = require('./src/interpreter'),
+
+	Request = require('./src/Request'),
 	Option = require('./src/Option'),
 	DeepOption = require('./src/DeepOption'),
 	IsolatedOption = require('./src/IsolatedOption'),
@@ -25,11 +27,11 @@ class AskNicely extends Command {
 	}
 
 	/**
-	 * @param {String|Array<String>} [pieces]
+	 * @param {String|Array<String>} [parts]
 	 * @returns {Promise}
 	 */
-	interpret (pieces) {
-		return Request.resolve(this, pieces);
+	interpret (parts) {
+		return interpreter(this, parts, new Request());
 	}
 }
 

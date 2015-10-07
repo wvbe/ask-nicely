@@ -1,20 +1,30 @@
 {
   "name": "ask-nicely",
   "version": "0.0.1",
-  "description": "Much more likely to be of help that way",
   "main": "AskNicely.js",
-  "scripts": {
-    "test-bare": "mocha test",
-    "test": "isparta cover _mocha"
-  },
+
+  "description": "Much more likely to be of help that way",
+  "author": "wvbe",
   "repository": {
     "type": "git",
     "url": "git@github.com:wvbe/ask-nicely.git"
   },
+  "license": "MIT",
   "keywords": [
+    "shell",
     "terminal",
-    "command"
+    "command",
+    "option",
+    "parameter",
+    "argument",
+    "parsing"
   ],
-  "author": "wvbe",
-  "license": "MIT"
+
+  "engines" : {
+    "node" : ">=4.1.0"
+  },
+  "scripts": {
+    "test-bare": "mocha test",
+    "test": "isparta cover _mocha"
+  }
 }

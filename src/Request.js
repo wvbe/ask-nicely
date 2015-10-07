@@ -1,23 +1,11 @@
 'use strict';
 
-let resolver = require('./resolver');
-
 /**
  * @constructor
  */
 function Request() {
 
 }
-
-/**
- *
- * @param {Command} root
- * @param {String|Array<String>} [parts]
- * @returns {Promise}
- */
-Request.resolve = function (root, parts) {
-	return resolver(root, parts, new Request());
-};
 
 /**
  * Execute command controller, or reject if errors were found

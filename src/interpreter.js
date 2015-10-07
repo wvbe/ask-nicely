@@ -7,7 +7,7 @@ let symbols = require('./symbols');
  * @param {String|Array<String>} [parts]
  * @returns {Array<[]>}
  */
-function resolveInputSpecs (root, parts) {
+function interpreterInputSpecs (root, parts) {
 	if (!parts)
 		parts = [];
 	else if(typeof parts === 'string')
@@ -72,7 +72,7 @@ function resolveValueSpecs(request, inputSpecs) {
 
 module.exports = function (root, parts, request) {
 	try {
-		return resolveValueSpecs(request || {}, resolveInputSpecs(root, parts));
+		return resolveValueSpecs(request || {}, interpreterInputSpecs(root, parts));
 	} catch (e) {
 		return Promise.reject(e);
 	}
