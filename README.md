@@ -16,25 +16,25 @@ root.addCommand('subcommand', (request) => console.log(request))
 	.addOption('beta', 'b', null, true)
 	.addParameter('gamma');
 
-root.resolve(process.argv.slice(2))
+root.interpret(process.argv.slice(2))
 	.then(request => request.execute())
 	.catch(error => console.log(error));
 ```
 
-Parsing input (`process.argv` in this example) could yield the following `Request` objects:
+Parsing input (`process.argv` in this example) would yield the following `Request` object in the relevant controller and precontrollers:
 
 ```
 > node examples/application.microscopic.js -a
 {
-    command: /* the root command */,
-    options: { alpha: true }
+    command:    { /* the root command */ },
+    options:    { alpha: true }
 }
 
 > node examples/application.microscopic.js subcommand paramValue --beta optValue
 {
-    command: { /* the subcommand */ },
+    command:    { /* the subcommand */ },
     parameters: { gamma: 'paramValue' },
-    options: { alpha: undefined, beta: 'optValue' }
+    options:    { alpha: undefined, beta: 'optValue' }
 }
 ```
 
@@ -78,7 +78,7 @@ The resolver transforms flat text `input` into something different and is handle
     - `addOption(option|name[, short, description, required])`
     - `addPreController(controller)`
 - AskNicely class
-    - `interpret([input)`
+    - `interpret([input])`
 - Request class
     - `execute([artibrary])`
 
@@ -86,7 +86,7 @@ The resolver transforms flat text `input` into something different and is handle
 - Input for `Options` or `Parameters` can contain spaces if the input is wrapped in double-quotes (`--opt "My option"`)
 - `Options` and `Parameters` accumulate as you go deeper from root into subcommands. In this way, any command can add scope to the underlying subcommands through the `Request` object
 - Precontrollers (`Command#addPrecontroller()`) are accumulated as you go deeper into subcommands as well. When a command is ran, all of it's ancestors precontrollers are ran too. In this way, for example, a precontroller can determine if the execution chain should stop for a certain combination of options (by returning `false`).
-- 
+
 ## Release notes
 - v1.0
     - Using ECMAScript 6
@@ -97,6 +97,9 @@ The resolver transforms flat text `input` into something different and is handle
     - Ditching `Command#isHungry()` and `Command#isGreedy()`
 - v0.1
     - Initial release, pretty basic parsing with limited configurability
+
+## Wishlist
+- `DeepParameter`, similar to `DeepOption`, that make support for the following syntax possible: `git config user.name <name>`
 
 ## License
 Copyright (c) 2015 Wybe Minnebo
