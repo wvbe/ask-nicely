@@ -29,7 +29,18 @@ root
 		.addCommand('ba')
 			.addParameter('nerf', 'Also required', true)
 			.addParameter('smack', 'Also required')
-			.addParameter(new root.Parameter('bam').setDefault('!!!'));
+			.addParameter(new root.Parameter('bam').setDefault('!!!'))
+			.parent
+		.parent
+	.addCommand('c')
+		.addParameter(new root.DeepParameter('config'))
+		.addParameter(new root.DeepParameter('d').setDefault({
+			yikes: { argh: 'fabl' },
+			djoeken: { shanken: 'tsjoepen' },
+			smack: true
+		}))
+		.addCommand('ca')
+			.addParameter('st');
 
 describe('parameters', function () {
 
@@ -56,9 +67,40 @@ describe('parameters', function () {
 		});
 	});
 	it('handles default values for unspecified parameters', function (done) {
-		assertPromiseEqual(['b', 'req', 'ba', 'something'], done, function (res) {
+		assertPromiseEqual('b req ba something', done, function (res) {
 			assert.strictEqual(res.parameters.smack, undefined);
 			assert.strictEqual(res.parameters.bam, '!!!');
 		});
 	});
+
+	it('input "-" means default-or-undefined for this option', function (done) {
+		assertPromiseEqual('b req ba something - -', done, function (res) {
+			assert.strictEqual(res.parameters.smack, undefined);
+			assert.strictEqual(res.parameters.bam, '!!!');
+		});
+	});
+	describe('deep parameters are like options, but also like parameters', function () {
+		it('deep parameter is deep', function (done) {
+			assertPromiseEqual('c config.blaat test config.durka.nerf derp d.djoeken.shanken argewreg', done, function (req) {
+				assert.strictEqual(req.parameters.config.blaat, 'test');
+				assert.strictEqual(req.parameters.config.durka.nerf, 'derp');
+				assert.strictEqual(req.command.parameters[req.command.parameters.length - 1].default.djoeken.shanken, 'tsjoepen', 'Default value shoudl not be changed');
+			});
+		});
+		it('handles default values for unspecified deep parameters', function (done) {
+			assertPromiseEqual('c d.djoeken.shanken - d.yikes.argh eeks d.smack', done, function (req) {
+				assert.strictEqual(req.parameters.d.smack, true);
+				assert.strictEqual(req.parameters.d.djoeken.shanken, 'tsjoepen');
+				assert.strictEqual(req.parameters.d.yikes.argh, 'eeks');
+			});
+		});
+
+		it('deep parameters are order independent, and leak through to subcommands', function (done) {
+			assertPromiseEqual('c ca what d.yikes.argh eeks', done, function (req) {
+				assert.strictEqual(req.parameters.d.yikes.argh, 'eeks');
+				assert.strictEqual(req.parameters.st, 'what');
+			});
+		});
+	});
+
 });

@@ -27,7 +27,7 @@ class Option extends VariableSyntaxPart {
 
 			// if all that' remains is a dash
 			if(parts[0] !== '-')
-				return this.default || true;
+				return this.cloneDefault() || true;
 		}
 
 		parts.shift();
@@ -35,19 +35,19 @@ class Option extends VariableSyntaxPart {
 		// if value is a dash, set actual value to TRUE
 		if(parts[0] === '-') {
 			parts.shift();
-			return this.default || true;
+			return this.cloneDefault() || true;
 		}
 
 		return (parts[0] && parts[0].indexOf('-') !== 0 && parts[0])
 			? parts.shift()
-			: this.default || true;
+			: this.cloneDefault() || true;
 	}
 
 	[symbols.exportWithInput] (request, value) {
 		if(!request.options)
 			request.options = {};
 
-		request.options[this.name] = value === undefined ? this.default : value;
+		request.options[this.name] = value === undefined ? this.cloneDefault() : value;
 	}
 
 	/**

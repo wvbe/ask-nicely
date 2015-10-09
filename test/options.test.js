@@ -38,7 +38,7 @@ root
 		.addOption(new root.Option('x').setShort('x'))
 		.addOption(new root.Option('b').setDefault('bdefault').setShort('b'))
 		.addOption(new root.Option('c').setDefault('cdefault').setShort('c'))
-		.addOption(new root.DeepOption('config'))
+		.addOption(new root.DeepOption('config').isRequired(true))
 		.addOption(new root.DeepOption('d').setDefault({
 			yikes: { argh: 'fabl' },
 			djoeken: { shanken: 'tsjoepen' },
@@ -88,40 +88,63 @@ describe('options', function () {
 		});
 	});
 
-	it('can be configured succeeded by non-related values by seperating with -', function (done) {
+	it('input "-" means default-or-true for this option', function (done) {
 		assertPromiseEqual('a -ba - aa', done, function (req) {
-			//console.log(req);
 			assert.strictEqual(req.command.name, 'aa');
 			assert.strictEqual(req.options.option1, true);
 		});
 	});
 
-	it('deep option is deep', function (done) {
-		assertPromiseEqual('c --config.blaat --config.durka.durka --config.durka.nerf derp', done, function (req) {
-			assert.strictEqual(req.options.config.blaat, true);
-			assert.strictEqual(req.options.config.durka.durka, true);
-			assert.strictEqual(req.options.config.durka.nerf, 'derp');
-		});
-	});
 
 	it('handles default values for unspecified (deep) options', function (done) {
-		assertPromiseEqual('c -bxc --d.yikes.argh eeks', done, function (req) {
-			//console.log(req);
+		assertPromiseEqual('c -bx - --config.hey - -c nerf', done, function (req) {
 			assert.strictEqual(req.options.a, 'adefault');
 			assert.strictEqual(req.options.x, true);
 			assert.strictEqual(req.options.b, 'bdefault');
-			assert.strictEqual(req.options.c, 'cdefault');
-			assert.strictEqual(req.options.d.smack, true);
-			assert.strictEqual(req.options.d.djoeken.shanken, 'tsjoepen');
-			assert.strictEqual(req.options.d.yikes.argh, 'eeks');
+			assert.strictEqual(req.options.c, 'nerf');
+			assert.strictEqual(req.command.options[3].default, 'cdefault');
 		});
 	});
 
-	it('isolated options rule out all other option parsing/validating', function (done) {
-		assertPromiseEqual('d --something containsxyz --help please', done, function (req) {
-			assert.strictEqual(req.options.something, undefined);
-			assert.strictEqual(req.options.else, undefined);
-			assert.strictEqual(req.options.help, 'please');
+	describe('deep options', function () {
+
+
+		it('deep option is deep, and - is a valid default-or-true value', function (done) {
+			assertPromiseEqual('c --config.blaat --config.durka.durka --config.durka.nerf derp', done, function (req) {
+				assert.strictEqual(req.options.config.blaat, true);
+				assert.strictEqual(req.options.config.durka.durka, true);
+				assert.strictEqual(req.options.config.durka.nerf, 'derp');
+			});
+		});
+		it('required deep options need to match one input part to be satisfied', function (done) {
+			assertPromiseEqual('c', done, null, function (error) {
+				assert.strictEqual(error.message.indexOf('can not be undefined') >= 0, true);
+			});
+		});
+		it('handles default values for unspecified (deep) options', function (done) {
+			assertPromiseEqual('c --d.yikes.argh eeks --config.something something --config.blaat something', done, function (req) {
+				assert.strictEqual(req.options.d.smack, true);
+				assert.strictEqual(req.options.d.djoeken.shanken, 'tsjoepen');
+				assert.strictEqual(req.options.d.yikes.argh, 'eeks');
+				assert.strictEqual(req.command.options[req.command.options.length - 1].default.yikes.argh, 'fabl', 'Default value shoudl not be changed');
+			});
+		});
+		it('input "-" means default-or-true for this option', function (done) {
+			assertPromiseEqual('c --d.yikes.argh --config.blaat - --d.djoeken.shanken -', done, function (req) {
+				//console.log(require('util').inspect(req, {depth: 4, colors: true}));
+				assert.strictEqual(req.options.d.yikes.argh, 'fabl');
+				assert.strictEqual(req.options.config.blaat, true);
+				assert.strictEqual(req.options.d.djoeken.shanken, 'tsjoepen');
+			});
+		});
+	});
+	describe('isolated options', function () {
+		it('rule out all other option parsing/validating', function (done) {
+			assertPromiseEqual('d --something containsxyz --help please', done, function (req) {
+				assert.strictEqual(req.options.something, undefined);
+				assert.strictEqual(req.options.else, undefined);
+				assert.strictEqual(req.options.help, 'please');
+			});
 		});
 	});
 });

@@ -98,9 +98,6 @@ The resolver transforms flat text `input` into something different and is handle
 - v0.1
     - Initial release, pretty basic parsing with limited configurability
 
-## Wishlist
-- `DeepParameter`, similar to `DeepOption`, that make support for the following syntax possible: `git config user.name <name>`
-
 ## License
 Copyright (c) 2015 Wybe Minnebo
 

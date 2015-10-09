@@ -9,7 +9,7 @@ class Parameter extends  VariableSyntaxPart {
 	}
 
 	[symbols.isMatchForPart] (value) {
-		return value.substr(0,1) !== '-';
+		return value === '-' || value.substr(0,1) !== '-';
 	}
 
 	[symbols.updateTiersAfterMatch] (tiers) {
@@ -18,14 +18,15 @@ class Parameter extends  VariableSyntaxPart {
 	}
 
 	[symbols.spliceInputFromParts] (parts) {
-		return parts.shift();
+		let value = parts.shift();
+		return value === '-' ? undefined : value;
 	}
 
 	[symbols.exportWithInput] (request, value) {
 		if(!request.parameters)
 			request.parameters = {};
 
-		request.parameters[this.name] = value === undefined ? this.default : value;
+		request.parameters[this.name] = value === undefined ? this.cloneDefault() : value;
 	}
 }
 

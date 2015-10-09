@@ -13,13 +13,12 @@ function assertPromiseExecutionEqual(root, str, done, cb, errcb) {
 			});
 		})
 		.then(function (req) {
-			if(cb)
+			if(typeof cb === 'function') {
 				cb(req);
-			else {
-				assert.ok(false, 'Should not run');
+				done();
+			} else {
+				done(new Error('Did not throw expected error'));
 			}
-
-			done();
 		})
 		.catch(function (err) {
 			if (typeof errcb === 'function') {
@@ -35,13 +34,12 @@ function assertPromiseExecutionEqual(root, str, done, cb, errcb) {
 function assertPromiseEqual(app, str, done, cb, errcb) {
 	app.interpret(str)
 		.then(function (req) {
-			if(cb)
+			if(typeof cb === 'function') {
 				cb(req);
-			else {
-				assert.ok(false, 'Should not run');
+				done();
+			} else {
+				done(new Error('Did not throw expected error'));
 			}
-
-			done();
 		})
 		.catch(function (err) {
 			if (typeof errcb === 'function') {

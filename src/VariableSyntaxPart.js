@@ -56,6 +56,14 @@ class VariableSyntaxPart extends NamedSyntaxPart {
 		return this;
 	}
 
+	// @TODO: Find a better way to clone objects, since Object.assign does not seem to do the job
+	// If clone is not done properly, actual usage of a default property could overwrite it for later usages
+	cloneDefault () {
+		return typeof this.default === 'object' && !Array.isArray(this.default)
+			? JSON.parse(JSON.stringify(this.default || {}))
+			: this.default;
+	}
+
 	[symbols.validateInput] (input) {
 		if (this.required && input === undefined)
 			throw new Error(`"${this.name}" can not be undefined.`);

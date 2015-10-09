@@ -2,16 +2,21 @@
 
 let symbols = require('./symbols'),
 	DeepSyntaxPart = require('./DeepSyntaxPart'),
-	Option = require('./Option');
+	Parameter = require('./Parameter');
 
 
-class DeepOption extends Option {
+
+class DeepParameter extends Parameter {
 	constructor (name) {
 		super (name);
 	}
 
 	[symbols.isMatchForPart] (value) {
-		return value.indexOf(`--${this.name}.`) === 0;
+		return value.indexOf(`${this.name}.`) === 0;
+	}
+
+	[symbols.updateTiersAfterMatch] (tiers) {
+		return tiers;
 	}
 
 	[symbols.spliceInputFromParts] (parts) {
@@ -19,8 +24,8 @@ class DeepOption extends Option {
 	}
 
 	[symbols.exportWithInput] (request, value) {
-		return DeepSyntaxPart[symbols.exportWithInput].call(this, 'options', request, value);
+		return DeepSyntaxPart[symbols.exportWithInput].call(this, 'parameters', request, value);
 	}
 }
 
-module.exports = DeepOption;
+module.exports = DeepParameter;

@@ -7,6 +7,7 @@ var interpreter = require('./src/interpreter'),
 	DeepOption = require('./src/DeepOption'),
 	IsolatedOption = require('./src/IsolatedOption'),
 	Parameter = require('./src/Parameter'),
+	DeepParameter = require('./src/DeepParameter'),
 	Command = require('./src/Command');
 
 
@@ -24,6 +25,7 @@ class AskNicely extends Command {
 		this.DeepOption = DeepOption;
 		this.IsolatedOption = IsolatedOption;
 		this.Parameter = Parameter;
+		this.DeepParameter = DeepParameter;
 	}
 
 	/**
@@ -41,3 +43,4 @@ module.exports.Option = Option;
 module.exports.DeepOption = DeepOption;
 module.exports.IsolatedOption = IsolatedOption;
 module.exports.Parameter = Parameter;
+module.exports.DeepParameter = DeepParameter;
