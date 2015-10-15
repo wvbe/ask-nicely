@@ -3,9 +3,7 @@
 let symbols = require('./symbols'),
 	VariableSyntaxPart = require('./VariableSyntaxPart');
 
-
 class Option extends VariableSyntaxPart {
-
 	constructor (name) {
 		super(name);
 	}

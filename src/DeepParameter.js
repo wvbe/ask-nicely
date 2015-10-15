@@ -4,8 +4,6 @@ let symbols = require('./symbols'),
 	DeepSyntaxPart = require('./DeepSyntaxPart'),
 	Parameter = require('./Parameter');
 
-
-
 class DeepParameter extends Parameter {
 	constructor (name) {
 		super (name);

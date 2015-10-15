@@ -4,7 +4,8 @@ Easily create command-line applications by configuring commands, options and par
 __Uses ECMAScript 6, so node v.4 or similar is required.__
 
 ## Example
-An elaborate example can be found in `examples/application.annotated.js`. The following code is a functioning command-line application (that merely dumps whatever `Request` object was parsed from input):
+An elaborate example can be found in `examples/application.annotated.js`. The following code is a functioning
+command-line application (that merely dumps whatever `Request` object was parsed from input):
 
 ```
 let AskNicely = require('ask-nicely'),
@@ -21,7 +22,8 @@ root.interpret(process.argv.slice(2))
 	.catch(error => console.log(error));
 ```
 
-Parsing input (`process.argv` in this example) would yield the following `Request` object in the relevant controller and precontrollers:
+Parsing input (`process.argv` in this example) would yield the following `Request` object in the relevant controller
+and precontrollers:
 
 ```
 > node examples/application.microscopic.js -a
@@ -39,7 +41,9 @@ Parsing input (`process.argv` in this example) would yield the following `Reques
 ```
 
 ## Advanced use
-The Command methods `addOption` and `addParameter` either take a couple of strings and booleans, or an `Option` or `Parameter` instance respectively. Creating the instance of `Option` or `Parameter` first allows you to configure it with more advanced behaviour.
+The Command methods `addOption` and `addParameter` either take a couple of strings and booleans, or an `Option` or
+`Parameter` instance respectively. Creating the instance of `Option` or `Parameter` first allows you to configure it
+with more advanced behaviour.
 
 ```
 root.addOption(new root.Option('delta')
@@ -52,7 +56,9 @@ root.addOption(new root.Option('delta')
 );
 ```
 
-The resolver transforms flat text `input` into something different and is handled asynchronously if it returns a `Promise`. The validator in the example would throw a custom error if the resolved `user` object happens to have my username.
+The resolver transforms flat text `input` into something different and is handled asynchronously if it returns a
+`Promise`. The validator in the example would throw a custom error if the resolved `user` object happens to have my
+username.
 
 ## Important classes
 - Command
@@ -61,6 +67,7 @@ The resolver transforms flat text `input` into something different and is handle
     - DeepOption (like `--config.username wvbe`)
     - IsolatedOption (like `--help`, prevents further input parsing)
 - Parameter
+    - DeepParameter (as seen in `git config`)
 
 ## Important methods
 - Command, Option and Parameter classes
@@ -84,26 +91,45 @@ The resolver transforms flat text `input` into something different and is handle
 
 ## Behaviour
 - Input for `Options` or `Parameters` can contain spaces if the input is wrapped in double-quotes (`--opt "My option"`)
-- `Options` and `Parameters` accumulate as you go deeper from root into subcommands. In this way, any command can add scope to the underlying subcommands through the `Request` object
-- Precontrollers (`Command#addPrecontroller()`) are accumulated as you go deeper into subcommands as well. When a command is ran, all of it's ancestors precontrollers are ran too. In this way, for example, a precontroller can determine if the execution chain should stop for a certain combination of options (by returning `false`).
+- `Options` and `Parameters` accumulate as you go deeper from root into subcommands. In this way, any command can add
+  scope to the underlying subcommands through the `Request` object
+- Precontrollers (`Command#addPrecontroller()`) are accumulated as you go deeper into subcommands as well. When a
+  command is ran, all of it's ancestors precontrollers are ran too. In this way, for example, a precontroller can
+  determine if the execution chain should stop for a certain combination of options (by returning `false`).
 
 ## Release notes
 - v1.0
     - Using ECMAScript 6
-    - `Option`, `Parameter` and related classes increate configurability a thousandfold
+    - `Option`, `Parameter` and related classes increase configurability a thousandfold
     - Moved most parsing logic to individual classes that represent a syntax part
-    - `AskNicely#interpret()` is no longer synchronous because of the ability to resolve values
-    - Ditching a lot of useless methods that are not directly used for parsing or configuring, moving a lot of other stuff
+    - `AskNicely#interpret()` is no longer synchronous because of the ability to asynchronously resolve values
+    - Ditching a lot of useless methods that are not directly used for parsing or configuring, moving a lot of other
+      stuff
     - Ditching `Command#isHungry()` and `Command#isGreedy()`
 - v0.1
     - Initial release, pretty basic parsing with limited configurability
 
+## Issues/known bugs
+- There's a problem in `VariableSyntaxPart` that would fail to clone the `default` property object of a `DeepOption` of `DeepParameter`, resulting in changes to the `default` value that is shared with other instances of that syntax part. As a work-around the `default` object is stringified and parsed again, therefore it is limited to something that can be serialized.
+- Your terminal may replace patterns (like "*") with an actual list of matching file names before the node process is even started. This prevents parsing those patterns in AskNicely, and may yield unexpected results. Seen in `gnome-terminal` using `oh-my-zsh`. Can be circumvented by enclosing input data in double quotes, although that's kind of shitty. 
+
+## Wishlist
+- Fix aforementioned issues and known bugs.
+- Make it easy for commands to call other commands, maybe in a dependency-aware manner
+
 ## License
 Copyright (c) 2015 Wybe Minnebo
 
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
+documentation files (the "Software"), to deal in the Software without restriction, including without limitation the
+rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit
+persons to whom the Software is furnished to do so, subject to the following conditions:
 
-The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the
+Software.
 
-__THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.__
+__THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.__
 

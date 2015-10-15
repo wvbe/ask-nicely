@@ -1,17 +1,17 @@
 'use strict';
 
 var interpreter = require('./src/interpreter'),
-
 	Request = require('./src/Request'),
-	Option = require('./src/Option'),
-	DeepOption = require('./src/DeepOption'),
-	IsolatedOption = require('./src/IsolatedOption'),
-	Parameter = require('./src/Parameter'),
-	DeepParameter = require('./src/DeepParameter'),
-	Command = require('./src/Command');
+	exposedClasses = {
+			Command:        require('./src/Command'),
+			Option:         require('./src/Option'),
+			DeepOption:     require('./src/DeepOption'),
+			IsolatedOption: require('./src/IsolatedOption'),
+			Parameter:      require('./src/Parameter'),
+			DeepParameter:  require('./src/DeepParameter')
+		};
 
-
-class AskNicely extends Command {
+class AskNicely extends exposedClasses.Command {
 	/**
 	 * @param {String} [name]
 	 * @param {Function} [controller]
@@ -20,12 +20,7 @@ class AskNicely extends Command {
 	constructor (name, controller) {
 		super(name, controller);
 
-		this.Command = Command;
-		this.Option = Option;
-		this.DeepOption = DeepOption;
-		this.IsolatedOption = IsolatedOption;
-		this.Parameter = Parameter;
-		this.DeepParameter = DeepParameter;
+		Object.assign(this, exposedClasses);
 	}
 
 	/**
@@ -37,10 +32,4 @@ class AskNicely extends Command {
 	}
 }
 
-module.exports = AskNicely;
-module.exports.Command = Command;
-module.exports.Option = Option;
-module.exports.DeepOption = DeepOption;
-module.exports.IsolatedOption = IsolatedOption;
-module.exports.Parameter = Parameter;
-module.exports.DeepParameter = DeepParameter;
+module.exports = Object.assign(AskNicely, exposedClasses);

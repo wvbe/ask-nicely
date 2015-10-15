@@ -35,9 +35,9 @@ root
 		.parent
 	.addCommand('c')
 		.addOption(new root.Option('a').setDefault('adefault'))
-		.addOption(new root.Option('x').setShort('x'))
+		.addOption(new AskNicely.Option('x').setShort('x'))
 		.addOption(new root.Option('b').setDefault('bdefault').setShort('b'))
-		.addOption(new root.Option('c').setDefault('cdefault').setShort('c'))
+		.addOption(new AskNicely.Option('c').setDefault('cdefault').setShort('c'))
 		.addOption(new root.DeepOption('config').isRequired(true))
 		.addOption(new root.DeepOption('d').setDefault({
 			yikes: { argh: 'fabl' },

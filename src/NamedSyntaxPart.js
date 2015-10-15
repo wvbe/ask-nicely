@@ -8,6 +8,7 @@ class NamedSyntaxPart {
 	 */
 	constructor (name) {
 		this.name = name;
+		this.description = null;
 	}
 
 	/**
@@ -79,7 +80,7 @@ class NamedSyntaxPart {
 	}
 
 	/**
-	 * Stored a descriptive string for the NamedSyntaxPart definition.
+	 * Stored a descriptive string for the NamedSyntaxPart definition, or whatever it is to the end-user
 	 * @param {String} description
 	 * @returns {NamedSyntaxPart}
 	 */

@@ -7,13 +7,11 @@ let symbols = require('./symbols'),
 
 class Command extends NamedSyntaxPart {
 	constructor (name, controller) {
-		super (name);
-		this.name = name;
+		super(name);
+		this.controller = controller;
 		this.children = [];
 		this.options = [];
 		this.parameters = [];
-
-		this.controller = controller;
 		this.preControllers = [];
 	}
 
@@ -77,16 +75,6 @@ class Command extends NamedSyntaxPart {
 	}
 
 	/**
-	 * @param {String} description
-	 * @returns {Command}
-	 */
-	setDescription (description) {
-		this.description = description;
-
-		return this;
-	}
-
-	/**
 	 * Add a controller function that is ran before its own controller, or any of it's descendants controller
 	 * @param {Function} cb
 	 * @returns {Command}
@@ -106,7 +94,7 @@ class Command extends NamedSyntaxPart {
 	 * @returns {Command}
 	 */
 	addOption (long, short, description, required) {
-		this.options.push((long instanceof Option)
+		this.options.push(long instanceof Option
 			? long
 			: new Option(long)
 				.setShort(short)
@@ -126,7 +114,7 @@ class Command extends NamedSyntaxPart {
 	 * @returns {Command}
 	 */
 	addParameter (name, description, required) {
-		this.parameters.push((name instanceof Parameter)
+		this.parameters.push(name instanceof Parameter
 			? name
 			: new Parameter(name)
 				.setDescription(description)

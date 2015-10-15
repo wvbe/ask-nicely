@@ -4,7 +4,6 @@ let symbols = require('./symbols'),
 	DeepSyntaxPart = require('./DeepSyntaxPart'),
 	Option = require('./Option');
 
-
 class DeepOption extends Option {
 	constructor (name) {
 		super (name);
