@@ -8,11 +8,13 @@ let symbols = require('./symbols'),
 class Command extends NamedSyntaxPart {
 	constructor (name, controller) {
 		super(name);
-		this.controller = controller;
+		this.controller = null;
 		this.children = [];
 		this.options = [];
 		this.parameters = [];
 		this.preControllers = [];
+
+		this.setController(controller);
 	}
 
 	[symbols.isMatchForPart] (value) {
@@ -75,7 +77,18 @@ class Command extends NamedSyntaxPart {
 	}
 
 	/**
-	 * Add a controller function that is ran before its own controller, or any of it's descendants controller
+	 * Set the main controller
+	 * @param {Function} cb
+	 * @returns {Command}
+	 */
+	setController (cb) {
+		this.controller = cb;
+
+		return this;
+	}
+
+	/**
+	 * Add a precontroller function that is ran before its own controller, or any of it's descendants precontrollers
 	 * @param {Function} cb
 	 * @returns {Command}
 	 */

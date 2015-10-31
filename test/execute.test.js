@@ -36,6 +36,7 @@ describe('execute', () => {
 			assert.strictEqual(req.secondPreController, true);
 		});
 	});
+
 	it('returning FALSE prevents executing consecutive (pre) controllers', (done) => {
 		assertPromiseExecutionEqual('b', done, (req) => {
 			assert.strictEqual(req.first, true);

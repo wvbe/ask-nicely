@@ -4,7 +4,9 @@
  * @constructor
  */
 function Request() {
-
+	this.command = null;
+	this.options = {};
+	this.parameters = {};
 }
 
 /**
