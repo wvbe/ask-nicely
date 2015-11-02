@@ -13,7 +13,7 @@ let AskNicely = require('ask-nicely'),
 
 root.addOption('alpha', 'a');
 
-root.addCommand('subcommand', (request) => console.log(request))
+root.addCommand('subcommand', request => console.log(request))
 	.addOption('beta', 'b', null, true)
 	.addParameter('gamma');
 
@@ -48,8 +48,8 @@ with more advanced behaviour.
 ```
 root.addOption(new root.Option('delta')
     .setShort('d')
-    .setResolver((input) => database.find('users', input))
-    .addValidator((user) => {
+    .setResolver(input => database.find('users', input))
+    .addValidator(user => {
         if (user.username === 'wvbe')
             throw new Error('Get this sucka outta here');
     })
