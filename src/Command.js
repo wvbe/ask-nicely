@@ -8,6 +8,7 @@ let symbols = require('./symbols'),
 class Command extends NamedSyntaxPart {
 	constructor (name, controller) {
 		super(name);
+		this.parent = null;
 		this.controller = null;
 		this.children = [];
 		this.options = [];
