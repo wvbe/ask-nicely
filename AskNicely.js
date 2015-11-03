@@ -1,6 +1,6 @@
 'use strict';
 
-var interpreter = require('./src/interpreter'),
+let interpreter = require('./src/interpreter'),
 	Request = require('./src/Request'),
 	exposedClasses = {
 			Command:        require('./src/Command'),

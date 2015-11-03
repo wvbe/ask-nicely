@@ -130,10 +130,11 @@ describe('options', function () {
 			});
 		});
 		it('input "-" means default-or-true for this option', function (done) {
-			assertPromiseEqual('c --d.yikes.argh --config.blaat - --d.djoeken.shanken -', done, function (req) {
+			assertPromiseEqual('c --d.yikes.argh --config.blaat - --config.alsotrue --d.djoeken.shanken -', done, function (req) {
 				//console.log(require('util').inspect(req, {depth: 4, colors: true}));
 				assert.strictEqual(req.options.d.yikes.argh, 'fabl');
 				assert.strictEqual(req.options.config.blaat, true);
+				assert.strictEqual(req.options.config.alsotrue, true);
 				assert.strictEqual(req.options.d.djoeken.shanken, 'tsjoepen');
 			});
 		});

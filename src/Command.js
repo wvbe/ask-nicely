@@ -45,7 +45,7 @@ class Command extends NamedSyntaxPart {
 	executePreControllers () {
 		let args = Array.prototype.slice.call(arguments);
 		return this.preControllers.reduce(
-			(res, preController) => res.then((previousVal) => previousVal === false
+			(res, preController) => res.then(previousVal => previousVal === false
 				? previousVal
 				: preController.apply(null, args)
 			),
@@ -63,7 +63,7 @@ class Command extends NamedSyntaxPart {
 		let args = Array.prototype.slice.call(arguments);
 
 		return this.executePreControllers.apply(this, args)
-			.then((previousValue) => (previousValue === false || typeof this.controller !== 'function')
+			.then(previousValue => previousValue === false || typeof this.controller !== 'function'
 				? previousValue
 				: this.controller.apply(null, args));
 	}
@@ -74,7 +74,7 @@ class Command extends NamedSyntaxPart {
 	 * @returns {Command|undefined}
 	 */
 	getCommandByName (name) {
-		return this.children.find((child) => child.name === name);
+		return this.children.find(child => child.name === name);
 	}
 
 	/**

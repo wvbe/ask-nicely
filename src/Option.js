@@ -20,7 +20,7 @@ class Option extends VariableSyntaxPart {
 	}
 
 	[symbols.spliceInputFromParts]  (parts) {
-		if (this.short && parts[0].substr(1,1) !== '-') {
+		if (this.short && parts[0].charAt(1) !== '-') {
 			parts[0] = parts[0].replace(this.short, '');
 
 			// if all that' remains is a dash
@@ -36,15 +36,12 @@ class Option extends VariableSyntaxPart {
 			return this.cloneDefault() || true;
 		}
 
-		return (parts[0] && parts[0].indexOf('-') !== 0 && parts[0])
+		return (parts[0] && parts[0].charAt(0) !== '-' && parts[0])
 			? parts.shift()
 			: this.cloneDefault() || true;
 	}
 
 	[symbols.exportWithInput] (request, value) {
-		if(!request.options)
-			request.options = {};
-
 		request.options[this.name] = value === undefined ? this.cloneDefault() : value;
 	}
 

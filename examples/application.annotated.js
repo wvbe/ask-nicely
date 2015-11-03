@@ -1,9 +1,9 @@
 'use strict';
 
-var helpCommand = require('./command.help'),
+let helpCommand = require('./command.help'),
 	AskNicely = require('../AskNicely');
 
-// Validators are expected to throw errors. The return value is ignored.
+// Validators (set on a param/option through `addValidator`) are expected to throw errors. The return value is ignored.
 function azAZ09Validator (flightId) {
 	if(/[^a-zA-Z0-9]/.test(flightId))
 		throw new Error('Value can only consist of alphanumeric characters: a-z, A-Z and 0-9');
@@ -21,7 +21,7 @@ function dumpRequestCommand (req) {
 // Instantiate a new root Command:
 // The name is not prominent, defaults to "root" for clarity. Also, if executed it would dump some help info
 // about itself.
-var root = new AskNicely(null, helpCommand);
+let root = new AskNicely(null, helpCommand);
 
 // Add an option that exists across self and descendants:
 // If someonethis "--help" or "-h" flag anywhere, the precontroller aborts the execution chain and dumps
@@ -31,9 +31,9 @@ root
 		.setShort('h')
 		.setDescription('Usage information, just try it')
 	)
-	.addPreController((req) => req.options.help
-			? helpCommand.call(this, req)
-			: true
+	.addPreController(req => req.options.help
+		? helpCommand.call(this, req)
+		: true
 	);
 
 // Add a sub command to root:
@@ -46,7 +46,7 @@ root
 	.addParameter(new root.Parameter('flightId')
 		.isRequired(true)
 		.addValidator(azAZ09Validator)
-		.setResolver((flightId) => /* value or Promise */ flightId.toLowerCase())
+		.setResolver(flightId => /* value or Promise */ flightId.toLowerCase())
 	)
 
 	// Add a sub command to `root flight {flightId}`:
@@ -61,17 +61,18 @@ root.interpret(process.argv.slice(2))
 
 	// At this point the Request object for the input is parsed out according to the configured
 	// commands, options and parameters. Option/parameter resolvers have been fulfilled.
-	.then((req) => {
-		// Execute all the ancestry's preControllers and one final controller.
-		return req.execute();
-	})
+	// Continue to execute all the ancestry's preControllers and one final controller.
+	.then(req => req.execute())
 
-	.then((req) => {
-		console.log('Derp', req);
+	// Yada yada yada
+
+	// When the dust settles
+	.then(req => {
+		console.log('Request object: ', req);
 	})
 
 	// Determine for yourself how you would handle any errors along the way
-	.catch((error) => {
+	.catch(error => {
 		console.log(error.stack || error.message || error);
 	});
 

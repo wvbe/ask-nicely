@@ -43,7 +43,8 @@ and precontrollers:
 ## Advanced use
 The Command methods `addOption` and `addParameter` either take a couple of strings and booleans, or an `Option` or
 `Parameter` instance respectively. Creating the instance of `Option` or `Parameter` first allows you to configure it
-with more advanced behaviour.
+with more advanced behaviour. There are different kinds of `Options` and `Parameters`; for example, `--user.name wvbe`
+would create an object (`req.options.user = { name: 'wvbe' }`) if you configure it as a `DeepOption`.
 
 ```
 root.addOption(new root.Option('delta')
@@ -71,6 +72,7 @@ username.
 
 ## Important methods
 - Command, Option and Parameter classes
+    - `constructor(name)`
     - `setDescription(description)`
 - Option and Parameter classes
     - `isRequired(required)`
@@ -81,12 +83,14 @@ username.
     - `setShort(short)`
 - Command classes
     - `addCommand(command|name[, controller])`
+    - `setController(controller)`
     - `addParameter(parameter|name[, description, required])`
     - `addOption(option|name[, short, description, required])`
     - `addPreController(controller)`
 - AskNicely class
     - `interpret([input])`
 - Request class
+    - `constructor()`
     - `execute([artibrary])`
 
 ## Behaviour
@@ -98,6 +102,9 @@ username.
   determine if the execution chain should stop for a certain combination of options (by returning `false`).
 
 ## Release notes
+- develop
+    - Adding `Command#setController(controller)`
+    - Declaring properties on Request in constructor so you don't avoid having to null-check
 - v1.0
     - Using ECMAScript 6
     - `Option`, `Parameter` and related classes increase configurability a thousandfold
@@ -115,7 +122,9 @@ username.
 
 ## Wishlist
 - Fix aforementioned issues and known bugs.
+- A different way of stopping the controller chain, returning FALSE is a little crude
 - Make it easy for commands to call other commands, maybe in a dependency-aware manner
+- Test more edge cases, like conflicts and multiple values
 
 ## License
 Copyright (c) 2015 Wybe Minnebo

@@ -1,49 +1,46 @@
 'use strict';
 
 module.exports = function helpCommand(req) {
-	var command = req.command;
-	console.log('Name:');
-	console.log('\t' + (command.name || '(no name)'));
-
-	console.log('Description:');
-	console.log('\t' + (command.description || '(no description)'));
+	let command = req.command;
+	console.log(``);
+	console.log(`Name:        ${command.name || '(no name)'}`);
+	console.log(`Description: ${command.description || '(no description)'}`);
 
 	if(command.children.length) {
-		console.log('Child commands:');
+		console.log(`\n${command.children.length} Child commands:`);
 
 		command.children
-			.sort(function(a, b) {
-				return a.name < b.name ? -1 : 1;
-			})
-			.forEach(function (cmd) {
-				console.log(['', cmd.name, '-', cmd.description || '(no description)'].join('\t'));
+			.sort((a, b) => a.name < b.name ? -1 : 1)
+			.forEach(cmd =>{
+				console.log(`    ${cmd.name}: (${cmd.description || 'no description'})`);
 			});
 	}
 
 	if(command.parameters.length) {
-		console.log('Parameters:');
+		console.log(`\n${command.parameters.length} Parameters:`);
 
 		command.parameters
-			.forEach(function (param) {
-				console.log(['', param.name, '-', param.description || '(no description)'].join('\t'));
+			.forEach(param => {
+				console.log(`    ${param.name}: (${param.description || 'no description'})`);
 			});
 	}
 
 	if(command.options.length) {
-		console.log('Options');
+		console.log(`\n${command.options.length} Parameters:`);
 
 		command.options
-			.sort(function(a, b) {
-				return a.name < b.name ? -1 : 1;
-			})
-			.forEach(function (option) {
+			.sort((a, b) => a.name < b.name ? -1 : 1)
+			.forEach(option => {
 				console.log([
 					'',
-					(option.short ? '-' + option.short : '  ') + '    ' + '--' + option.name,
+					(option.short ? '-' + option.short : '  '),
+					'--' + option.name,
 					(option.required ? '* ' : '') + (option.description || '(no description)')
-				].join('\t'));
+				].join('    '));
 			});
 	}
+
+	console.log(``);
 
 	return false;
 };

@@ -25,9 +25,9 @@ class IsolatedOption extends Option {
 		return input;
 	}
 
-	// By resetting the results to just the command and this instance
+	// By resetting the results to just the command and this instance the Request object stays clean
 	[symbols.updateInputSpecsAfterMatch] (resolvedInputSpecs, inputValue) {
-		resolvedInputSpecs = [resolvedInputSpecs.reverse().find((inputSpec) => inputSpec[0] instanceof Command)];
+		resolvedInputSpecs = [resolvedInputSpecs.reverse().find(inputSpec => inputSpec[0] instanceof Command)];
 
 		resolvedInputSpecs.push([this, inputValue]);
 

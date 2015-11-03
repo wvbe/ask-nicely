@@ -5,7 +5,7 @@ let AskNicely = require('../AskNicely'),
 
 root.addOption('alpha', 'a');
 
-root.addCommand('subcommand', request => console.log(request))
+root.addCommand('subcommand', request => console.log('Request object: ', request))
 	.addOption('beta', 'b', null, true)
 	.addParameter('gamma');
 

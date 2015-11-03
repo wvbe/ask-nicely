@@ -7,11 +7,11 @@ let symbols = require('./symbols');
  * @param {String|Array<String>} [parts]
  * @returns {Array<[]>}
  */
-function interpreterInputSpecs (root, parts) {
+function interpretInputSpecs (root, parts) {
 	if (!parts)
 		parts = [];
 	else if(typeof parts === 'string')
-		parts = parts.match(/(".*?"|[^"\s]+)+(?=\s*|\s*$)/g).map((str) => str.replace(/['"]+/g, ''));
+		parts = parts.match(/(".*?"|[^"\s]+)+(?=\s*|\s*$)/g).map(str => str.replace(/['"]+/g, ''));
 
 	let scopes = [root],
 		resolvedInputSpecs = [[root,root]];
@@ -23,7 +23,7 @@ function interpreterInputSpecs (root, parts) {
 	// Match and validate syntax parts based on input
 	while (parts.length) {
 		let expectedScopes = scopes._.concat(scopes),
-			matchingScope = expectedScopes.find((scope)=> scope[symbols.isMatchForPart](parts[0]));
+			matchingScope = expectedScopes.find(scope => scope[symbols.isMatchForPart](parts[0]));
 
 		if(!matchingScope)
 			throw new Error(`Could not find a match for input "${parts[0]}"`);
@@ -38,8 +38,8 @@ function interpreterInputSpecs (root, parts) {
 	// Find everything that is still open to match, and map it to the same format as resolvedScopeValues
 	let unresolvedInputSpecs = scopes._.concat(scopes)
 		.reduce((leftovers, tierOptions) => leftovers.concat(tierOptions), [])
-		.filter((syntaxPart) => !resolvedInputSpecs.find((match)=> match[0] === syntaxPart))
-		.map((unmatch) => [unmatch, undefined]);
+		.filter(syntaxPart => !resolvedInputSpecs.find(match => match[0] === syntaxPart))
+		.map(unmatch => [unmatch, undefined]);
 
 	return resolvedInputSpecs.concat(unresolvedInputSpecs);
 }
@@ -51,18 +51,14 @@ function interpreterInputSpecs (root, parts) {
  * @returns {Promise}
  */
 function resolveValueSpecs(request, inputSpecs) {
-	try {
-		inputSpecs.forEach((inputSpec) => inputSpec[0][symbols.validateInput](inputSpec[1]));
-	} catch (e) {
-		return Promise.reject(e);
-	}
+	inputSpecs.forEach(inputSpec => inputSpec[0][symbols.validateInput](inputSpec[1]));
 
-	return Promise.all(inputSpecs.map((inputSpec) => !inputSpec[0].resolver
-		? inputSpec
-		: Promise.resolve(inputSpec[0].resolver(inputSpec[1]))
-		.then((input) => [inputSpec[0], input])))
-		.then((valueSpecs) => {
-			valueSpecs.forEach((valueSpec) => valueSpec[0].validateValue(valueSpec[1]));
+	return Promise.all(inputSpecs.map(inputSpec => !inputSpec[0].resolver
+			? inputSpec
+			: Promise.resolve(inputSpec[0].resolver(inputSpec[1]))
+		.then(input => [inputSpec[0], input])))
+		.then(valueSpecs => {
+			valueSpecs.forEach(valueSpec => valueSpec[0].validateValue(valueSpec[1]));
 			return valueSpecs.reduce(
 				(req, valueSpec) => Object.assign(req, valueSpec[0][symbols.exportWithInput](request, valueSpec[1])),
 				request
@@ -70,9 +66,9 @@ function resolveValueSpecs(request, inputSpecs) {
 		});
 }
 
-module.exports = function (root, parts, request) {
+module.exports = function interpreter (root, parts, request) {
 	try {
-		return resolveValueSpecs(request || {}, interpreterInputSpecs(root, parts));
+		return resolveValueSpecs(request || {}, interpretInputSpecs(root, parts));
 	} catch (e) {
 		return Promise.reject(e);
 	}
