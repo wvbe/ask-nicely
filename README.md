@@ -3,6 +3,9 @@ Easily create command-line applications by configuring commands, options and par
 
 __Uses ECMAScript 6, so node v.4 or similar is required.__
 
+Ask Nicely is different from parsers like `minimist` because it interprets input based on what's configured, rather
+than syntax alone.
+
 ## Example
 An elaborate example can be found in `examples/application.annotated.js`. The following code is a functioning
 command-line application (that merely dumps whatever `Request` object was parsed from input):
@@ -117,8 +120,14 @@ username.
     - Initial release, pretty basic parsing with limited configurability
 
 ## Issues/known bugs
-- There's a problem in `VariableSyntaxPart` that would fail to clone the `default` property object of a `DeepOption` of `DeepParameter`, resulting in changes to the `default` value that is shared with other instances of that syntax part. As a work-around the `default` object is stringified and parsed again, therefore it is limited to something that can be serialized.
-- Your terminal may replace patterns (like "*") with an actual list of matching file names before the node process is even started. This prevents parsing those patterns in AskNicely, and may yield unexpected results. Seen in `gnome-terminal` using `oh-my-zsh`. Can be circumvented by enclosing input data in double quotes, although that's kind of shitty. 
+- There's a problem in `VariableSyntaxPart` that would fail to clone the `default` property object of a `DeepOption` of
+  `DeepParameter`, resulting in changes to the `default` value that is shared with other instances of that syntax part.
+  As a work-around the `default` object is stringified and parsed again, therefore it is limited to something that can
+  be serialized.
+- Your terminal may replace patterns (like "*") with an actual list of matching file names before the node process is
+  even started. This prevents parsing those patterns in AskNicely, and may yield unexpected results. Seen in
+  `gnome-terminal` using `oh-my-zsh`. Can be circumvented by enclosing input data in double quotes, although that's
+  kind of shitty.
 
 ## Wishlist
 - Fix aforementioned issues and known bugs.
