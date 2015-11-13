@@ -46,8 +46,11 @@ and precontrollers:
 ## Advanced use
 The Command methods `addOption` and `addParameter` either take a couple of strings and booleans, or an `Option` or
 `Parameter` instance respectively. Creating the instance of `Option` or `Parameter` first allows you to configure it
-with more advanced behaviour. There are different kinds of `Options` and `Parameters`; for example, `--user.name wvbe`
-would create an object (`req.options.user = { name: 'wvbe' }`) if you configure it as a `DeepOption`.
+with more advanced behaviour.
+
+There are different kinds of `Options` and `Parameters`; for example, `--user.name wvbe` would create an object
+(`req.options.user = { name: 'wvbe' }`) if you configure it as a `DeepOption`. These extending Option and Parameter
+classes are exposed on `AskNicely` and it's instances.
 
 ```
 root.addOption(new root.Option('delta')
@@ -108,11 +111,11 @@ username.
   The `default` is only used here when the option is not present at all.
 
 ## Release notes
-- develop
+- develop (staged for v1.1.0)
     - Adding `Command#setController(controller)`
-    - Declaring properties on Request in constructor so you don't avoid having to null-check
+    - Declaring properties on Request in constructor so you don't have to keep null-checking
     - Adding `MultiOption` class
-- v1.0
+- v1.0.0
     - Using ECMAScript 6
     - `Option`, `Parameter` and related classes increase configurability a thousandfold
     - Moved most parsing logic to individual classes that represent a syntax part
@@ -120,7 +123,7 @@ username.
     - Ditching a lot of useless methods that are not directly used for parsing or configuring, moving a lot of other
       stuff
     - Ditching `Command#isHungry()` and `Command#isGreedy()`
-- v0.1
+- v0.1.0
     - Initial release, pretty basic parsing with limited configurability
 
 ## Issues/known bugs
