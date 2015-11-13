@@ -1,7 +1,7 @@
 'use strict';
 
 module.exports = {
-	assertPromiseEqual: assertPromiseEqual,
+	assertPromiseInterpretEqual: assertPromiseInterpretEqual,
 	assertPromiseExecutionEqual: assertPromiseExecutionEqual
 };
 
@@ -27,11 +27,10 @@ function assertPromiseExecutionEqual(root, str, done, cb, errcb) {
 			} else {
 				done(err);
 			}
-
 		});
 }
 
-function assertPromiseEqual(app, str, done, cb, errcb) {
+function assertPromiseInterpretEqual(app, str, done, cb, errcb) {
 	app.interpret(str)
 		.then(function (req) {
 			if(typeof cb === 'function') {
@@ -48,6 +47,5 @@ function assertPromiseEqual(app, str, done, cb, errcb) {
 			} else {
 				done(err);
 			}
-
 		});
 }

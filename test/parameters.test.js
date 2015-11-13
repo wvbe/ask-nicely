@@ -4,7 +4,7 @@ var assert = require('assert'),
 	utils = require('./test-utils'),
 	AskNicely = require('../AskNicely'),
 	root = new AskNicely(),
-	assertPromiseEqual = utils.assertPromiseEqual.bind(undefined, root);
+	assertPromiseInterpretEqual = utils.assertPromiseInterpretEqual.bind(undefined, root);
 
 function cannotContainXyz(errCode, value) {
 	if(typeof value === 'string' && value.indexOf('xyz') >= 0)
@@ -45,50 +45,50 @@ root
 describe('parameters', function () {
 
 	it('include parent command parameters', function (done) {
-		assertPromiseEqual(['a', 'param1value', 'aa', 'param2value', 'aaa', 'param3value'], done, function (req) {
+		assertPromiseInterpretEqual(['a', 'param1value', 'aa', 'param2value', 'aaa', 'param3value'], done, function (req) {
 			assert.strictEqual(req.parameters.param1, 'param1value');
 		});
 	});
 
 	it('can be configured with custom validators', function (done) {
-		assertPromiseEqual(['b', 'nerfxyz'], done, null, function (err) {
+		assertPromiseInterpretEqual(['b', 'nerfxyz'], done, null, function (err) {
 			assert.strictEqual(err.message, 'parameter-validator');
 		});
 	});
 	it('may be required', function (done) {
-		assertPromiseEqual(['b', 'nerfxyz', 'ba'], done, null, function (err) {
+		assertPromiseInterpretEqual(['b', 'nerfxyz', 'ba'], done, null, function (err) {
 			assert.ok(err.message.indexOf('nerf') >= 0 && err.message.indexOf('undefined') >= 0);
 		});
 	});
 	it('or not required', function (done) {
-		assertPromiseEqual(['a', 'param1'], done, function (res) {
+		assertPromiseInterpretEqual(['a', 'param1'], done, function (res) {
 			assert.strictEqual(res.parameters.param1, 'param1');
 			assert.strictEqual(res.parameters.param2, undefined);
 		});
 	});
 	it('handles default values for unspecified parameters', function (done) {
-		assertPromiseEqual('b req ba something', done, function (res) {
+		assertPromiseInterpretEqual('b req ba something', done, function (res) {
 			assert.strictEqual(res.parameters.smack, undefined);
 			assert.strictEqual(res.parameters.bam, '!!!');
 		});
 	});
 
 	it('input "-" means default-or-undefined for this option', function (done) {
-		assertPromiseEqual('b req ba something - -', done, function (res) {
+		assertPromiseInterpretEqual('b req ba something - -', done, function (res) {
 			assert.strictEqual(res.parameters.smack, undefined);
 			assert.strictEqual(res.parameters.bam, '!!!');
 		});
 	});
 	describe('deep parameters are like options, but also like parameters', function () {
 		it('deep parameter is deep', function (done) {
-			assertPromiseEqual('c config.blaat test config.durka.nerf derp d.djoeken.shanken argewreg', done, function (req) {
+			assertPromiseInterpretEqual('c config.blaat test config.durka.nerf derp d.djoeken.shanken argewreg', done, function (req) {
 				assert.strictEqual(req.parameters.config.blaat, 'test');
 				assert.strictEqual(req.parameters.config.durka.nerf, 'derp');
 				assert.strictEqual(req.command.parameters[req.command.parameters.length - 1].default.djoeken.shanken, 'tsjoepen', 'Default value shoudl not be changed');
 			});
 		});
 		it('handles default values for unspecified deep parameters', function (done) {
-			assertPromiseEqual('c d.djoeken.shanken - d.yikes.argh eeks d.smack', done, function (req) {
+			assertPromiseInterpretEqual('c d.djoeken.shanken - d.yikes.argh eeks d.smack', done, function (req) {
 				assert.strictEqual(req.parameters.d.smack, true);
 				assert.strictEqual(req.parameters.d.djoeken.shanken, 'tsjoepen');
 				assert.strictEqual(req.parameters.d.yikes.argh, 'eeks');
@@ -96,7 +96,7 @@ describe('parameters', function () {
 		});
 
 		it('deep parameters are order independent, and leak through to subcommands', function (done) {
-			assertPromiseEqual('c ca what d.yikes.argh eeks', done, function (req) {
+			assertPromiseInterpretEqual('c ca what d.yikes.argh eeks', done, function (req) {
 				assert.strictEqual(req.parameters.d.yikes.argh, 'eeks');
 				assert.strictEqual(req.parameters.st, 'what');
 			});

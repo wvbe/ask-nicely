@@ -19,11 +19,15 @@ class Parameter extends  VariableSyntaxPart {
 
 	[symbols.spliceInputFromParts] (parts) {
 		let value = parts.shift();
-		return value === '-' ? undefined : value;
+		return value === '-'
+			? undefined
+			: value;
 	}
 
 	[symbols.exportWithInput] (request, value) {
-		request.parameters[this.name] = value === undefined ? this.cloneDefault() : value;
+		request.parameters[this.name] = value === undefined
+			? this.cloneDefault()
+			: value;
 	}
 }
 

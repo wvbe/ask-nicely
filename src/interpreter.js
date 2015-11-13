@@ -10,7 +10,8 @@ let symbols = require('./symbols');
 function interpretInputSpecs (root, parts) {
 	if (!parts)
 		parts = [];
-	else if(typeof parts === 'string')
+
+	if(typeof parts === 'string')
 		parts = parts.match(/(".*?"|[^"\s]+)+(?=\s*|\s*$)/g).map(str => str.replace(/['"]+/g, ''));
 
 	let scopes = [root],

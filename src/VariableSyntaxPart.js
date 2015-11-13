@@ -70,9 +70,7 @@ class VariableSyntaxPart extends NamedSyntaxPart {
 	}
 
 	validateValue (value) {
-		this.validators.forEach(function (validator) {
-			validator(value);
-		});
+		this.validators.forEach(validator => validator(value));
 	}
 }
 

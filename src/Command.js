@@ -47,8 +47,7 @@ class Command extends NamedSyntaxPart {
 		return this.preControllers.reduce(
 			(res, preController) => res.then(previousVal => previousVal === false
 				? previousVal
-				: preController.apply(null, args)
-			),
+				: preController.apply(null, args)),
 			this.parent
 				? this.parent.executePreControllers.apply(this.parent, args)
 				: Promise.resolve(true)
@@ -146,7 +145,9 @@ class Command extends NamedSyntaxPart {
 	 * @returns {Command} The child command
 	 */
 	addCommand (name, controller) {
-		let child = name instanceof Command ? name : new Command(name, controller);
+		let child = name instanceof Command
+			? name
+			: new Command(name, controller);
 
 		child.parent = this;
 

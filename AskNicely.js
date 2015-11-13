@@ -1,8 +1,9 @@
 'use strict';
 
 let interpreter = require('./src/interpreter'),
-	Request = require('./src/Request'),
-	exposedClasses = {
+
+	CLASS_EXPORT = {
+			Request:        require('./src/Request'),
 			Command:        require('./src/Command'),
 			Option:         require('./src/Option'),
 			DeepOption:     require('./src/DeepOption'),
@@ -11,7 +12,7 @@ let interpreter = require('./src/interpreter'),
 			DeepParameter:  require('./src/DeepParameter')
 		};
 
-class AskNicely extends exposedClasses.Command {
+class AskNicely extends CLASS_EXPORT.Command {
 	/**
 	 * @param {String} [name]
 	 * @param {Function} [controller]
@@ -20,16 +21,17 @@ class AskNicely extends exposedClasses.Command {
 	constructor (name, controller) {
 		super(name, controller);
 
-		Object.assign(this, exposedClasses);
+		Object.assign(this, CLASS_EXPORT);
 	}
 
 	/**
 	 * @param {String|Array<String>} [parts]
+	 * @param {Object} [request] An existing Request, if you do not want to make a new one if you want to re-use it
 	 * @returns {Promise}
 	 */
-	interpret (parts) {
-		return interpreter(this, parts, new Request());
+	interpret (parts, request) {
+		return interpreter(this, parts, request || new CLASS_EXPORT.Request());
 	}
 }
 
-module.exports = Object.assign(AskNicely, exposedClasses);
+module.exports = Object.assign(AskNicely, CLASS_EXPORT);
