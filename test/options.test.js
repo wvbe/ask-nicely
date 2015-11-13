@@ -48,7 +48,15 @@ root
 	.addCommand('d')
 		.addOption(new root.Option('something').isRequired(cannotContainXyz.bind(null, 'option-validator-2')))
 		.addOption('else', null, null, true)
-		.addOption(new root.IsolatedOption('help'));
+		.addOption(new root.IsolatedOption('help'))
+		.parent
+	// 'e -l one --list two --list three four'
+	.addCommand('e')
+		.addOption(new root.MultiOption('list').setShort('l'))
+		.addOption(new root.MultiOption('derp').setShort('d'))
+		.addOption(new root.MultiOption('eee').setShort('e').setDefault('abc'.split('')))
+		.addOption(new root.MultiOption('fff').setShort('f').setDefault('def'.split('')))
+		.addOption(new root.MultiOption('ggg').setShort('g').setDefault('ghi'.split('')));
 
 
 describe('options', function () {
@@ -145,6 +153,24 @@ describe('options', function () {
 				assert.strictEqual(req.options.something, undefined);
 				assert.strictEqual(req.options.else, undefined);
 				assert.strictEqual(req.options.help, 'please');
+			});
+		});
+	});
+	describe('multi options', function () {
+		it('may contain multiple values', function (done) {
+			assertPromiseInterpretEqual('e -le - -lf -l one --list two --list three "almost four"', done, function (req) {
+				assert.strictEqual(req.options.list[0], 'one');
+				assert.strictEqual(req.options.list[1], 'two');
+				assert.strictEqual(req.options.list[2], 'three');
+				assert.strictEqual(req.options.list[3], 'almost four');
+			});
+		});
+		it('can have default, or can be emptied despite having a default', function (done) {
+			assertPromiseInterpretEqual('e -le - -lf one -d', done, function (req) {
+				assert.strictEqual(Array.isArray(req.options.derp), true);
+				assert.strictEqual(req.options.eee.length, 0, 'set to empty');
+				assert.strictEqual(req.options.fff.length, 1, 'overwritten default');
+				assert.strictEqual(req.options.ggg.length, 3, 'unset, using default');
 			});
 		});
 	});

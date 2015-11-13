@@ -68,6 +68,7 @@ username.
 - Command
     - AskNicely (the "root" command, has added `interpret` method)
 - Option
+    - MultiOption (like `--emails one@hotmail.com two@hotmail.com`)
     - DeepOption (like `--config.username wvbe`)
     - IsolatedOption (like `--help`, prevents further input parsing)
 - Parameter
@@ -103,11 +104,14 @@ username.
 - Precontrollers (`Command#addPrecontroller()`) are accumulated as you go deeper into subcommands as well. When a
   command is ran, all of it's ancestors precontrollers are ran too. In this way, for example, a precontroller can
   determine if the execution chain should stop for a certain combination of options (by returning `false`).
+- If a `MultiOption` has items in it's `default`, the parsed input can be emptied by using the option without values.
+  The `default` is only used here when the option is not present at all.
 
 ## Release notes
 - develop
     - Adding `Command#setController(controller)`
     - Declaring properties on Request in constructor so you don't avoid having to null-check
+    - Adding `MultiOption` class
 - v1.0
     - Using ECMAScript 6
     - `Option`, `Parameter` and related classes increase configurability a thousandfold

@@ -40,7 +40,7 @@ function interpretInputSpecs (root, parts) {
 	let unresolvedInputSpecs = scopes._.concat(scopes)
 		.reduce((leftovers, tierOptions) => leftovers.concat(tierOptions), [])
 		.filter(syntaxPart => !resolvedInputSpecs.find(match => match[0] === syntaxPart))
-		.map(unmatch => [unmatch, undefined]);
+		.map(unmatch => [unmatch, undefined, true]);
 
 	return resolvedInputSpecs.concat(unresolvedInputSpecs);
 }
@@ -61,7 +61,7 @@ function resolveValueSpecs(request, inputSpecs) {
 		.then(valueSpecs => {
 			valueSpecs.forEach(valueSpec => valueSpec[0].validateValue(valueSpec[1]));
 			return valueSpecs.reduce(
-				(req, valueSpec) => Object.assign(req, valueSpec[0][symbols.exportWithInput](request, valueSpec[1])),
+				(req, valueSpec) => Object.assign(req, valueSpec[0][symbols.exportWithInput](request, valueSpec[1], valueSpec[2])),
 				request
 			);
 		});
