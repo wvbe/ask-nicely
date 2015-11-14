@@ -12,7 +12,7 @@ class Option extends VariableSyntaxPart {
 		// return true if value is a (grouped) short, or long notation
 		return (value.indexOf('-') !== 0)
 			? false
-			: (this.short && value.substr(1,1) !== '-' && value.substr(1).indexOf(this.short) >= 0)
+			: (this.short && value.charAt(1) === this.short)
 			|| value === `--${this.name}`;
 	}
 
@@ -23,9 +23,9 @@ class Option extends VariableSyntaxPart {
 
 	[symbols.spliceInputFromParts]  (parts) {
 		// if this is a short notation (for one or more flags)
-		if (this.short && parts[0].charAt(1) !== '-') {
+		if (this.short && parts[0].charAt(1) === this.short) {
 			// remove the flag signifier from group
-			parts[0] = parts[0].replace(this.short, '');
+			parts[0] = '-' + parts[0].substr(2);//replace(this.short, '');
 
 			// if the group is not empty, stop parsing this option
 			if(parts[0] !== '-')
@@ -46,14 +46,32 @@ class Option extends VariableSyntaxPart {
 			return parts.shift();
 	}
 
+
 	[symbols.applyDefault] (value, isUndefined) {
-		// If the option was specified but not specific, use default or TRUE
-		return (!isUndefined && value === undefined)
-			? this.cloneDefault() || true
-			: value;
+		if(this.required && isUndefined)
+			return undefined;
+
+		if(value === undefined) {
+			if(this.useDefaultIfFlagMissing || !isUndefined) {
+				return this.cloneDefault() || true;
+			}
+		}
+		return value;
 	}
 	[symbols.exportWithInput] (request, value, isUndefined) {
 		request.options[this.name] = value;
+	}
+
+	/**
+	 *
+	 * @param value
+	 * @param {Boolean} [useDefaultIfFlagMissing] - Ignored when option is also required -- will fail validation
+	 * @returns {Option}
+	 */
+	setDefault (value, useDefaultIfFlagMissing) {
+		this.default = value;
+		this.useDefaultIfFlagMissing = !!useDefaultIfFlagMissing;
+		return this;
 	}
 
 	/**

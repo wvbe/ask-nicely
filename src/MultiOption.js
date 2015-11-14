@@ -9,8 +9,8 @@ class MultiOption extends Option {
 	}
 
 	[symbols.spliceInputFromParts]  (parts) {
-		if (this.short && parts[0].charAt(1) !== '-') {
-			parts[0] = parts[0].replace(this.short, '');
+		if (this.short && parts[0].charAt(1) === this.short) {
+			parts[0] = '-' + parts[0].substr(2);//parts[0].replace(this.short, '');
 
 			if(parts[0] !== '-')
 				return [];
@@ -37,10 +37,16 @@ class MultiOption extends Option {
 	}
 
 	[symbols.applyDefault] (value, isUndefined) {
-		if(isUndefined)
-			return this.cloneDefault() || [];
+		if(value === undefined || !value.length) {
+			if(this.useDefaultIfFlagMissing || !isUndefined) {
+				value = this.cloneDefault() || [];
+			}
+		}
 
-		return value;
+		if(this.required && (isUndefined || !value || !value.length))
+			return undefined;
+
+		return value || [];
 	}
 	[symbols.exportWithInput] (request, value, isUndefined) {
 		request.options[this.name] = (request.options[this.name] || []).concat(value);

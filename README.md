@@ -85,8 +85,10 @@ username.
     - `isRequired(required)`
     - `addValidator(validator)`
     - `setResolver(resolver)`
+- Parameter classes
     - `setDefault(arbitrary)`
 - Option classes
+    - `setDefault(arbitrary, useDefaultIfFlagMissing)`
     - `setShort(short)`
 - Command classes
     - `addCommand(command|name[, controller])`

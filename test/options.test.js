@@ -191,13 +191,12 @@ describe('options', function () {
 				assert.strictEqual(req.options.list[3], 'almost four');
 			});
 		});
-		it('assigns default if undefined, or empty array if unspecific', function (done) {
+		it('assigns empty array if undefined, or default if unspecific', function (done) {
 			assertPromiseInterpretEqual('e -le - -lf one -d', done, function (req) {
-				console.log(req.options)
 				assert.strictEqual(Array.isArray(req.options.derp), true);
-				assert.strictEqual(req.options.eee.length, 0, 'set to empty');
+				assert.strictEqual(req.options.eee.length, 3, 'set to empty');
 				assert.strictEqual(req.options.fff.length, 1, 'overwritten default');
-				assert.strictEqual(req.options.ggg.length, 3, 'unset, using default');
+				assert.strictEqual(req.options.ggg.length, 0, 'unset, using default');
 			});
 		});
 	});
