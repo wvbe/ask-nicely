@@ -1,6 +1,6 @@
 'use strict';
 
-let helpCommand = require('./command.help'),
+let helpCommand = require('./controller.help'),
 	AskNicely = require('../AskNicely');
 
 // Validators (set on a param/option through `addValidator`) are expected to throw errors. The return value is ignored.

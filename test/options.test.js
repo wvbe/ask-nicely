@@ -35,9 +35,9 @@ root
 		.parent
 	.addCommand('c')
 		.addOption(new root.Option('a').setDefault('adefault'))
-		.addOption(new AskNicely.Option('x').setShort('x'))
+		.addOption(new root.Option('x').setShort('x'))
 		.addOption(new root.Option('b').setDefault('bdefault').setShort('b'))
-		.addOption(new AskNicely.Option('c').setDefault('cdefault').setShort('c'))
+		.addOption(new root.Option('c').setDefault('cdefault').setShort('c'))
 		.addOption(new root.DeepOption('config').isRequired(true))
 		.addOption(new root.DeepOption('d').setDefault({
 			yikes: { argh: 'fabl' },
@@ -103,14 +103,33 @@ describe('options', function () {
 		});
 	});
 
+	it('assign undefined if unspecified (Option only)', function (done) {
+		assertPromiseInterpretEqual('c --config.hey -', done, function (req) {
+			assert.strictEqual(req.options.a, undefined, 'a');
 
-	it('handles default values for unspecified (deep) options', function (done) {
-		assertPromiseInterpretEqual('c -bx - --config.hey - -c nerf', done, function (req) {
+			assert.strictEqual(req.options.b, undefined, 'b');
+
+			assert.strictEqual(req.options.c, undefined, 'c');
+
+
+
+			assert.strictEqual(req.options.x, undefined, 'x');
+
+			// but not deepoptions
+			assert.strictEqual(req.options.d.smack, req.command.options[5].default.smack, 'smack');
+		});
+	});
+
+	it('assign default if specified but unspecific', function (done) {
+		assertPromiseInterpretEqual('c --a -bx - --d.merve whut --d.paris --config.pft', done, function (req) {
 			assert.strictEqual(req.options.a, 'adefault');
+
+			assert.strictEqual(req.options.d.smack, true);
+			assert.strictEqual(req.options.d.merve, 'whut');
+			assert.strictEqual(req.options.d.paris, true);
+
 			assert.strictEqual(req.options.x, true);
 			assert.strictEqual(req.options.b, 'bdefault');
-			assert.strictEqual(req.options.c, 'nerf');
-			assert.strictEqual(req.command.options[3].default, 'cdefault');
 		});
 	});
 
@@ -147,6 +166,7 @@ describe('options', function () {
 			});
 		});
 	});
+
 	describe('isolated options', function () {
 		it('rule out all other option parsing/validating', function (done) {
 			assertPromiseInterpretEqual('d --something containsxyz --help please', done, function (req) {
@@ -155,7 +175,13 @@ describe('options', function () {
 				assert.strictEqual(req.options.help, 'please');
 			});
 		});
+		it('derp', function (done) {
+			assertPromiseInterpretEqual('d --something --else', done, function (req) {
+				assert.strictEqual(req.options.help, undefined);
+			});
+		});
 	});
+
 	describe('multi options', function () {
 		it('may contain multiple values', function (done) {
 			assertPromiseInterpretEqual('e -le - -lf -l one --list two --list three "almost four"', done, function (req) {
@@ -165,8 +191,9 @@ describe('options', function () {
 				assert.strictEqual(req.options.list[3], 'almost four');
 			});
 		});
-		it('can have default, or can be emptied despite having a default', function (done) {
+		it('assigns default if undefined, or empty array if unspecific', function (done) {
 			assertPromiseInterpretEqual('e -le - -lf one -d', done, function (req) {
+				console.log(req.options)
 				assert.strictEqual(Array.isArray(req.options.derp), true);
 				assert.strictEqual(req.options.eee.length, 0, 'set to empty');
 				assert.strictEqual(req.options.fff.length, 1, 'overwritten default');

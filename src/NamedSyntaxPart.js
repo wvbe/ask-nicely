@@ -51,6 +51,11 @@ class NamedSyntaxPart {
 		throw new Error('Not implemented.');
 	}
 
+
+	[symbols.applyDefault] (value, isUndefined) {
+		return value;
+	}
+
 	/**
 	 * Validates input before it is resolved. Expected to throw an error if something is awry, return undefined
 	 * otherwise.

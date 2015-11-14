@@ -52,7 +52,14 @@ function interpretInputSpecs (root, parts) {
  * @returns {Promise}
  */
 function resolveValueSpecs(request, inputSpecs) {
-	inputSpecs.forEach(inputSpec => inputSpec[0][symbols.validateInput](inputSpec[1]));
+	inputSpecs
+		.map(inputSpec => {
+			inputSpec[1] = inputSpec[0][symbols.applyDefault](inputSpec[1], inputSpec[2]);
+			return inputSpec;
+		})
+		.forEach(inputSpec => {
+			inputSpec[0][symbols.validateInput](inputSpec[1]);
+		});
 
 	return Promise.all(inputSpecs.map(inputSpec => !inputSpec[0].resolver
 			? inputSpec

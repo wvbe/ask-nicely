@@ -36,10 +36,14 @@ class MultiOption extends Option {
 		return input;
 	}
 
-	[symbols.exportWithInput] (request, value, isUndefined) {
+	[symbols.applyDefault] (value, isUndefined) {
 		if(isUndefined)
-			request.options[this.name] = this.cloneDefault() || [];
-		request.options[this.name] = (request.options[this.name] || []).concat(value || []);
+			return this.cloneDefault() || [];
+
+		return value;
+	}
+	[symbols.exportWithInput] (request, value, isUndefined) {
+		request.options[this.name] = (request.options[this.name] || []).concat(value);
 	}
 }
 

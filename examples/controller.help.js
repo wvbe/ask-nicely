@@ -1,7 +1,8 @@
 'use strict';
 
-module.exports = function helpCommand(req) {
+module.exports = function helpController(req) {
 	let command = req.command;
+
 	console.log(``);
 	console.log(`Name:        ${command.name || '(no name)'}`);
 	console.log(`Description: ${command.description || '(no description)'}`);

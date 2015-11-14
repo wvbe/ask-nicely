@@ -27,30 +27,33 @@ class Option extends VariableSyntaxPart {
 			// remove the flag signifier from group
 			parts[0] = parts[0].replace(this.short, '');
 
-			// if the group is not empty, input is DEFAULT or TRUE
+			// if the group is not empty, stop parsing this option
 			if(parts[0] !== '-')
-				return this.cloneDefault() || true;
+				return;
 		}
 
 		// Stop caring about the flag signifier
 		parts.shift();
 
-		// if value is a dash, set actual value to DEFAULT or TRUE
+		// if value is a dash, stop parsing
 		if(parts[0] === '-') {
 			parts.shift();
-			return this.cloneDefault() || true;
+			return;
 		}
 
-		// use next input part if it is not another option, or DEFAULT or TRUE
-		return (parts[0] && parts[0].charAt(0) !== '-')
-			? parts.shift()
-			: this.cloneDefault() || true;
+		// use next input part if it is not another option
+		if (parts[0] && parts[0].charAt(0) !== '-')
+			return parts.shift();
 	}
 
-	[symbols.exportWithInput] (request, value) {
-		request.options[this.name] = value === undefined
+	[symbols.applyDefault] (value, isUndefined) {
+		// If the option was specified but not specific, use default or TRUE
+		return (!isUndefined && value === undefined)
 			? this.cloneDefault() || true
 			: value;
+	}
+	[symbols.exportWithInput] (request, value, isUndefined) {
+		request.options[this.name] = value;
 	}
 
 	/**
