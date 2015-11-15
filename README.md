@@ -92,7 +92,7 @@ username.
     - `setDefault(arbitrary, useDefaultIfFlagMissing)`
     - `setShort(short)`
 - MultipleOption class
-    - `isInfinite(regexp|infinite))`
+    - `isInfinite(infinite))`
 - Command classes
     - `addCommand(command|name[, controller])`
     - `setController(controller)`

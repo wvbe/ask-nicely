@@ -15,12 +15,9 @@ class MultiOption extends Option {
 
 	// @todo: infinite arg as a callback
 	isInfinite (infinite) {
-		if (!infinite)
-			infinite = breakPartsDefaultPattern;
-
-		this[breakPartsOnPart] = (infinite instanceof RegExp)
-			? part => part.match(infinite)
-			: part => false;
+		this[breakPartsOnPart] = !!infinite
+			? part => false
+			: part => part.charAt(0) === '-';
 
 		return this;
 	}
@@ -31,7 +28,7 @@ class MultiOption extends Option {
 
 	[symbols.spliceInputFromParts]  (parts) {
 		if (this.short && parts[0].charAt(1) === this.short) {
-			parts[0] = '-' + parts[0].substr(2);//parts[0].replace(this.short, '');
+			parts[0] = '-' + parts[0].substr(2);
 
 			if(parts[0] !== '-')
 				return [];
