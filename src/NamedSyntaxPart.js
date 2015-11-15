@@ -27,7 +27,10 @@ class NamedSyntaxPart {
 	 * @returns {Array}
 	 */
 	[symbols.updateInputSpecsAfterMatch] (resolvedInputSpecs, inputValue) {
-		resolvedInputSpecs.push([this, inputValue]);
+		resolvedInputSpecs.push({
+			syntax: this,
+			input: inputValue
+		});
 		return resolvedInputSpecs;
 	}
 

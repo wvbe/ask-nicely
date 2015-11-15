@@ -15,7 +15,10 @@ function interpretInputSpecs (root, parts) {
 		parts = parts.match(/(".*?"|[^"\s]+)+(?=\s*|\s*$)/g).map(str => str.replace(/['"]+/g, ''));
 
 	let scopes = [root],
-		resolvedInputSpecs = [[root,root]];
+		resolvedInputSpecs = [{
+			syntax: root,
+			input: root
+		}];
 
 	scopes._ = [];
 
@@ -39,9 +42,14 @@ function interpretInputSpecs (root, parts) {
 	// Find everything that is still open to match, and map it to the same format as resolvedScopeValues
 	let unresolvedInputSpecs = scopes._.concat(scopes)
 		.reduce((leftovers, tierOptions) => leftovers.concat(tierOptions), [])
-		.filter(syntaxPart => !resolvedInputSpecs.find(match => match[0] === syntaxPart))
-		.map(unmatch => [unmatch, undefined, true]);
-
+		.filter(syntaxPart => !resolvedInputSpecs.find(match => match.syntax === syntaxPart))
+		.map(unmatch => {
+			return {
+				syntax: unmatch,
+				input: undefined,
+				undefined: true
+			};
+		});
 	return resolvedInputSpecs.concat(unresolvedInputSpecs);
 }
 
@@ -51,32 +59,36 @@ function interpretInputSpecs (root, parts) {
  * @param {Array<[]>} inputSpecs
  * @returns {Promise}
  */
-function resolveValueSpecs(request, inputSpecs) {
+function resolveValueSpecs(request, inputSpecs, rest) {
 	inputSpecs
 		.map(inputSpec => {
-			inputSpec[1] = inputSpec[0][symbols.applyDefault](inputSpec[1], inputSpec[2]);
+			inputSpec.input = inputSpec.syntax[symbols.applyDefault](inputSpec.input, inputSpec.undefined);
+
 			return inputSpec;
 		})
 		.forEach(inputSpec => {
-			inputSpec[0][symbols.validateInput](inputSpec[1]);
+			inputSpec.syntax[symbols.validateInput](inputSpec.input);
 		});
 
-	return Promise.all(inputSpecs.map(inputSpec => !inputSpec[0].resolver
+	return Promise.all(inputSpecs.map(inputSpec => typeof inputSpec.syntax.resolver !== 'function'
 			? inputSpec
-			: Promise.resolve(inputSpec[0].resolver(inputSpec[1]))
-		.then(input => [inputSpec[0], input])))
+			: Promise.resolve(inputSpec.syntax.resolver.apply(inputSpec.syntax, [inputSpec.input].concat(rest)))
+				.then(input => {
+					inputSpec.input = input;
+					return inputSpec
+				})))
 		.then(valueSpecs => {
-			valueSpecs.forEach(valueSpec => valueSpec[0].validateValue(valueSpec[1]));
-			return valueSpecs.reduce(
-				(req, valueSpec) => Object.assign(req, valueSpec[0][symbols.exportWithInput](request, valueSpec[1], valueSpec[2])),
-				request
-			);
+			return valueSpecs.reduce((req, valueSpec) => {
+				valueSpec.syntax.validateValue(valueSpec.input);
+
+				return Object.assign(req, valueSpec.syntax[symbols.exportWithInput](request, valueSpec.input, valueSpec.undefined))
+			}, request);
 		});
 }
 
-module.exports = function interpreter (root, parts, request) {
+module.exports = function interpreter (root, parts, request, rest) {
 	try {
-		return resolveValueSpecs(request || {}, interpretInputSpecs(root, parts));
+		return resolveValueSpecs(request || {}, interpretInputSpecs(root, parts), rest);
 	} catch (e) {
 		return Promise.reject(e);
 	}
