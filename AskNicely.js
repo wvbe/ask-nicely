@@ -31,7 +31,7 @@ class AskNicely extends CLASS_EXPORT.Command {
 	 * @returns {Promise}
 	 */
 	interpret (parts, request) {
-		return interpreter(this, parts, request || new CLASS_EXPORT.Request());
+		return interpreter(this, parts, request || new CLASS_EXPORT.Request(), Array.prototype.slice.call(arguments, 2));
 	}
 }
 

@@ -100,10 +100,10 @@ username.
     - `addOption(option|name[, short, description, required])`
     - `addPreController(controller)`
 - AskNicely class
-    - `interpret([input])`
+    - `interpret([input, request, ...arbitrary])`
 - Request class
     - `constructor()`
-    - `execute([artibrary])`
+    - `execute([...arbitrary])`
 
 ## Behaviour
 - Input for `Options` or `Parameters` can contain spaces if the input is wrapped in double-quotes (`--opt "My option"`)
@@ -114,6 +114,8 @@ username.
   determine if the execution chain should stop for a certain combination of options (by returning `false`).
 - With exception of `DeepOption`, `Option` classes with a default value will stay undefined, unless you set the second
   argument of `Option#setDefault()` to `true`.
+- Arbitrary arguments to `AskNicely#interpret()` and `Request#execute()` are passed down to syntax resolvers,
+  precontrollers and controllers. This allows you to pass an application/config object along.
 
 ## Release notes
 - planned for v1.1.0
@@ -145,6 +147,7 @@ username.
 
 ## Wishlist
 - Fix aforementioned issues and known bugs.
+- Use node v5 and spread operators (...args) for `execute()` and `interpret()`
 - Implement `isInfinite()` for other `VariableSyntaxPart` classes
 - Implement `addAlias()` for all `NamedSyntaxPart` classes
 - A different way of stopping the controller chain, returning FALSE is a little crude
