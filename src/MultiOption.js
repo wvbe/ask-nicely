@@ -3,9 +3,30 @@
 let symbols = require('./symbols'),
 	Option = require('./Option');
 
+const breakPartsOnPart = Symbol(),
+	breakPartsDefaultPattern = /^[-.*]/;
+
 class MultiOption extends Option {
 	constructor (name) {
 		super (name);
+
+		this.isInfinite();
+	}
+
+	// @todo: infinite arg as a callback
+	isInfinite (infinite) {
+		if (!infinite)
+			infinite = breakPartsDefaultPattern;
+
+		this[breakPartsOnPart] = (infinite instanceof RegExp)
+			? part => part.match(infinite)
+			: part => false;
+
+		return this;
+	}
+
+	[breakPartsOnPart] (part) {
+		return part.match(breakPartsDefaultPattern);
 	}
 
 	[symbols.spliceInputFromParts]  (parts) {
@@ -21,15 +42,14 @@ class MultiOption extends Option {
 		let input = [];
 
 		do {
-			if(!parts[0] || parts[0].length > 1 && parts[0].charAt(0) === '-')
+			if(parts[0] === '-') {
+				parts.shift();
+				break;
+			}
+			if(!parts[0] || this[breakPartsOnPart](parts[0]))
 				break;
 
-			let part = parts.shift();
-
-			if(!part || part === '-')
-				break;
-
-			input.push(part);
+			input.push(parts.shift());
 
 		} while(parts.length > 0);
 

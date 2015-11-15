@@ -76,12 +76,13 @@ username.
     - IsolatedOption (like `--help`, prevents further input parsing)
 - Parameter
     - DeepParameter (as seen in `git config`)
+- Request (user input is assigned to this object)
 
 ## Important methods
-- Command, Option and Parameter classes
+- Command, Option and Parameter classes (`NamedSyntaxPart`)
     - `constructor(name)`
     - `setDescription(description)`
-- Option and Parameter classes
+- Option and Parameter classes (`VariableSyntaxPart`)
     - `isRequired(required)`
     - `addValidator(validator)`
     - `setResolver(resolver)`
@@ -90,6 +91,8 @@ username.
 - Option classes
     - `setDefault(arbitrary, useDefaultIfFlagMissing)`
     - `setShort(short)`
+- MultipleOption class
+    - `isInfinite(regexp|infinite))`
 - Command classes
     - `addCommand(command|name[, controller])`
     - `setController(controller)`
@@ -109,10 +112,12 @@ username.
 - Precontrollers (`Command#addPrecontroller()`) are accumulated as you go deeper into subcommands as well. When a
   command is ran, all of it's ancestors precontrollers are ran too. In this way, for example, a precontroller can
   determine if the execution chain should stop for a certain combination of options (by returning `false`).
-- If a `MultiOption` has items in it's `default`, the parsed input can be emptied by using the option without values.
-  The `default` is only used here when the option is not present at all.
+- With exception of `DeepOption`, `Option` classes with a default value will stay undefined, unless you set the second
+  argument of `Option#setDefault()` to `true`.
 
 ## Release notes
+- planned for v1.1.0
+    - `DeepOption` with a default value should stay undefined if flag is not set, like rest of `Option` classes.
 - develop (staged for v1.1.0)
     - Adding `Command#setController(controller)`
     - Declaring properties on Request in constructor so you don't have to keep null-checking
@@ -140,6 +145,8 @@ username.
 
 ## Wishlist
 - Fix aforementioned issues and known bugs.
+- Implement `isInfinite()` for other `VariableSyntaxPart` classes
+- Implement `addAlias()` for all `NamedSyntaxPart` classes
 - A different way of stopping the controller chain, returning FALSE is a little crude
 - Make it easy for commands to call other commands, maybe in a dependency-aware manner
 - Test more edge cases, like conflicts and multiple values

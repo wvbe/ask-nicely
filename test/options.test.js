@@ -184,7 +184,7 @@ describe('options', function () {
 
 	describe('multi options', function () {
 		it('may contain multiple values', function (done) {
-			assertPromiseInterpretEqual('e -le - -lf -l one --list two --list three "almost four"', done, function (req) {
+			assertPromiseInterpretEqual('e -le -lf - -l one --list two --list three "almost four"', done, function (req) {
 				assert.strictEqual(req.options.list[0], 'one');
 				assert.strictEqual(req.options.list[1], 'two');
 				assert.strictEqual(req.options.list[2], 'three');
