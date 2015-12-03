@@ -1,6 +1,7 @@
 'use strict';
 
-let symbols = require('./symbols');
+let symbols = require('./symbols'),
+	InputError = require('./InputError');
 
 /**
  * @param {Command} root
@@ -30,7 +31,7 @@ function interpretInputSpecs (root, parts) {
 			matchingScope = expectedScopes.find(scope => scope[symbols.isMatchForPart](parts[0]));
 
 		if(!matchingScope)
-			throw new Error(`Could not find a match for input "${parts[0]}"`);
+			throw new InputError(`Could not find a match for input "${parts[0]}"`);
 
 		let matchingValue = matchingScope[symbols.spliceInputFromParts](parts);
 

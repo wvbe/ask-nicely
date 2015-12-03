@@ -1,7 +1,8 @@
 'use strict';
 
 let symbols = require('./symbols'),
-	NamedSyntaxPart = require('./NamedSyntaxPart');
+	NamedSyntaxPart = require('./NamedSyntaxPart'),
+	InputError = require('./InputError');
 
 class VariableSyntaxPart extends NamedSyntaxPart {
 	/**
@@ -69,7 +70,7 @@ class VariableSyntaxPart extends NamedSyntaxPart {
 
 	[symbols.validateInput] (input) {
 		if (this.required && input === undefined)
-			throw new Error(`"${this.name}" can not be undefined.`);
+			throw new InputError(`"${this.name}" can not be undefined.`);
 	}
 
 	validateValue (value) {
