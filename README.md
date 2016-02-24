@@ -95,6 +95,7 @@ username.
     - `isInfinite(infinite))`
 - Command classes
     - `addCommand(command|name[, controller])`
+    - `setNewChildClass(Class)`
     - `setController(controller)`
     - `addParameter(parameter|name[, description, required])`
     - `addOption(option|name[, short, description, required])`
@@ -121,7 +122,7 @@ username.
 - planned for v1.1.0
     - `DeepOption` with a default value should stay undefined if flag is not set, like rest of `Option` classes.
 - develop (staged for v1.1.0)
-    - Adding `Command#setController(controller)`
+    - Adding `Command#setController(controller)` and `#setNewChildClass(Class)`
     - Declaring properties on Request in constructor so you don't have to keep null-checking
     - Adding `MultiOption` class
 - v1.0.0
