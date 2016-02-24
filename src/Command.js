@@ -5,6 +5,8 @@ let symbols = require('./symbols'),
 	Option = require('./Option'),
 	Parameter= require('./Parameter');
 
+let CHILD_CLASS = Symbol('child command class definition');
+
 class Command extends NamedSyntaxPart {
 	constructor (name, controller) {
 		super(name);
@@ -15,6 +17,7 @@ class Command extends NamedSyntaxPart {
 		this.parameters = [];
 		this.preControllers = [];
 
+		this.setNewChildClass(Command);
 		this.setController(controller);
 	}
 
@@ -88,6 +91,16 @@ class Command extends NamedSyntaxPart {
 	}
 
 	/**
+	 * Defines what class new child instances should have if they're being instantiated by this object
+	 * @param ClassObject
+	 * @returns {Command}
+	 */
+	setNewChildClass (ClassObject) {
+		this[CHILD_CLASS] = ClassObject;
+
+		return this;
+	}
+	/**
 	 * Add a precontroller function that is ran before its own controller, or any of it's descendants precontrollers
 	 * @param {Function} cb
 	 * @returns {Command}
@@ -147,7 +160,7 @@ class Command extends NamedSyntaxPart {
 	addCommand (name, controller) {
 		let child = name instanceof Command
 			? name
-			: new Command(name, controller);
+			: new this[CHILD_CLASS](name, controller);
 
 		child.parent = this;
 
