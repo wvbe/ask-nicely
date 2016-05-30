@@ -13,6 +13,7 @@ class Command extends NamedSyntaxPart {
 		this.parent = null;
 		this.controller = null;
 		this.children = [];
+		this.aliases = [];
 		this.options = [];
 		this.parameters = [];
 		this.preControllers = [];
@@ -76,7 +77,7 @@ class Command extends NamedSyntaxPart {
 	 * @returns {Command|undefined}
 	 */
 	getCommandByName (name) {
-		return this.children.find(child => child.name === name);
+		return this.children.find(child => child.name === name || child.aliases.indexOf(name) >= 0);
 	}
 
 	/**
@@ -107,6 +108,17 @@ class Command extends NamedSyntaxPart {
 	 */
 	addPreController (cb) {
 		this.preControllers.push(cb);
+
+		return this;
+	}
+
+	/**
+	 * Give command an alternative name
+	 * @param {String} name
+	 * @returns {Command}
+	 */
+	addAlias (name) {
+		this.aliases.push(name);
 
 		return this;
 	}
