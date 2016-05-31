@@ -1,11 +1,11 @@
 'use strict';
 
-let symbols = require('./symbols'),
+const symbols = require('./symbols'),
 	NamedSyntaxPart = require('./NamedSyntaxPart'),
 	Option = require('./Option'),
 	Parameter= require('./Parameter');
 
-let CHILD_CLASS = Symbol('child command class definition');
+const CHILD_CLASS = Symbol('child command class definition');
 
 class Command extends NamedSyntaxPart {
 	constructor (name, controller) {

@@ -121,9 +121,9 @@ username.
   precontrollers and controllers. This allows you to pass an application/config object along.
 
 ## Release notes
-- planned for v1.1.0
+- planned for v1.1.1
     - `DeepOption` with a default value should stay undefined if flag is not set, like rest of `Option` classes.
-- develop (staged for v1.1.0)
+- v1.1.0
     - Adding `Command#addAlias(alias)`
     - Throwing new `InputError` as opposed to regular `Error` in some cases, allows you do distinguish user errors from
       system errors.
@@ -156,7 +156,7 @@ username.
 - Fix aforementioned issues and known bugs.
 - Use node v5 and spread operators (...args) for `execute()` and `interpret()`
 - Implement `isInfinite()` for other `VariableSyntaxPart` classes
-- Implement `addAlias()` for all `NamedSyntaxPart` classes
+- Implement `addAlias()` for all `NamedSyntaxPart` classes, maybe.
 - A different way of stopping the controller chain, returning FALSE is a little crude
 - Make it easy for commands to call other commands, maybe in a dependency-aware manner
 - Test more edge cases, like conflicts and multiple values

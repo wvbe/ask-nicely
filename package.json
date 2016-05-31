@@ -1,28 +1,33 @@
 {
   "name": "ask-nicely",
-  "version": "1.0.0",
-  "main": "AskNicely.js",
+  "version": "1.1.0",
   "description": "Easily create command-line applications by configuring commands, options and parameters that are supermagically parsed.",
   "author": "wvbe",
+  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "git@github.com:wvbe/ask-nicely.git"
   },
-  "license": "MIT",
-  "keywords": [
-    "shell",
-    "terminal",
-    "command",
-    "option",
-    "parameter",
-    "argument",
-    "parsing"
-  ],
-  "engines" : {
-    "node" : ">=4.1.0"
-  },
+  "main": "AskNicely.js",
   "scripts": {
     "test-bare": "mocha test",
     "test": "isparta cover _mocha"
+  },
+  "keywords": [
+    "argument",
+    "argv",
+    "command",
+    "option",
+    "parameter",
+    "parsing",
+    "shell",
+    "terminal"
+  ],
+  "directories": {
+    "example": "./examples",
+    "lib": "./src"
+  },
+  "engines" : {
+    "node" : ">=4.1.0"
   }
 }

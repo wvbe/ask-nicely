@@ -1,6 +1,6 @@
 'use strict';
 
-let symbols = require('./symbols'),
+const symbols = require('./symbols'),
 	InputError = require('./InputError');
 
 /**

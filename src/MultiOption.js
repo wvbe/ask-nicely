@@ -1,6 +1,6 @@
 'use strict';
 
-let symbols = require('./symbols'),
+const symbols = require('./symbols'),
 	Option = require('./Option');
 
 const breakPartsOnPart = Symbol(),

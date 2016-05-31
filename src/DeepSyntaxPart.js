@@ -1,6 +1,6 @@
 'use strict';
 
-let symbols = require('./symbols');
+const symbols = require('./symbols');
 
 function getValueFromPath(nameParts, obj) {
 	return nameParts.reduce((o, part) => o && o[part] ? o[part] : undefined, obj);

@@ -1,6 +1,6 @@
 'use strict';
 
-let symbols = require('./symbols'),
+const symbols = require('./symbols'),
 	DeepSyntaxPart = require('./DeepSyntaxPart'),
 	Option = require('./Option');
 

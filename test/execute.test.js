@@ -6,21 +6,22 @@ var assert = require('assert'),
 	root = new AskNicely(),
 	assertPromiseExecutionEqual = utils.assertPromiseExecutionEqual.bind(undefined, root);
 
-function returnRequestData (req) {
-	return req;
-}
 
 root
-	.addCommand(new root.Command('a', returnRequestData))
+	.addCommand(new root.Command('a', req => req))
+		.addAlias('alias')
 		.addPreController((req) => {
 			req.firstPreController = true;
 		})
-		.addCommand('aa', returnRequestData)
+		.setController((req) => {
+			req.commandname = req.command.name;
+		})
+		.addCommand('aa', req => req)
 			.addPreController((req) => {
 				req.secondPreController = true;
 			});
 root
-	.addCommand('b', returnRequestData)
+	.addCommand('b', req => req)
 		.addPreController((req) => {
 			req.first = true;
 			return false;
@@ -34,6 +35,13 @@ describe('execute', () => {
 		assertPromiseExecutionEqual('a aa', done, (req) => {
 			assert.strictEqual(req.firstPreController, true);
 			assert.strictEqual(req.secondPreController, true);
+		});
+	});
+
+	it('can use an alias command name', (done) => {
+		assertPromiseExecutionEqual('alias', done, (req) => {
+			assert.strictEqual(req.firstPreController, true);
+			assert.strictEqual(req.commandname, 'a');
 		});
 	});
 

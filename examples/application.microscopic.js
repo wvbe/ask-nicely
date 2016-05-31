@@ -1,6 +1,6 @@
 'use strict';
 
-let AskNicely = require('../AskNicely'),
+const AskNicely = require('../AskNicely'),
 	root = new AskNicely();
 
 root.addOption('alpha', 'a');

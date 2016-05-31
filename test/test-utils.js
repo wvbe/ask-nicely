@@ -7,12 +7,12 @@ module.exports = {
 
 function assertPromiseExecutionEqual(root, str, done, cb, errcb) {
 	root.interpret(str)
-		.then(function (req) {
-			return req.execute().then(function () {
+		.then(req => {
+			return req.execute().then(() => {
 				return req;
 			});
 		})
-		.then(function (req) {
+		.then(req => {
 			if(typeof cb === 'function') {
 				cb(req);
 				done();
@@ -20,7 +20,7 @@ function assertPromiseExecutionEqual(root, str, done, cb, errcb) {
 				done(new Error('Did not throw expected error'));
 			}
 		})
-		.catch(function (err) {
+		.catch(err => {
 			if (typeof errcb === 'function') {
 				errcb(err);
 				done();
@@ -32,7 +32,7 @@ function assertPromiseExecutionEqual(root, str, done, cb, errcb) {
 
 function assertPromiseInterpretEqual(app, str, done, cb, errcb) {
 	app.interpret(str)
-		.then(function (req) {
+		.then(req => {
 			if(typeof cb === 'function') {
 				cb(req);
 				done();
@@ -40,7 +40,7 @@ function assertPromiseInterpretEqual(app, str, done, cb, errcb) {
 				done(new Error('Did not throw expected error'));
 			}
 		})
-		.catch(function (err) {
+		.catch(err => {
 			if (typeof errcb === 'function') {
 				errcb(err);
 				done();

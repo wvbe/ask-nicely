@@ -1,3 +1,5 @@
+'use strict';
+
 module.exports = {
 	isMatchForPart: Symbol('_isMatchForPart'),
 	spliceInputFromParts: Symbol('_spliceInputFromParts'),
