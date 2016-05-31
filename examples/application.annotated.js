@@ -38,10 +38,11 @@ root
 
 // Add a sub command to root:
 // Calling addCommand() would return the (chainable) subcommand that you just created. The validator on the {flightId}
-// parameter makes sure it errors out pretty quick if a certain condition is not met. It's resolver is executed after
+// parameter makes sure it errors out pretty quick if a certain condition is not met. Its resolver is executed after
 // that..
 root
 	.addCommand('flight', dumpRequestCommand)
+	.addAlias('fly')
 	.setDescription('Aww yeah flight controller commands!')
 	.addParameter(new root.Parameter('flightId')
 		.isRequired(true)
@@ -53,6 +54,7 @@ root
 	// Calling addCommand() would return the (chainable) subcommand that you just created. The {airport} parameter
 	// is defined in a more legible/less powerful syntax.
 	.addCommand('towards', dumpRequestCommand)
+		.addAlias('to')
 		.addParameter('airport', 'Destination airport', true);
 
 

@@ -77,11 +77,13 @@ username.
 - Parameter
     - DeepParameter (as seen in `git config`)
 - Request (user input is assigned to this object)
+- InputError (thrown if a mistake was made by the end-user rather than a programmer)
 
 ## Important methods
 - Command, Option and Parameter classes (`NamedSyntaxPart`)
     - `constructor(name)`
     - `setDescription(description)`
+    - `addAlias(alias)`
 - Option and Parameter classes (`VariableSyntaxPart`)
     - `isRequired(required)`
     - `addValidator(validator)`
@@ -122,9 +124,13 @@ username.
 - planned for v1.1.0
     - `DeepOption` with a default value should stay undefined if flag is not set, like rest of `Option` classes.
 - develop (staged for v1.1.0)
+    - Adding `Command#addAlias(alias)`
+    - Throwing new `InputError` as opposed to regular `Error` in some cases, allows you do distinguish user errors from
+      system errors.
+    - Exposing `Request` and allow to use pass own instance to `AskNicely#interpret()`
     - Adding `Command#setController(controller)` and `#setNewChildClass(Class)`
     - Declaring properties on Request in constructor so you don't have to keep null-checking
-    - Adding `MultiOption` class
+    - Adding `MultiOption` class, which evaluates to an array
 - v1.0.0
     - Using ECMAScript 6
     - `Option`, `Parameter` and related classes increase configurability a thousandfold
