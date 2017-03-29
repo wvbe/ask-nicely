@@ -3,6 +3,7 @@
 var assert = require('assert'),
 	utils = require('./test-utils'),
 	AskNicely = require('../AskNicely'),
+	AskNicelyInputError = AskNicely.InputError,
 	root = new AskNicely(),
 	assertPromiseInterpretEqual = utils.assertPromiseInterpretEqual.bind(undefined, root);
 
@@ -71,7 +72,7 @@ describe('options', () => {
 
 	it('throws an error if required option is undefined', done => {
 		assertPromiseInterpretEqual('a', done, null, err => {
-			assert.strictEqual(err instanceof Error, true);
+			assert.strictEqual(err instanceof AskNicelyInputError, true);
 			assert.strictEqual(err.message.indexOf('option1') >= 0, true); // Error message is about the first to fail
 			assert.strictEqual(err.message.indexOf('option2') >= 0, false);
 		});

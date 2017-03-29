@@ -8,6 +8,4 @@ class AskNicelyInputError extends Error {
 	}
 }
 
-module.exports = typeof global.it === 'function'
-	? Error
-	: AskNicelyInputError;
+module.exports = AskNicelyInputError;
