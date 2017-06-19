@@ -2,9 +2,9 @@
 
 var assert = require('assert'),
 	utils = require('./test-utils'),
-	AskNicely = require('../AskNicely'),
-	AskNicelyInputError = AskNicely.InputError,
-	root = new AskNicely(),
+	askNicely = require('../dist/AskNicely'),
+	AskNicelyInputError = askNicely.InputError,
+	root = new askNicely.Root(),
 	assertPromiseInterpretEqual = utils.assertPromiseInterpretEqual.bind(undefined, root);
 
 function cannotContainXyz(errCode, value) {
@@ -16,12 +16,12 @@ root
 		return req.options;
 	})
 		.addOption('option1', 'a', 'Option 1/A (required)', true)
-		.addOption(new root.Option('option2')
+		.addOption(new askNicely.Option('option2')
 			.setShort('b')
 			.setDescription('Option 2/B (required)')
 			.isRequired(true)
 			.addValidator(cannotContainXyz.bind(null, 'option-validator-1')))
-		.addOption(new root.Option('option3')
+		.addOption(new askNicely.Option('option3')
 			.setShort('c')
 			.setDescription('Option 3/C (not required)')
 			.addValidator(cannotContainXyz.bind(null, 'option-validator-2')))
@@ -35,29 +35,29 @@ root
 			.parent
 		.parent
 	.addCommand('c')
-		.addOption(new root.Option('a').setDefault('adefault'))
-		.addOption(new root.Option('x').setShort('x'))
-		.addOption(new root.Option('b').setDefault('bdefault').setShort('b'))
-		.addOption(new root.Option('c').setDefault('cdefault').setShort('c'))
-		.addOption(new root.DeepOption('config').isRequired(true))
-		.addOption(new root.DeepOption('d').setDefault({
+		.addOption(new askNicely.Option('a').setDefault('adefault'))
+		.addOption(new askNicely.Option('x').setShort('x'))
+		.addOption(new askNicely.Option('b').setDefault('bdefault').setShort('b'))
+		.addOption(new askNicely.Option('c').setDefault('cdefault').setShort('c'))
+		.addOption(new askNicely.DeepOption('config').isRequired(true))
+		.addOption(new askNicely.DeepOption('d').setDefault({
 			yikes: { argh: 'fabl' },
 			djoeken: { shanken: 'tsjoepen' },
 			smack: true
 		}))
 		.parent
 	.addCommand('d')
-		.addOption(new root.Option('something').isRequired(cannotContainXyz.bind(null, 'option-validator-2')))
+		.addOption(new askNicely.Option('something').isRequired(cannotContainXyz.bind(null, 'option-validator-2')))
 		.addOption('else', null, null, true)
-		.addOption(new root.IsolatedOption('help'))
+		.addOption(new askNicely.IsolatedOption('help'))
 		.parent
 	// 'e -l one --list two --list three four'
 	.addCommand('e')
-		.addOption(new root.MultiOption('list').setShort('l'))
-		.addOption(new root.MultiOption('derp').setShort('d'))
-		.addOption(new root.MultiOption('eee').setShort('e').setDefault('abc'.split('')))
-		.addOption(new root.MultiOption('fff').setShort('f').setDefault('def'.split('')))
-		.addOption(new root.MultiOption('ggg').setShort('g').setDefault('ghi'.split('')));
+		.addOption(new askNicely.MultiOption('list').setShort('l'))
+		.addOption(new askNicely.MultiOption('derp').setShort('d'))
+		.addOption(new askNicely.MultiOption('eee').setShort('e').setDefault('abc'.split('')))
+		.addOption(new askNicely.MultiOption('fff').setShort('f').setDefault('def'.split('')))
+		.addOption(new askNicely.MultiOption('ggg').setShort('g').setDefault('ghi'.split('')));
 
 
 describe('options', () => {

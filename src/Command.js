@@ -1,13 +1,13 @@
 'use strict';
 
-const symbols = require('./symbols'),
-	NamedSyntaxPart = require('./NamedSyntaxPart'),
-	Option = require('./Option'),
-	Parameter= require('./Parameter');
+import symbols from './symbols';
+import NamedSyntaxPart from './NamedSyntaxPart';
+import Option from './Option';
+import Parameter from './Parameter';
 
 const CHILD_CLASS = Symbol('child command class definition');
 
-class Command extends NamedSyntaxPart {
+export default class Command extends NamedSyntaxPart {
 	constructor (name, controller) {
 		super(name);
 		this.parent = null;
@@ -181,5 +181,3 @@ class Command extends NamedSyntaxPart {
 		return child;
 	}
 }
-
-module.exports = Command;

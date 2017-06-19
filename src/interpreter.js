@@ -1,7 +1,7 @@
 'use strict';
 
-const symbols = require('./symbols'),
-	InputError = require('./InputError');
+import symbols from './symbols';
+import InputError from './InputError';
 
 /**
  * @param {Command} root
@@ -87,7 +87,7 @@ function resolveValueSpecs(request, inputSpecs, rest) {
 		});
 }
 
-module.exports = function interpreter (root, parts, request, rest) {
+export default function interpreter (root, parts, request, rest) {
 	try {
 		return resolveValueSpecs(request || {}, interpretInputSpecs(root, parts), rest);
 	} catch (e) {

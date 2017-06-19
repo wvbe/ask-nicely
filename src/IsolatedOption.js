@@ -1,10 +1,10 @@
 'use strict';
 
-const symbols = require('./symbols'),
-	Command = require('./Command'),
-	Option = require('./Option');
+import symbols from './symbols';
+import Command from './Command';
+import Option from './Option';
 
-class IsolatedOption extends Option {
+export default class IsolatedOption extends Option {
 	constructor (name) {
 		super(name);
 	}
@@ -38,5 +38,3 @@ class IsolatedOption extends Option {
 		return resolvedInputSpecs;
 	}
 }
-
-module.exports = IsolatedOption;

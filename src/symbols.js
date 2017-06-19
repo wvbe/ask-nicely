@@ -1,6 +1,6 @@
 'use strict';
 
-module.exports = {
+export default {
 	isMatchForPart: Symbol('_isMatchForPart'),
 	spliceInputFromParts: Symbol('_spliceInputFromParts'),
 	updateInputSpecsAfterMatch: Symbol('_updateInputSpecsAfterMatch'),
@@ -8,4 +8,4 @@ module.exports = {
 	applyDefault: Symbol('_applyDefault'),
 	validateInput: Symbol('_validateInput'),
 	exportWithInput: Symbol('_exportWithInput')
-};
+}

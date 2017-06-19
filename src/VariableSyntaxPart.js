@@ -1,10 +1,10 @@
 'use strict';
 
-const symbols = require('./symbols'),
-	NamedSyntaxPart = require('./NamedSyntaxPart'),
-	InputError = require('./InputError');
+import symbols from './symbols';
+import NamedSyntaxPart from './NamedSyntaxPart';
+import InputError from './InputError';
 
-class VariableSyntaxPart extends NamedSyntaxPart {
+export default class VariableSyntaxPart extends NamedSyntaxPart {
 	/**
 	 * @param {String} name
 	 */
@@ -77,5 +77,3 @@ class VariableSyntaxPart extends NamedSyntaxPart {
 		this.validators.forEach(validator => validator(value));
 	}
 }
-
-module.exports = VariableSyntaxPart;

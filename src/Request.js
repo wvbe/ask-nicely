@@ -1,6 +1,6 @@
 'use strict';
 
-class Request {
+export default class Request {
 	constructor () {
 		this.command = null;
 		this.options = {};
@@ -21,6 +21,3 @@ class Request {
 		);
 	}
 }
-
-
-module.exports = Request;

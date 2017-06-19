@@ -1,10 +1,10 @@
 'use strict';
 
-const symbols = require('./symbols'),
-	DeepSyntaxPart = require('./DeepSyntaxPart'),
-	Parameter = require('./Parameter');
+import symbols from './symbols';
+import DeepSyntaxPart from './DeepSyntaxPart';
+import Parameter from './Parameter';
 
-class DeepParameter extends Parameter {
+export default class DeepParameter extends Parameter {
 	constructor (name) {
 		super (name);
 	}
@@ -25,5 +25,3 @@ class DeepParameter extends Parameter {
 		return DeepSyntaxPart[symbols.exportWithInput].call(this, 'parameters', request, value);
 	}
 }
-
-module.exports = DeepParameter;

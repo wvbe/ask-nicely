@@ -2,8 +2,8 @@
 
 const assert = require('assert'),
 	utils = require('./test-utils'),
-	AskNicely = require('../AskNicely'),
-	root = new AskNicely(),
+	askNicely = require('../dist/AskNicely'),
+	root = new askNicely.Root(),
 	assertPromiseInterpretEqual = utils.assertPromiseInterpretEqual.bind(undefined, root);
 
 function cannotContainXyz(errCode, value) {
@@ -27,12 +27,12 @@ root
 		.addCommand('ba')
 			.addParameter('nerf', 'Also required', true)
 			.addParameter('smack', 'Also required')
-			.addParameter(new root.Parameter('bam').setDefault('!!!'))
+			.addParameter(new askNicely.Parameter('bam').setDefault('!!!'))
 			.parent
 		.parent
 	.addCommand('c')
-		.addParameter(new root.DeepParameter('config'))
-		.addParameter(new root.DeepParameter('d').setDefault({
+		.addParameter(new askNicely.DeepParameter('config'))
+		.addParameter(new askNicely.DeepParameter('d').setDefault({
 			yikes: { argh: 'fabl' },
 			djoeken: { shanken: 'tsjoepen' },
 			smack: true

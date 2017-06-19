@@ -1,12 +1,12 @@
 'use strict';
 
-const symbols = require('./symbols'),
-	Option = require('./Option');
+import symbols from './symbols';
+import Option from './Option';
 
-const breakPartsOnPart = Symbol(),
-	breakPartsDefaultPattern = /^[-.*]/;
+const breakPartsOnPart = Symbol();
+const breakPartsDefaultPattern = /^[-.*]/;
 
-class MultiOption extends Option {
+export default class MultiOption extends Option {
 	constructor (name) {
 		super (name);
 
@@ -69,5 +69,3 @@ class MultiOption extends Option {
 		request.options[this.name] = (request.options[this.name] || []).concat(value);
 	}
 }
-
-module.exports = MultiOption;

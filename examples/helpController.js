@@ -10,7 +10,7 @@ function concatAllOfAncestors (command, propertyName) {
 		: []).concat(command[propertyName]);
 }
 
-module.exports = function helpController(req) {
+export default function helpController(req) {
 	let command = req.command;
 
 	console.log(``);

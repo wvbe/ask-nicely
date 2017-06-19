@@ -1,22 +1,10 @@
 'use strict';
 
-let interpreter = require('./src/interpreter'),
+import interpreter from './src/interpreter';
+import Command from './src/Command';
+import Request from './src/Request';
 
-	CLASS_EXPORT = {
-			Request:        require('./src/Request'),
-
-			Command:        require('./src/Command'),
-			Option:         require('./src/Option'),
-			MultiOption:    require('./src/MultiOption'),
-			DeepOption:     require('./src/DeepOption'),
-			IsolatedOption: require('./src/IsolatedOption'),
-			Parameter:      require('./src/Parameter'),
-			DeepParameter:  require('./src/DeepParameter'),
-
-			InputError:  require('./src/InputError')
-		};
-
-class AskNicely extends CLASS_EXPORT.Command {
+export class Root extends Command {
 	/**
 	 * @param {String} [name]
 	 * @param {Function} [controller]
@@ -24,8 +12,6 @@ class AskNicely extends CLASS_EXPORT.Command {
 	 */
 	constructor (name, controller) {
 		super(name, controller);
-
-		Object.assign(this, CLASS_EXPORT);
 	}
 
 	/**
@@ -33,9 +19,18 @@ class AskNicely extends CLASS_EXPORT.Command {
 	 * @param {Object} [request] An existing Request, if you do not want to make a new one if you want to re-use it
 	 * @returns {Promise}
 	 */
-	interpret (parts, request) {
-		return interpreter(this, parts, request || new CLASS_EXPORT.Request(), Array.prototype.slice.call(arguments, 2));
+	interpret (parts, request, ...args) {
+		return interpreter(this, parts, request || new Request(), args);
 	}
-}
+};
 
-module.exports = Object.assign(AskNicely, CLASS_EXPORT);
+export { Command };
+export { Request };
+
+export { default as Option } from './src/Option';
+export { default as MultiOption } from './src/MultiOption';
+export { default as DeepOption } from './src/DeepOption';
+export { default as IsolatedOption } from './src/IsolatedOption';
+export { default as Parameter } from './src/Parameter';
+export { default as DeepParameter } from './src/DeepParameter';
+export { default as InputError } from './src/InputError';

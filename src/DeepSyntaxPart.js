@@ -1,6 +1,6 @@
 'use strict';
 
-const symbols = require('./symbols');
+import symbols from './symbols';
 
 function getValueFromPath(nameParts, obj) {
 	return nameParts.reduce((o, part) => o && o[part] ? o[part] : undefined, obj);
@@ -16,7 +16,7 @@ function assignValueToPath (nameParts, resultObj, value) {
 	return resultObj;
 }
 
-class DeepSyntaxPart {
+export default class DeepSyntaxPart {
 	static [symbols.spliceInputFromParts] (parts) {
 		let deepName = parts.shift();
 
@@ -51,5 +51,3 @@ class DeepSyntaxPart {
 		);
 	}
 }
-
-module.exports = DeepSyntaxPart;

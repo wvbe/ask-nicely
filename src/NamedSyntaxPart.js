@@ -1,8 +1,8 @@
 'use strict';
 
-const symbols = require('./symbols');
+import symbols from './symbols';
 
-class NamedSyntaxPart {
+export default class NamedSyntaxPart {
 	/**
 	 * @param {String} name
 	 */
@@ -97,5 +97,3 @@ class NamedSyntaxPart {
 		return this;
 	}
 }
-
-module.exports = NamedSyntaxPart;

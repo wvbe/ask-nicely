@@ -8,10 +8,11 @@
     "type": "git",
     "url": "git@github.com:wvbe/ask-nicely.git"
   },
-  "main": "AskNicely.js",
+  "main": "dist/AskNicely.js",
   "scripts": {
     "test-bare": "mocha test",
-    "test": "isparta cover _mocha"
+    "test": "istanbul cover _mocha",
+    "build": "mkdir dist; rollup AskNicely.js --format umd --name ask-nicely | babel --filename AskNicely.js > dist/AskNicely.js"
   },
   "keywords": [
     "argument",
@@ -27,7 +28,17 @@
     "example": "./examples",
     "lib": "./src"
   },
-  "engines" : {
-    "node" : ">=4.1.0"
+  "engines": {
+    "node": ">=4.1.0"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.24.1",
+    "babel-preset-es2015": "^6.24.1",
+    "rollup": "^0.43.0"
+  },
+  "babel": {
+    "presets": [
+      "es2015"
+    ]
   }
 }

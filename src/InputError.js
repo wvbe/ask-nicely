@@ -1,6 +1,6 @@
 'use strict';
 
-class AskNicelyInputError extends Error {
+export default class AskNicelyInputError extends Error {
 	constructor(message, solution) {
 		super(message);
 
@@ -8,5 +8,3 @@ class AskNicelyInputError extends Error {
 		this.solution = solution;
 	}
 }
-
-module.exports = AskNicelyInputError;

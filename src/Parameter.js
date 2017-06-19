@@ -1,9 +1,9 @@
 'use strict';
 
-const symbols = require('./symbols'),
-	VariableSyntaxPart = require('./VariableSyntaxPart');
+import symbols from './symbols';
+import VariableSyntaxPart from './VariableSyntaxPart';
 
-class Parameter extends  VariableSyntaxPart {
+export default class Parameter extends  VariableSyntaxPart {
 	constructor (name) {
 		super(name);
 	}
@@ -30,5 +30,3 @@ class Parameter extends  VariableSyntaxPart {
 			: value;
 	}
 }
-
-module.exports = Parameter;

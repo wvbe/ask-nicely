@@ -2,13 +2,14 @@
 
 var assert = require('assert'),
 	utils = require('./test-utils'),
-	AskNicely = require('../AskNicely'),
-	root = new AskNicely(),
+	askNicely = require('../dist/AskNicely');
+
+var root = new askNicely.Root(),
 	assertPromiseExecutionEqual = utils.assertPromiseExecutionEqual.bind(undefined, root);
 
 
 root
-	.addCommand(new root.Command('a', req => req))
+	.addCommand(new askNicely.Command('a', req => req))
 		.addAlias('alias')
 		.addPreController((req) => {
 			req.firstPreController = true;

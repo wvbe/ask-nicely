@@ -1,10 +1,10 @@
 'use strict';
 
-const symbols = require('./symbols'),
-	DeepSyntaxPart = require('./DeepSyntaxPart'),
-	Option = require('./Option');
+import symbols from './symbols';
+import DeepSyntaxPart from './DeepSyntaxPart';
+import Option from './Option';
 
-class DeepOption extends Option {
+export default class DeepOption extends Option {
 	constructor (name) {
 		super (name);
 	}
@@ -21,5 +21,3 @@ class DeepOption extends Option {
 		return DeepSyntaxPart[symbols.exportWithInput].call(this, 'options', request, value);
 	}
 }
-
-module.exports = DeepOption;
