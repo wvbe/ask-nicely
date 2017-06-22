@@ -12,7 +12,8 @@
   "scripts": {
     "test-bare": "mocha test",
     "test": "istanbul cover _mocha",
-    "build": "mkdir dist; rollup AskNicely.js --format umd --name ask-nicely | babel --presets es2015 --filename AskNicely.js > dist/AskNicely.js"
+    "build": "mkdir dist; rollup AskNicely.js --format umd --name ask-nicely | babel --presets es2015 --filename AskNicely.js > dist/AskNicely.js",
+    "prepublish": "npm run build"
   },
   "keywords": [
     "argument",
