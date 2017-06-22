@@ -70,7 +70,7 @@ describe('options', () => {
 		});
 	});
 
-	it('throws an error if required option is undefined', done => {
+	xit('throws an error if required option is undefined', done => {
 		assertPromiseInterpretEqual('a', done, null, err => {
 			assert.strictEqual(err instanceof AskNicelyInputError, true);
 			assert.strictEqual(err.message.indexOf('option1') >= 0, true); // Error message is about the first to fail
