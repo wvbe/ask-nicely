@@ -1,8 +1,6 @@
 # ASK-NICELY
 Easily create command-line applications by configuring commands, options and parameters that are supermagically parsed.
 
-__Uses ECMAScript 6, so node v.4 or similar is required.__
-
 Ask Nicely is different from parsers like `minimist` because it interprets input based on what's configured, rather
 than syntax alone.
 
@@ -10,9 +8,10 @@ than syntax alone.
 An elaborate example can be found in `examples/application.annotated.js`. The following code is a functioning
 command-line application (that merely dumps whatever `Request` object was parsed from input):
 
-```
-let AskNicely = require('ask-nicely'),
-	root = new AskNicely();
+```js
+import { Root } from 'ask-nicely';
+
+const root = new Root();
 
 root.addOption('alpha', 'a');
 
@@ -28,14 +27,14 @@ root.interpret(process.argv.slice(2))
 Parsing input (`process.argv` in this example) would yield the following `Request` object in the relevant controller
 and precontrollers:
 
-```
-> node examples/application.microscopic.js -a
+```js
+// node examples/application.microscopic.js -a
 {
     command:    { /* the root command */ },
     options:    { alpha: true }
 }
 
-> node examples/application.microscopic.js subcommand paramValue --beta optValue
+// node examples/application.microscopic.js subcommand paramValue --beta optValue
 {
     command:    { /* the subcommand */ },
     parameters: { gamma: 'paramValue' },
@@ -52,8 +51,10 @@ There are different kinds of `Options` and `Parameters`; for example, `--user.na
 (`req.options.user = { name: 'wvbe' }`) if you configure it as a `DeepOption`. These extending Option and Parameter
 classes are exposed on `AskNicely` and it's instances.
 
-```
-root.addOption(new root.Option('delta')
+```js
+import { Option } from 'ask-nicely';
+
+root.addOption(new Option('delta')
     .setShort('d')
     .setResolver(input => database.find('users', input))
     .addValidator(user => {
@@ -69,7 +70,7 @@ username.
 
 ## Important classes
 - Command
-    - AskNicely (the "root" command, has added `interpret` method)
+    - Root (the top-level command, has added `interpret` method)
 - Option
     - MultiOption (like `--emails one@hotmail.com two@hotmail.com`)
     - DeepOption (like `--config.username wvbe`)
@@ -102,7 +103,7 @@ username.
     - `addParameter(parameter|name[, description, required])`
     - `addOption(option|name[, short, description, required])`
     - `addPreController(controller)`
-- AskNicely class
+- Root class
     - `interpret([input, request, ...arbitrary])`
 - Request class
     - `constructor()`
@@ -121,8 +122,14 @@ username.
   precontrollers and controllers. This allows you to pass an application/config object along.
 
 ## Release notes
-- planned for v1.1.1
-    - `DeepOption` with a default value should stay undefined if flag is not set, like rest of `Option` classes.
+- v 2.0.0
+    - Expose classes as an ES6 module
+    - Package using rollup and babel ES2015 preset
+    - _Rename the AskNicely (root class) to Root_
+    - _Do not expose the root class as a default export_
+    - _Do not expose classes via an instance of ask-nicely_
+- v 1.1.1
+    - Fix the way InputError was exposed
 - v1.1.0
     - Adding `Command#addAlias(alias)`
     - Throwing new `InputError` as opposed to regular `Error` in some cases, allows you do distinguish user errors from
@@ -154,7 +161,8 @@ username.
 
 ## Wishlist
 - Fix aforementioned issues and known bugs.
-- Use node v5 and spread operators (...args) for `execute()` and `interpret()`
+- `DeepOption` with a default value should stay undefined if flag is not set, like rest of `Option` classes.
+- Use spread operators (...args) for `execute()` and `interpret()`
 - Implement `isInfinite()` for other `VariableSyntaxPart` classes
 - Implement `addAlias()` for all `NamedSyntaxPart` classes, maybe.
 - A different way of stopping the controller chain, returning FALSE is a little crude

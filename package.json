@@ -1,20 +1,15 @@
 {
   "name": "ask-nicely",
-  "version": "2.0.0-rc1",
+  "version": "2.0.0",
   "description": "Easily create command-line applications by configuring commands, options and parameters that are supermagically parsed.",
-  "author": "wvbe",
+  "repository": "wvbe/ask-nicely",
+  "author": {
+    "name": "Wybe Minnebo",
+    "email": "wybe@x-54.com",
+    "url": "https://github.com/wvbe"
+  },
   "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "git@github.com:wvbe/ask-nicely.git"
-  },
-  "main": "dist/AskNicely.js",
-  "scripts": {
-    "test-bare": "mocha test",
-    "test": "istanbul cover _mocha",
-    "build": "mkdir dist; rollup AskNicely.js --format umd --name ask-nicely | babel --presets es2015 --filename AskNicely.js > dist/AskNicely.js",
-    "prepublish": "npm run build"
-  },
+  "homepage": "https://github.com/wvbe/ask-nicely",
   "keywords": [
     "argument",
     "argv",
@@ -25,9 +20,16 @@
     "shell",
     "terminal"
   ],
+  "main": "dist/AskNicely.js",
   "directories": {
     "example": "./examples",
     "lib": "./src"
+  },
+  "scripts": {
+    "test-bare": "mocha test",
+    "test": "istanbul cover _mocha",
+    "build": "mkdir dist; rollup AskNicely.js --format umd --name ask-nicely | babel --presets es2015 --filename AskNicely.js > dist/AskNicely.js",
+    "prepublish": "npm run build"
   },
   "engines": {
     "node": ">=4.1.0"
