@@ -13,7 +13,7 @@ export default class Parameter extends  VariableSyntaxPart {
 	}
 
 	[symbols.updateTiersAfterMatch] (tiers) {
-		tiers.shift();
+		tiers.ordered.shift();
 		return tiers;
 	}
 

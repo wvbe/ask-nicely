@@ -26,15 +26,15 @@ export default class Command extends NamedSyntaxPart {
 		return !!this.getCommandByName(value);
 	}
 
-	[symbols.updateTiersAfterMatch] (scopes, match) {
-		scopes.splice(scopes.indexOf(this), 1);
+	[symbols.updateTiersAfterMatch] (tiers, match) {
+		tiers.ordered.splice(tiers.ordered.indexOf(this), 1);
 
 		if(match instanceof Command) {
-			scopes.splice.apply(scopes, [0, 0].concat(match.parameters).concat(match));
-			scopes._.splice.apply(scopes._, [0, 0].concat(match.options));
+			tiers.ordered.splice.apply(tiers.ordered, [0, 0].concat(match.parameters).concat(match));
+			tiers.unordered.splice.apply(tiers.unordered, [0, 0].concat(match.options));
 		}
 
-		return scopes;
+		return tiers;
 	}
 
 	[symbols.spliceInputFromParts] (parts) {

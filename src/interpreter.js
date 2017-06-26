@@ -15,19 +15,21 @@ function interpretInputSpecs (root, parts) {
 	if(typeof parts === 'string')
 		parts = parts.match(/(".*?"|[^"\s]+)+(?=\s*|\s*$)/g).map(str => str.replace(/['"]+/g, ''));
 
-	let scopes = [root],
-		resolvedInputSpecs = [{
+	let resolvedInputSpecs = [{
 			syntax: root,
 			input: root
 		}];
 
-	scopes._ = [];
+	let tiers = {
+		ordered: [root],
+		unordered: []
+	};
 
-	root[symbols.updateTiersAfterMatch](scopes, root);
+	root[symbols.updateTiersAfterMatch](tiers, root);
 
 	// Match and validate syntax parts based on input
 	while (parts.length) {
-		let expectedScopes = scopes._.concat(scopes),
+		let expectedScopes = tiers.unordered.concat(tiers.ordered),
 			matchingScope = expectedScopes.find(scope => scope[symbols.isMatchForPart](parts[0]));
 
 		if(!matchingScope)
@@ -37,11 +39,11 @@ function interpretInputSpecs (root, parts) {
 
 		resolvedInputSpecs = matchingScope[symbols.updateInputSpecsAfterMatch](resolvedInputSpecs, matchingValue);
 
-		scopes = matchingScope[symbols.updateTiersAfterMatch](scopes, matchingValue);
+		tiers = matchingScope[symbols.updateTiersAfterMatch](tiers, matchingValue);
 	}
 
 	// Find everything that is still open to match, and map it to the same format as resolvedScopeValues
-	let unresolvedInputSpecs = scopes._.concat(scopes)
+	let unresolvedInputSpecs = tiers.unordered.concat(tiers.ordered)
 		.reduce((leftovers, tierOptions) => leftovers.concat(tierOptions), [])
 		.filter(syntaxPart => !resolvedInputSpecs.find(match => match.syntax === syntaxPart))
 		.map(unmatch => {
@@ -58,6 +60,7 @@ function interpretInputSpecs (root, parts) {
  *
  * @param {Request} request
  * @param {Array<[]>} inputSpecs
+ * @param {Array<*>} rest
  * @returns {Promise}
  */
 function resolveValueSpecs(request, inputSpecs, rest) {

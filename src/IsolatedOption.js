@@ -11,8 +11,10 @@ export default class IsolatedOption extends Option {
 
 	// By resetting all tiers there are no "unresolved" syntax parts
 	[symbols.updateTiersAfterMatch] (tiers) {
-		tiers = [];
-		tiers._ = [];
+		tiers = {
+			ordered: [],
+			unordered: []
+		};
 		return tiers;
 	}
 

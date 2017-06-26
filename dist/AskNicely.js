@@ -55,19 +55,21 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 			return str.replace(/['"]+/g, '');
 		});
 
-		var scopes = [root],
-		    resolvedInputSpecs = [{
+		var resolvedInputSpecs = [{
 			syntax: root,
 			input: root
 		}];
 
-		scopes._ = [];
+		var tiers = {
+			ordered: [root],
+			unordered: []
+		};
 
-		root[symbols.updateTiersAfterMatch](scopes, root);
+		root[symbols.updateTiersAfterMatch](tiers, root);
 
 		// Match and validate syntax parts based on input
 		while (parts.length) {
-			var expectedScopes = scopes._.concat(scopes),
+			var expectedScopes = tiers.unordered.concat(tiers.ordered),
 			    matchingScope = expectedScopes.find(function (scope) {
 				return scope[symbols.isMatchForPart](parts[0]);
 			});
@@ -78,11 +80,11 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 			resolvedInputSpecs = matchingScope[symbols.updateInputSpecsAfterMatch](resolvedInputSpecs, matchingValue);
 
-			scopes = matchingScope[symbols.updateTiersAfterMatch](scopes, matchingValue);
+			tiers = matchingScope[symbols.updateTiersAfterMatch](tiers, matchingValue);
 		}
 
 		// Find everything that is still open to match, and map it to the same format as resolvedScopeValues
-		var unresolvedInputSpecs = scopes._.concat(scopes).reduce(function (leftovers, tierOptions) {
+		var unresolvedInputSpecs = tiers.unordered.concat(tiers.ordered).reduce(function (leftovers, tierOptions) {
 			return leftovers.concat(tierOptions);
 		}, []).filter(function (syntaxPart) {
 			return !resolvedInputSpecs.find(function (match) {
@@ -102,6 +104,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
   *
   * @param {Request} request
   * @param {Array<[]>} inputSpecs
+  * @param {Array<*>} rest
   * @returns {Promise}
   */
 	function resolveValueSpecs(request, inputSpecs, rest) {
@@ -467,7 +470,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 		}, {
 			key: symbols.updateTiersAfterMatch,
 			value: function value(tiers) {
-				tiers.shift();
+				tiers.ordered.shift();
 				return tiers;
 			}
 		}, {
@@ -516,15 +519,15 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 			}
 		}, {
 			key: symbols.updateTiersAfterMatch,
-			value: function value(scopes, match) {
-				scopes.splice(scopes.indexOf(this), 1);
+			value: function value(tiers, match) {
+				tiers.ordered.splice(tiers.ordered.indexOf(this), 1);
 
 				if (match instanceof Command) {
-					scopes.splice.apply(scopes, [0, 0].concat(match.parameters).concat(match));
-					scopes._.splice.apply(scopes._, [0, 0].concat(match.options));
+					tiers.ordered.splice.apply(tiers.ordered, [0, 0].concat(match.parameters).concat(match));
+					tiers.unordered.splice.apply(tiers.unordered, [0, 0].concat(match.options));
 				}
 
-				return scopes;
+				return tiers;
 			}
 		}, {
 			key: symbols.spliceInputFromParts,
@@ -897,8 +900,10 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 		_createClass(IsolatedOption, [{
 			key: symbols.updateTiersAfterMatch,
 			value: function value(tiers) {
-				tiers = [];
-				tiers._ = [];
+				tiers = {
+					ordered: [],
+					unordered: []
+				};
 				return tiers;
 			}
 
