@@ -9,18 +9,21 @@ An elaborate example can be found in `examples/application.annotated.js`. The fo
 command-line application (that merely dumps whatever `Request` object was parsed from input):
 
 ```js
-import { Root } from 'ask-nicely';
+import { Command } from 'ask-nicely';
 
-const root = new Root();
+const root = new Command();
 
 root.addOption('alpha', 'a');
 
-root.addCommand('subcommand', request => console.log(request))
+root.addCommand('subcommand', request => {
+		console.log(request));
+		return { somethingWasDone: true };
+	})
 	.addOption('beta', 'b', null, true)
 	.addParameter('gamma');
 
-root.interpret(process.argv.slice(2))
-	.then(request => request.execute())
+root.execute(process.argv.slice(2))
+	.then(result => console.log(result))
 	.catch(error => console.log(error));
 ```
 
@@ -70,7 +73,6 @@ username.
 
 ## Important classes
 - Command
-    - Root (the top-level command, has added `interpret` method)
 - Option
     - MultiOption (like `--emails one@hotmail.com two@hotmail.com`)
     - DeepOption (like `--config.username wvbe`)
@@ -83,8 +85,8 @@ username.
 ## Important methods
 - Command, Option and Parameter classes (`NamedSyntaxPart`)
     - `constructor(name)`
-    - `setDescription(description)`
     - `addAlias(alias)`
+    - `setDescription(description)`
 - Option and Parameter classes (`VariableSyntaxPart`)
     - `isRequired(required)`
     - `addValidator(validator)`
@@ -98,13 +100,13 @@ username.
     - `isInfinite(infinite))`
 - Command classes
     - `addCommand(command|name[, controller])`
-    - `setNewChildClass(Class)`
-    - `setController(controller)`
-    - `addParameter(parameter|name[, description, required])`
     - `addOption(option|name[, short, description, required])`
+    - `addParameter(parameter|name[, description, required])`
     - `addPreController(controller)`
-- Root class
-    - `interpret([input, request, ...arbitrary])`
+    - `execute(input, [request, ...arbitrary])`
+    - `parse(input, [request, ...arbitrary])`
+    - `setController(controller)`
+    - `setNewChildClass(Class)`
 - Request class
     - `constructor()`
     - `execute([...arbitrary])`
@@ -122,32 +124,36 @@ username.
   precontrollers and controllers. This allows you to pass an application/config object along.
 
 ## Release notes
+- v 3.0.0
+  - _Deprecate the `Root` class, any `Command` can serve as root_
+  - _Refactor `Root#interpret()` to `Command#parse()`, which doesn't throw and parses more_
+  - _Add `Command#execute()` which parses, executes, and throws like the previous `interpret` method would have._
 - v 2.0.0
-    - Expose classes as an ES6 module
-    - Package using rollup and babel ES2015 preset
-    - _Rename the AskNicely (root class) to Root_
-    - _Do not expose the root class as a default export_
-    - _Do not expose classes via an instance of ask-nicely_
+  - Expose classes as an ES6 module
+  - Package using rollup and babel ES2015 preset
+  - _Rename the AskNicely (root class) to Root_
+  - _Do not expose the root class as a default export_
+  - _Do not expose classes via an instance of ask-nicely_
 - v 1.1.1
-    - Fix the way InputError was exposed
+  - Fix the way InputError was exposed
 - v1.1.0
-    - Adding `Command#addAlias(alias)`
-    - Throwing new `InputError` as opposed to regular `Error` in some cases, allows you do distinguish user errors from
-      system errors.
-    - Exposing `Request` and allow to use pass own instance to `AskNicely#interpret()`
-    - Adding `Command#setController(controller)` and `#setNewChildClass(Class)`
-    - Declaring properties on Request in constructor so you don't have to keep null-checking
-    - Adding `MultiOption` class, which evaluates to an array
+  - Adding `Command#addAlias(alias)`
+  - Throwing new `InputError` as opposed to regular `Error` in some cases, allows you do distinguish user errors from
+    system errors.
+  - Exposing `Request` and allow to use pass own instance to `AskNicely#interpret()`
+  - Adding `Command#setController(controller)` and `#setNewChildClass(Class)`
+  - Declaring properties on Request in constructor so you don't have to keep null-checking
+  - Adding `MultiOption` class, which evaluates to an array
 - v1.0.0
-    - Using ECMAScript 6
-    - `Option`, `Parameter` and related classes increase configurability a thousandfold
-    - Moved most parsing logic to individual classes that represent a syntax part
-    - `AskNicely#interpret()` is no longer synchronous because of the ability to asynchronously resolve values
-    - Ditching a lot of useless methods that are not directly used for parsing or configuring, moving a lot of other
-      stuff
-    - Ditching `Command#isHungry()` and `Command#isGreedy()`
+  - Using ECMAScript 6
+  - `Option`, `Parameter` and related classes increase configurability a thousandfold
+  - Moved most parsing logic to individual classes that represent a syntax part
+  - `AskNicely#interpret()` is no longer synchronous because of the ability to asynchronously resolve values
+  - Ditching a lot of useless methods that are not directly used for parsing or configuring, moving a lot of other
+    stuff
+  - Ditching `Command#isHungry()` and `Command#isGreedy()`
 - v0.1.0
-    - Initial release, pretty basic parsing with limited configurability
+  - Initial release, pretty basic parsing with limited configurability
 
 ## Issues/known bugs
 - There's a problem in `VariableSyntaxPart` that would fail to clone the `default` property object of a `DeepOption` of
@@ -162,7 +168,6 @@ username.
 ## Wishlist
 - Fix aforementioned issues and known bugs.
 - `DeepOption` with a default value should stay undefined if flag is not set, like rest of `Option` classes.
-- Use spread operators (...args) for `execute()` and `interpret()`
 - Implement `isInfinite()` for other `VariableSyntaxPart` classes
 - Implement `addAlias()` for all `NamedSyntaxPart` classes, maybe.
 - A different way of stopping the controller chain, returning FALSE is a little crude

@@ -5,6 +5,9 @@ import NamedSyntaxPart from './NamedSyntaxPart';
 import Option from './Option';
 import Parameter from './Parameter';
 
+import interpreter from './interpreter';
+import Request from './Request';
+
 const CHILD_CLASS = Symbol('child command class definition');
 
 export default class Command extends NamedSyntaxPart {
@@ -45,6 +48,21 @@ export default class Command extends NamedSyntaxPart {
 		if(value)
 			request.command = value;
 	}
+
+	/**
+	 * @param {String|Array<String>} [parts]
+	 * @param {Object} [request] An existing Request, if you do not want to make a new one if you want to re-use it
+	 * @returns {Promise}
+	 */
+	execute (parts, request, ...args) {
+		return interpreter(this, parts, request || new Request(), true, args)
+			.then(request => request.command.run.apply(request.command, [request, ...args]));
+	}
+
+	parse (parts, request, ...args) {
+		return interpreter(this, parts, request || new Request(), false, args);
+	}
+
 
 	executePreControllers (...args) {
 		return this.preControllers.reduce(

@@ -14,16 +14,13 @@ function azAZ09Validator (flightId) {
 // The first argument to a command controller is always the Request object, followed by whatever other
 // arguments Request.execute() is called with. If you controller is asynchronous it should return a Promise.
 function dumpRequestController (req) {
-	console.log(util.inspect(req, {
-		depth: 4,
-		colors: true
-	}));
+	console.dir(req, { colors: true });
 }
 
 // Instantiate a new root Command:
 // The name is not prominent, defaults to "root" for clarity. Also, if executed it would dump some help info
 // about itself. For production-quality applications I recommend some awesome ASCII.
-const root = new ask.Root(null, helpCommand);
+const root = new ask.Command(null, helpCommand);
 
 // Add an option that exists across self and descendants:
 // If someone uses "--help" or "-h" flag anywhere, the precontroller aborts the execution chain and dumps
@@ -71,11 +68,6 @@ root.parse(process.argv.slice(2), {})
 	})
 
 	// Yada yada yada
-
-	// When the dust settles
-	.then(req => {
-		console.log('Request object: ', req);
-	})
 
 	// Determine for yourself how you would handle any errors along the way
 	.catch(error => {

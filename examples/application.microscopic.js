@@ -1,14 +1,13 @@
 'use strict';
 
-const AskNicely = require('../dist/AskNicely'),
-	root = new AskNicely();
+const ask = require('../dist/AskNicely'),
+	root = new ask.Command(null, req => console.dir(req, { colors: true }));
 
 root.addOption('alpha', 'a');
 
-root.addCommand('subcommand', request => console.log('Request object: ', request))
+root.addCommand('subcommand', req => console.dir(req, { colors: true }))
 	.addOption('beta', 'b', null, true)
 	.addParameter('gamma');
 
-root.interpret(process.argv.slice(2))
-	.then(request => request.execute())
-	.catch(error => console.log(error));
+root.execute(process.argv.slice(2))
+	.catch(error => console.error(error.stack));

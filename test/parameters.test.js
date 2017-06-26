@@ -3,7 +3,7 @@
 const assert = require('assert'),
 	utils = require('./test-utils'),
 	askNicely = require('../dist/AskNicely'),
-	root = new askNicely.Root(),
+	root = new askNicely.Command(),
 	assertPromiseInterpretEqual = utils.assertPromiseInterpretEqual.bind(undefined, root);
 
 function cannotContainXyz(errCode, value) {

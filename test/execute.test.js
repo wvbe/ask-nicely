@@ -4,7 +4,7 @@ var assert = require('assert'),
 	utils = require('./test-utils'),
 	askNicely = require('../dist/AskNicely');
 
-var root = new askNicely.Root(),
+var root = new askNicely.Command(),
 	assertPromiseExecutionEqual = utils.assertPromiseExecutionEqual.bind(undefined, root);
 
 
