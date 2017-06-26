@@ -12,10 +12,8 @@ export default class Request {
 	 * @param {*} ... Zero or many arguments to pass on to controller
 	 * @returns {Promise}
 	 */
-	execute() {
-		let args = Array.prototype.slice.call(arguments);
-
-		return this.command.execute.apply(
+	execute(...args) {
+		return this.command.run.apply(
 			this.command,
 			[this].concat(args)
 		);

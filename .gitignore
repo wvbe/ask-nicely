@@ -28,3 +28,6 @@ node_modules
 
 # WebStorm
 .idea
+
+# Distributable file
+dist

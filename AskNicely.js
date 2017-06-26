@@ -19,10 +19,15 @@ export class Root extends Command {
 	 * @param {Object} [request] An existing Request, if you do not want to make a new one if you want to re-use it
 	 * @returns {Promise}
 	 */
-	interpret (parts, request, ...args) {
-		return interpreter(this, parts, request || new Request(), args);
+	execute (parts, request, ...args) {
+		return interpreter(this, parts, request || new Request(), true, args)
+			.then(request => request.command.run.apply(request.command, [request, ...args]));
 	}
-};
+
+	parse (parts, request, ...args) {
+		return interpreter(this, parts, request || new Request(), false, args);
+	}
+}
 
 export { Command };
 export { Request };

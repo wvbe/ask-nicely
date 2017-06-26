@@ -8,7 +8,7 @@ import InputError from './InputError';
  * @param {String|Array<String>} [parts]
  * @returns {Array<[]>}
  */
-function interpretInputSpecs (root, parts) {
+function interpretInputSpecs (root, parts, throwOnFirstError = true) {
 	if (!parts)
 		parts = [];
 
@@ -25,6 +25,7 @@ function interpretInputSpecs (root, parts) {
 		unordered: []
 	};
 
+	//
 	root[symbols.updateTiersAfterMatch](tiers, root);
 
 	// Match and validate syntax parts based on input
@@ -32,13 +33,28 @@ function interpretInputSpecs (root, parts) {
 		let expectedScopes = tiers.unordered.concat(tiers.ordered),
 			matchingScope = expectedScopes.find(scope => scope[symbols.isMatchForPart](parts[0]));
 
-		if(!matchingScope)
-			throw new InputError(`Could not find a match for input "${parts[0]}"`);
+		if(!matchingScope) {
+			const error = new InputError(`Could not find a match for input "${parts[0]}"`);
+			if (throwOnFirstError) {
+				throw error;
+			}
 
+			resolvedInputSpecs.push({
+				error,
+				value: parts.shift()
+			});
+
+			continue;
+		}
+
+		// Allow the SyntaxPart to modify the string that is being evaluated
+		//   eg. allow an Option to change "-abc" to "-bc" for following SyntaxParts
 		let matchingValue = matchingScope[symbols.spliceInputFromParts](parts);
 
+		// Update the collection of parsed values (each coupled to their matchign SyntaxPart)
 		resolvedInputSpecs = matchingScope[symbols.updateInputSpecsAfterMatch](resolvedInputSpecs, matchingValue);
 
+		// Update the tiers (ordered/unordered) for whatever is left to parse
 		tiers = matchingScope[symbols.updateTiersAfterMatch](tiers, matchingValue);
 	}
 
@@ -63,36 +79,36 @@ function interpretInputSpecs (root, parts) {
  * @param {Array<*>} rest
  * @returns {Promise}
  */
-function resolveValueSpecs(request, inputSpecs, rest) {
-	inputSpecs
-		.map(inputSpec => {
-			inputSpec.input = inputSpec.syntax[symbols.applyDefault](inputSpec.input, inputSpec.undefined);
+function resolveValueSpecs(request, inputSpecs, ...rest) {
+	return Promise.all(inputSpecs
+			.filter(inputSpec => !!inputSpec.syntax)
+			.map(inputSpec => Object.assign(inputSpec, {
+				input: inputSpec.syntax[symbols.applyDefault](inputSpec.input, inputSpec.undefined)
+			}))
+			.map(inputSpec => {
+				inputSpec.syntax[symbols.validateInput](inputSpec.input);
 
-			return inputSpec;
-		})
-		.forEach(inputSpec => {
-			inputSpec.syntax[symbols.validateInput](inputSpec.input);
-		});
-
-	return Promise.all(inputSpecs.map(inputSpec => typeof inputSpec.syntax.resolver !== 'function'
-			? inputSpec
-			: Promise.resolve(inputSpec.syntax.resolver.apply(inputSpec.syntax, [inputSpec.input].concat(rest)))
-				.then(input => {
-					inputSpec.input = input;
-					return inputSpec
-				})))
+				return typeof inputSpec.syntax.resolver !== 'function'
+					? inputSpec
+					: Promise.resolve(inputSpec.syntax.resolver(inputSpec.input, ...rest))
+						.then(input => {
+							inputSpec.input = input;
+							return inputSpec
+						})
+			})
+		)
 		.then(valueSpecs => {
 			return valueSpecs.reduce((req, valueSpec) => {
 				valueSpec.syntax.validateValue(valueSpec.input);
 
-				return Object.assign(req, valueSpec.syntax[symbols.exportWithInput](request, valueSpec.input, valueSpec.undefined))
+				return Object.assign(req, valueSpec.syntax[symbols.exportWithInput](req, valueSpec.input, valueSpec.undefined))
 			}, request);
 		});
 }
 
-export default function interpreter (root, parts, request, rest) {
+export default function interpreter (root, parts, request, throwOnFirstError, rest) {
 	try {
-		return resolveValueSpecs(request || {}, interpretInputSpecs(root, parts), rest);
+		return resolveValueSpecs(request || {}, interpretInputSpecs(root, parts, throwOnFirstError), rest);
 	} catch (e) {
 		return Promise.reject(e);
 	}

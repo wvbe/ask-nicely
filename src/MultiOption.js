@@ -66,6 +66,10 @@ export default class MultiOption extends Option {
 		return value || [];
 	}
 	[symbols.exportWithInput] (request, value, isUndefined) {
+		if (!request.options) {
+			request.options = {};
+		}
+
 		request.options[this.name] = (request.options[this.name] || []).concat(value);
 	}
 }

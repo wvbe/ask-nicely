@@ -2,8 +2,8 @@
 
 const util = require('util');
 
-const helpCommand = require('./controller.help'),
-	AskNicely = require('../AskNicely');
+const helpCommand = require('./helpController'),
+	ask = require('../dist/AskNicely');
 
 // Validators (set on a param/option through `addValidator`) are expected to throw errors. The return value is ignored.
 function azAZ09Validator (flightId) {
@@ -23,14 +23,14 @@ function dumpRequestController (req) {
 // Instantiate a new root Command:
 // The name is not prominent, defaults to "root" for clarity. Also, if executed it would dump some help info
 // about itself. For production-quality applications I recommend some awesome ASCII.
-const root = new AskNicely(null, helpCommand);
+const root = new ask.Root(null, helpCommand);
 
 // Add an option that exists across self and descendants:
 // If someone uses "--help" or "-h" flag anywhere, the precontroller aborts the execution chain and dumps
 // help info about whichever command was called originally. Also, because -h is an IsolatedOption, other options
 // and parameters would not be parsed.
 root
-	.addOption(new root.IsolatedOption('help')
+	.addOption(new ask.IsolatedOption('help')
 		.setShort('h')
 		.setDescription('Usage information, just try it')
 	)
@@ -47,7 +47,7 @@ root
 	.addCommand('flight', dumpRequestController)
 	.addAlias('fly')
 	.setDescription('Aww yeah flight controller commands!')
-	.addParameter(new root.Parameter('flightId')
+	.addParameter(new ask.Parameter('flightId')
 		.isRequired(true)
 		.addValidator(azAZ09Validator)
 		.setResolver(flightId => /* value or Promise */ flightId.toLowerCase())
@@ -61,12 +61,14 @@ root
 		.addParameter('airport', 'Destination airport', true);
 
 // Off to instantiate the whole lot from argv user input:
-root.interpret(process.argv.slice(2))
+root.parse(process.argv.slice(2), {})
 
 	// At this point the Request object for the input is parsed out according to the configured
 	// commands, options and parameters. Option/parameter resolvers have been fulfilled.
 	// Continue to execute all the ancestry's preControllers and one final controller.
-	.then(req => req.execute())
+	.then(req => {
+		return req.command.run(req).then(() => req);
+	})
 
 	// Yada yada yada
 

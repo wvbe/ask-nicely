@@ -6,11 +6,9 @@ module.exports = {
 };
 
 function assertPromiseExecutionEqual(root, str, done, cb, errcb) {
-	root.interpret(str)
+	root.parse(str)
 		.then(req => {
-			return req.execute().then(() => {
-				return req;
-			});
+			return req.execute().then(() => req);
 		})
 		.then(req => {
 			if(typeof cb === 'function') {
@@ -31,7 +29,7 @@ function assertPromiseExecutionEqual(root, str, done, cb, errcb) {
 }
 
 function assertPromiseInterpretEqual(app, str, done, cb, errcb) {
-	app.interpret(str)
+	app.parse(str)
 		.then(req => {
 			if(typeof cb === 'function') {
 				cb(req);

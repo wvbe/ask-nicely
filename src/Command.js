@@ -46,14 +46,13 @@ export default class Command extends NamedSyntaxPart {
 			request.command = value;
 	}
 
-	executePreControllers () {
-		let args = Array.prototype.slice.call(arguments);
+	executePreControllers (...args) {
 		return this.preControllers.reduce(
 			(res, preController) => res.then(previousVal => previousVal === false
 				? previousVal
-				: preController.apply(null, args)),
+				: preController(...args)),
 			this.parent
-				? this.parent.executePreControllers.apply(this.parent, args)
+				? this.parent.executePreControllers(...args)
 				: Promise.resolve(true)
 		);
 	}
@@ -62,13 +61,12 @@ export default class Command extends NamedSyntaxPart {
 	 * @todo Use rest parameters
 	 * @returns {Promise}
 	 */
-	execute () {
-		let args = Array.prototype.slice.call(arguments);
-
-		return this.executePreControllers.apply(this, args)
+	run (...args) {
+		return this.executePreControllers(...args)
 			.then(previousValue => previousValue === false || typeof this.controller !== 'function'
 				? previousValue
-				: this.controller.apply(null, args));
+				: this.controller(...args)
+			);
 	}
 
 	/**

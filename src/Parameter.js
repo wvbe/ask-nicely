@@ -25,6 +25,10 @@ export default class Parameter extends  VariableSyntaxPart {
 	}
 
 	[symbols.exportWithInput] (request, value) {
+		if (!request.parameters) {
+			request.parameters = {};
+		}
+
 		request.parameters[this.name] = value === undefined
 			? this.cloneDefault()
 			: value;
