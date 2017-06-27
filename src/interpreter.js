@@ -3,12 +3,70 @@
 import symbols from './symbols';
 import InputError from './InputError';
 
+class ParseResult {
+	constructor (parts) {
+		this.parts = parts;
+	}
+
+	resolve (request, ...rest) {
+		if (!request) {
+			request = {};
+		}
+
+		const inputSpecs = this.parts;
+
+		return Promise.all(inputSpecs
+				.filter(inputSpec => !!inputSpec.syntax)
+				.map(inputSpec => Object.assign(inputSpec, {
+					input: inputSpec.syntax[symbols.applyDefault](inputSpec.input, inputSpec.undefined)
+				}))
+				.map(inputSpec => {
+					inputSpec.syntax[symbols.validateInput](inputSpec.input);
+
+					return typeof inputSpec.syntax.resolver !== 'function'
+						? inputSpec
+						: Promise.resolve(inputSpec.syntax.resolver(inputSpec.input, ...rest))
+							.then(input => {
+								inputSpec.input = input;
+								return inputSpec
+							})
+							.catch(error => {
+								inputSpec.error = error;
+								return inputSpec;
+							});
+				})
+			)
+			.then(valueSpecs => {
+				return valueSpecs.reduce((req, valueSpec) => {
+					if (valueSpec.error) {
+						return req;
+					}
+
+					try {
+						valueSpec.syntax.validateValue(valueSpec.input);
+
+						return Object.assign(req, valueSpec.syntax[symbols.exportWithInput](req, valueSpec.input, valueSpec.undefined))
+				}, request);
+			})
+			.then(resolved => {
+				this.resolved = resolved;
+			});
+	}
+
+	execute (...args) {
+		const request = this.resolved;
+		return request.command.run.apply(request.command, [request, ...args])
+	}
+}
+
+
+
 /**
  * @param {Command} root
  * @param {String|Array<String>} [parts]
  * @returns {Array<[]>}
  */
-function interpretInputSpecs (root, parts, throwOnFirstError = true) {
+function interpretInputSpecs (root, parts, throwOnFirstError) {
 	if (!parts)
 		parts = [];
 
@@ -69,6 +127,7 @@ function interpretInputSpecs (root, parts, throwOnFirstError = true) {
 				undefined: true
 			};
 		});
+
 	return resolvedInputSpecs.concat(unresolvedInputSpecs);
 }
 
@@ -80,35 +139,12 @@ function interpretInputSpecs (root, parts, throwOnFirstError = true) {
  * @returns {Promise}
  */
 function resolveValueSpecs(request, inputSpecs, ...rest) {
-	return Promise.all(inputSpecs
-			.filter(inputSpec => !!inputSpec.syntax)
-			.map(inputSpec => Object.assign(inputSpec, {
-				input: inputSpec.syntax[symbols.applyDefault](inputSpec.input, inputSpec.undefined)
-			}))
-			.map(inputSpec => {
-				inputSpec.syntax[symbols.validateInput](inputSpec.input);
 
-				return typeof inputSpec.syntax.resolver !== 'function'
-					? inputSpec
-					: Promise.resolve(inputSpec.syntax.resolver(inputSpec.input, ...rest))
-						.then(input => {
-							inputSpec.input = input;
-							return inputSpec
-						})
-			})
-		)
-		.then(valueSpecs => {
-			return valueSpecs.reduce((req, valueSpec) => {
-				valueSpec.syntax.validateValue(valueSpec.input);
-
-				return Object.assign(req, valueSpec.syntax[symbols.exportWithInput](req, valueSpec.input, valueSpec.undefined))
-			}, request);
-		});
 }
 
-export default function interpreter (root, parts, request, throwOnFirstError, rest) {
+export default function interpreter (root, parts, throwOnFirstError = true) {
 	try {
-		return resolveValueSpecs(request || {}, interpretInputSpecs(root, parts, throwOnFirstError), rest);
+		return new ParseResult(interpretInputSpecs(root, parts, throwOnFirstError));
 	} catch (e) {
 		return Promise.reject(e);
 	}

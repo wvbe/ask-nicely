@@ -6,7 +6,6 @@ import Option from './Option';
 import Parameter from './Parameter';
 
 import interpreter from './interpreter';
-import Request from './Request';
 
 const CHILD_CLASS = Symbol('child command class definition');
 
@@ -52,15 +51,17 @@ export default class Command extends NamedSyntaxPart {
 	/**
 	 * @param {String|Array<String>} [parts]
 	 * @param {Object} [request] An existing Request, if you do not want to make a new one if you want to re-use it
+	 * @param {*} [...args] Any argument passed down to the resolvers, precontrollers and controller
 	 * @returns {Promise}
 	 */
 	execute (parts, request, ...args) {
-		return interpreter(this, parts, request || new Request(), true, args)
-			.then(request => request.command.run.apply(request.command, [request, ...args]));
+		return interpreter(this, parts, true)
+			.resolve(request, args)
+			.then(self => self.execute(...args));
 	}
 
-	parse (parts, request, ...args) {
-		return interpreter(this, parts, request || new Request(), false, args);
+	parse (parts) {
+		return interpreter(this, parts, false);
 	}
 
 

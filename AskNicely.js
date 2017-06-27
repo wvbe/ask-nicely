@@ -8,4 +8,3 @@ export { default as IsolatedOption } from './src/IsolatedOption';
 export { default as MultiOption } from './src/MultiOption';
 export { default as Option } from './src/Option';
 export { default as Parameter } from './src/Parameter';
-export { default as Request } from './src/Request';

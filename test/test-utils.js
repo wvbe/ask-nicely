@@ -7,6 +7,7 @@ module.exports = {
 
 function assertPromiseExecutionEqual(root, str, done, cb, errcb) {
 	root.parse(str)
+		.resolve()
 		.then(req => {
 			return req.execute().then(() => req);
 		})

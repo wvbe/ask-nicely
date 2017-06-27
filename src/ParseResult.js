@@ -7,6 +7,10 @@ export default class Request {
 		this.parameters = {};
 	}
 
+	resolve () {
+
+	}
+
 	/**
 	 * Execute command controller, or reject if errors were found
 	 * @param {*} ... Zero or many arguments to pass on to controller
