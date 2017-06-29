@@ -63,7 +63,6 @@ export default class Command extends NamedSyntaxPart {
 		return interpreter(this, parts, request || new Request(), false, args);
 	}
 
-
 	executePreControllers (...args) {
 		return this.preControllers.reduce(
 			(res, preController) => res.then(previousVal => previousVal === false

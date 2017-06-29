@@ -15,7 +15,7 @@ root
 root
 	.addCommand('b', req => req)
 		.addPreController((req) => {
-			req.first = true;
+			Object.assign(req, { first: 'should-be-set' });
 			return false;
 		})
 		.addPreController((req) => {
@@ -38,12 +38,16 @@ describe('Command', () => {
 				assert.strictEqual(req.commandname, 'a');
 			}));
 
-		it('returning FALSE prevents executing consecutive (pre) controllers', () => root
-			.execute('b', {})
-			.then(req => {
-				assert.strictEqual(req.first, true);
-				assert.strictEqual(req.second, undefined);
-			}));
+		it('returning FALSE prevents executing consecutive (pre) controllers', () => {
+			const req = { myReq: true };
+			return root
+				.execute('b', req)
+				.then(() => {
+					assert.strictEqual(req.myReq, true);
+					assert.strictEqual(req.first, 'should-be-set');
+					assert.strictEqual(req.second, undefined);
+				});
+		});
 
 		it('throws an error when a command does not exist', () => root
 			.execute('non-existing-command', {})
