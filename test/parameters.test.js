@@ -48,12 +48,18 @@ describe('Parameter', () => {
 
 	it('can be configured with custom validators', () => root
 		.execute('b nerfxyz')
+		.then(req => {
+			throw new Error('Should have thrown');
+		})
 		.catch(err => {
 			assert.strictEqual(err.message, 'parameter-validator');
 		}));
 
 	it('may be required', () => root
 		.execute('b nerfxyz ba')
+		.then(req => {
+			throw new Error('Should have thrown');
+		})
 		.catch(err => {
 			assert.ok(err.message.indexOf('nerf') >= 0 && err.message.indexOf('undefined') >= 0);
 		}));

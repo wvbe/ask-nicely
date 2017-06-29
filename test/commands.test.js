@@ -47,6 +47,9 @@ describe('Command', () => {
 
 		it('throws an error when a command does not exist', () => root
 			.execute('non-existing-command', {})
+			.then(req => {
+				throw new Error('Should have thrown');
+			})
 			.catch(err => {
 				assert.ok(err.message.includes('non-existing-command'));
 			}));

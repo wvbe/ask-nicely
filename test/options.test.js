@@ -69,6 +69,9 @@ describe('Option', () => {
 
 	it('throws an error if required option is undefined', () => root
 		.execute('a')
+		.then(req => {
+			throw new Error('Should have thrown');
+		})
 		.catch(err => {
 			assert.strictEqual(err.message.includes('option1'), true); // Error message is about the first to fail
 			assert.strictEqual(err.message.includes('option2'), false);
@@ -76,6 +79,9 @@ describe('Option', () => {
 
 	it('throws an error if a parent required option is undefined', () => root
 		.execute('b ba -s value')
+		.then(req => {
+			throw new Error('Should have thrown');
+		})
 		.catch(err => {
 			assert.ok(err.message.indexOf('"parent"') >= 0);
 		}));
@@ -89,6 +95,9 @@ describe('Option', () => {
 
 	it('can be configured with custom validators', () => root
 		.execute('a --option1 whatever --option2 shouldnotcontainxyz')
+		.then(req => {
+			throw new Error('Should have thrown');
+		})
 		.catch(err => {
 			assert.strictEqual(err.message, 'option-validator-1');
 		}));
@@ -134,6 +143,9 @@ describe('DeepOption', () => {
 
 	it('required deep options need to match one input part to be satisfied', () => root
 		.execute('c')
+		.then(req => {
+			throw new Error('Should have thrown');
+		})
 		.catch(err => {
 			assert.strictEqual(err.message.indexOf('can not be undefined') >= 0, true);
 		}));
