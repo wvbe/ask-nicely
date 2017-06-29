@@ -1,0 +1,54 @@
+'use strict';
+
+const assert = require('assert');
+const ask = require('../dist/AskNicely');
+
+const root = new ask.Command();
+
+root
+	.addCommand(new ask.Command('a', req => req))
+		.addAlias('alias')
+		.addPreController((req) => { req.firstPreController = true; })
+		.setController((req) => { req.commandname = req.command.name; return req;})
+		.addCommand('aa', req => req)
+			.addPreController((req) => { req.secondPreController = true; });
+root
+	.addCommand('b', req => req)
+		.addPreController((req) => {
+			req.first = true;
+			return false;
+		})
+		.addPreController((req) => {
+			req.second = 'should-not-be-set';
+		});
+
+describe('Command', () => {
+	describe('execute()', () => {
+		it('precontrollers are ran for all parents before the actual controller', () => root
+			.execute('a aa', {})
+			.then(req => {
+				assert.strictEqual(req.firstPreController, true);
+				assert.strictEqual(req.secondPreController, true);
+			}));
+
+		it('can use an alias command name', () => root
+			.execute('alias', {})
+			.then(req => {
+				assert.strictEqual(req.firstPreController, true);
+				assert.strictEqual(req.commandname, 'a');
+			}));
+
+		it('returning FALSE prevents executing consecutive (pre) controllers', () => root
+			.execute('b', {})
+			.then(req => {
+				assert.strictEqual(req.first, true);
+				assert.strictEqual(req.second, undefined);
+			}));
+
+		it('throws an error when a command does not exist', () => root
+			.execute('non-existing-command', {})
+			.catch(err => {
+				assert.ok(err.message.includes('non-existing-command'));
+			}));
+	});
+});

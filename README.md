@@ -19,7 +19,7 @@ root.addCommand('subcommand', request => {
 		console.log(request));
 		return { somethingWasDone: true };
 	})
-	.addOption('beta', 'b', null, true)
+	.addOption('beta', 'b', 'Beta is the second letter of the greek alphabet', true)
 	.addParameter('gamma');
 
 root.execute(process.argv.slice(2))
