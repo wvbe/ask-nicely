@@ -32,7 +32,7 @@ export default class Command extends NamedSyntaxPart {
 	[symbols.updateTiersAfterMatch] (tiers, match) {
 		tiers.ordered.splice(tiers.ordered.indexOf(this), 1);
 
-		if(match instanceof Command) {
+		if(match.getType() === 'command') {
 			tiers.ordered.splice.apply(tiers.ordered, [0, 0].concat(match.parameters).concat(match));
 			tiers.unordered.splice.apply(tiers.unordered, [0, 0].concat(match.options));
 		}
@@ -58,6 +58,10 @@ export default class Command extends NamedSyntaxPart {
 	execute (parts, request, ...args) {
 		return interpreter(this, parts, request || new Request(), true, args)
 			.then(request => request.command.getControllerStack().apply(request.command, [request, ...args]));
+	}
+
+	getType () {
+		return 'command';
 	}
 
 	/**
@@ -159,7 +163,7 @@ export default class Command extends NamedSyntaxPart {
 	 * @returns {Command}
 	 */
 	addOption (long, short, description, required) {
-		this.options.push(long instanceof Option
+		this.options.push(typeof long.getType === 'function' && long.getType() === 'option'
 			? long
 			: new Option(long)
 				.setShort(short)
@@ -179,7 +183,7 @@ export default class Command extends NamedSyntaxPart {
 	 * @returns {Command}
 	 */
 	addParameter (name, description, required) {
-		this.parameters.push(name instanceof Parameter
+		this.parameters.push(typeof name.getType === 'function' && name.getType() === 'parameter'
 			? name
 			: new Parameter(name)
 				.setDescription(description)
@@ -197,7 +201,7 @@ export default class Command extends NamedSyntaxPart {
 	 * @returns {Command} The child command
 	 */
 	addCommand (name, controller) {
-		let child = name instanceof Command
+		let child = typeof name.getType === 'function' && name.getType() === 'command'
 			? name
 			: new this[CHILD_CLASS](name, controller);
 

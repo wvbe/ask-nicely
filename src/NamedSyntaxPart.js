@@ -70,6 +70,13 @@ export default class NamedSyntaxPart {
 	}
 
 	/**
+	 * Explains to the system which type of syntax it is, eg. what other syntax parts it may compete with
+	 */
+	getType () {
+		throw new Error('Not implemented.');
+	}
+
+	/**
 	 * Validates a value after it is resolved. Expected to throw an error if something is awry, return undefined
 	 * otherwise.
 	 * @param input

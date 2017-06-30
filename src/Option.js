@@ -66,6 +66,10 @@ export default class Option extends VariableSyntaxPart {
 		request.options[this.name] = value;
 	}
 
+	getType () {
+		return 'option';
+	}
+
 	/**
 	 *
 	 * @param value

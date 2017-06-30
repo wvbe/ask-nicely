@@ -33,4 +33,8 @@ export default class Parameter extends  VariableSyntaxPart {
 			? this.cloneDefault()
 			: value;
 	}
+
+	getType () {
+		return 'parameter';
+	}
 }
