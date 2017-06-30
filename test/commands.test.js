@@ -3,13 +3,14 @@
 const assert = require('assert');
 const ask = require('../dist/AskNicely');
 
-const root = new ask.Command();
+const root = new ask.Command('root');
 
 root
 	.addCommand(new ask.Command('a', req => req))
 		.addAlias('alias')
 		.addPreController((req) => { req.firstPreController = true; })
-		.setController((req) => { req.commandname = req.command.name; return req;})
+		.setController(req => req)
+		.addOption('z')
 		.addCommand('aa', req => req)
 			.addPreController((req) => { req.secondPreController = true; });
 root
@@ -35,7 +36,15 @@ describe('Command', () => {
 			.execute('alias', {})
 			.then(req => {
 				assert.strictEqual(req.firstPreController, true);
-				assert.strictEqual(req.commandname, 'a');
+				assert.strictEqual(req.command.name, 'a');
+			}));
+
+		it('can parse relative from any depth in the command hierarchy', () => root.children[0]
+			.execute('--z napoleon', {})
+			.then(req => {
+				assert.strictEqual(req.firstPreController, true);
+				assert.strictEqual(req.options.z, 'napoleon');
+				assert.strictEqual(req.command.name, 'a');
 			}));
 
 		it('returning FALSE prevents executing consecutive (pre) controllers', () => {

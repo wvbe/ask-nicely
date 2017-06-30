@@ -50,19 +50,31 @@ export default class Command extends NamedSyntaxPart {
 	}
 
 	/**
+	 * Parse input onto a request object, and execute accordingly
 	 * @param {String|Array<String>} [parts]
 	 * @param {Object} [request] An existing Request, if you do not want to make a new one if you want to re-use it
 	 * @returns {Promise}
 	 */
 	execute (parts, request, ...args) {
 		return interpreter(this, parts, request || new Request(), true, args)
-			.then(request => request.command.run.apply(request.command, [request, ...args]));
+			.then(request => request.command.getControllerStack().apply(request.command, [request, ...args]));
 	}
 
-	parse (parts, request, ...args) {
-		return interpreter(this, parts, request || new Request(), false, args);
-	}
+	/**
+	 *
+	 * @param parts
+	 * @param request
+	 * @param args
+	 */
+	// parse (parts, request, ...args) {
+	// 	return interpreter(this, parts, request || new Request(), false, args);
+	// }
 
+	/**
+	 * Execute all ancestroy precontrollers
+	 * @param args
+	 * @returns {*}
+	 */
 	executePreControllers (...args) {
 		return this.preControllers.reduce(
 			(res, preController) => res.then(previousVal => previousVal === false
@@ -75,11 +87,11 @@ export default class Command extends NamedSyntaxPart {
 	}
 
 	/**
-	 * @todo Use rest parameters
-	 * @returns {Promise}
+	 * Returns a function that executes all ancestry precontrollers and this command's controller
+	 * @returns {Function}
 	 */
-	run (...args) {
-		return this.executePreControllers(...args)
+	getControllerStack () {
+		return (...args) => this.executePreControllers(...args)
 			.then(previousValue => previousValue === false || typeof this.controller !== 'function'
 				? previousValue
 				: this.controller(...args)
