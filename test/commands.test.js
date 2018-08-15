@@ -1,7 +1,7 @@
 'use strict';
 
 const assert = require('assert');
-const ask = require('../dist/AskNicely');
+const ask = require('../AskNicely');
 
 const root = new ask.Command('root');
 

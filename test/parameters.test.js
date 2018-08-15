@@ -1,7 +1,7 @@
 'use strict';
 
 const assert = require('assert');
-const ask = require('../dist/AskNicely');
+const ask = require('../AskNicely');
 
 const root = new ask.Command();
 
@@ -37,7 +37,12 @@ root
 			smack: true
 		}))
 		.addCommand('ca', req => req)
-			.addParameter('st');
+			.addParameter('st')
+			.parent
+		.parent
+	.addCommand('d', req => req)
+		.addParameter(new ask.MultiParameter('multimulti'))
+		.addOption('z');
 
 describe('Parameter', () => {
 	it('include parent command parameters', () => root
@@ -107,5 +112,14 @@ describe('DeepParameter', () => {
 		.then(req => {
 			assert.strictEqual(req.parameters.d.yikes.argh, 'eeks');
 			assert.strictEqual(req.parameters.st, 'what');
+		}));
+});
+
+describe('MultiParameter', () => {
+	it('may contain multiple values', () => root
+		.execute('d multi mutli --z')
+		.then(req => {
+			expect(req.parameters.multimulti).toEqual(['multi', 'mutli']);
+			expect(req.options.z).toBe(true);
 		}));
 });
