@@ -1,6 +1,8 @@
 'use strict';
 
 const assert = require('assert');
+const path = require('path');
+
 const ask = require('../dist/AskNicely');
 
 const root = new ask.Command('root');
@@ -22,6 +24,8 @@ root
 		.addPreController((req) => {
 			req.second = 'should-not-be-set';
 		});
+root
+	.addCommand('c', path.join(__dirname, './lazyLoadedCommand.js'));
 
 describe('Command', () => {
 	describe('execute()', () => {
@@ -55,6 +59,18 @@ describe('Command', () => {
 					assert.strictEqual(req.myReq, true);
 					assert.strictEqual(req.first, 'should-be-set');
 					assert.strictEqual(req.second, undefined);
+				});
+		});
+
+		it('can lazy load a command', () => {
+			const req = { lazyLoaded: false };
+			return root
+				.execute('c', req)
+				.then(result => {
+					assert.strictEqual(req.lazyLoaded, true);
+					assert.strictEqual(req.command.name, 'c');
+					assert.ok(result);
+					assert.strictEqual(result.value, true);
 				});
 		});
 

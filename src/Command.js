@@ -113,11 +113,18 @@ export default class Command extends NamedSyntaxPart {
 
 	/**
 	 * Set the main controller
-	 * @param {Function} cb
+	 * @param {Function} controller The controller function or absolute path to the controller source file.
 	 * @returns {Command}
 	 */
-	setController (cb) {
-		this.controller = cb;
+	setController (controller) {
+		if (typeof controller === 'string') {
+			this.controller = (...args) => {
+				return import(controller).then(controllerFunction => controllerFunction(...args));
+			};
+		}
+		else {
+			this.controller = controller;
+		}
 
 		return this;
 	}
@@ -132,13 +139,14 @@ export default class Command extends NamedSyntaxPart {
 
 		return this;
 	}
+
 	/**
 	 * Add a precontroller function that is ran before its own controller, or any of it's descendants precontrollers
-	 * @param {Function} cb
+	 * @param {Function} preController
 	 * @returns {Command}
 	 */
-	addPreController (cb) {
-		this.preControllers.push(cb);
+	addPreController (preController) {
+		this.preControllers.push(preController);
 
 		return this;
 	}
@@ -197,7 +205,7 @@ export default class Command extends NamedSyntaxPart {
 	 * Register a command as a child of this, and register this as parent of the child
 	 * @TODO: Check if child is not in lineage of command, to avoid circularness
 	 * @param {String|Command} name
-	 * @param {Function} [controller]
+	 * @param {Function|string} [controller] The controller function or absolute path to the controller source file.
 	 * @returns {Command} The child command
 	 */
 	addCommand (name, controller) {
