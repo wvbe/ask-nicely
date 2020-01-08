@@ -98,11 +98,20 @@ function resolveValueSpecs(request, inputSpecs, ...rest) {
 			})
 		)
 		.then(valueSpecs => {
-			return valueSpecs.reduce((req, valueSpec) => {
-				valueSpec.syntax.validateValue(valueSpec.input);
+			const appliedOptionNames = [];
+			return valueSpecs
+				.filter(function (valueSpec) {
+					if (appliedOptionNames.indexOf(valueSpec.syntax.name) !== -1) {
+						return false;
+					}
+					appliedOptionNames.push(valueSpec.syntax.name);
+					return true;
+				})
+				.reduce((req, valueSpec) => {
+					valueSpec.syntax.validateValue(valueSpec.input);
 
-				return Object.assign(req, valueSpec.syntax[symbols.exportWithInput](req, valueSpec.input, valueSpec.undefined))
-			}, request);
+					return Object.assign(req, valueSpec.syntax[symbols.exportWithInput](req, valueSpec.input, valueSpec.undefined))
+				}, request);
 		});
 }
 
