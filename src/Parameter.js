@@ -6,6 +6,8 @@ import VariableSyntaxPart from './VariableSyntaxPart';
 export default class Parameter extends  VariableSyntaxPart {
 	constructor (name) {
 		super(name);
+
+		this.isParameter = true;
 	}
 
 	[symbols.isMatchForPart] (value) {

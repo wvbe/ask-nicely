@@ -101,6 +101,9 @@ function resolveValueSpecs(request, inputSpecs, ...rest) {
 			const appliedOptionNames = [];
 			return valueSpecs
 				.filter(function (valueSpec) {
+					if (!valueSpec.syntax.isOption) {
+						return true;
+					}
 					if (appliedOptionNames.indexOf(valueSpec.syntax.name) !== -1) {
 						return false;
 					}

@@ -13,6 +13,9 @@ const CHILD_CLASS = Symbol('child command class definition');
 export default class Command extends NamedSyntaxPart {
 	constructor (name, controller) {
 		super(name);
+
+		this.isCommand = true;
+
 		this.parent = null;
 		this.controller = null;
 		this.children = [];
