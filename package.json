@@ -28,14 +28,14 @@
   },
   "scripts": {
     "test": "jest",
-    "build": "mkdir dist; rollup AskNicely.js --format umd --name ask-nicely | babel --filename AskNicely.js > dist/AskNicely.js",
-    "prepublish": "npm run build"
+    "build": "rollup AskNicely.js --format umd --name ask-nicely | babel --filename AskNicely.js --out-file dist/AskNicely.js",
+    "prepublishOnly": "npm run build"
   },
   "engines": {
     "node": ">=4.1.0"
   },
   "devDependencies": {
-	"@babel/cli": "^7.7.7",
+    "@babel/cli": "^7.7.7",
     "@babel/core": "^7.7.7",
     "@babel/preset-env": "^7.7.7",
     "jest": "^24.9.0",
