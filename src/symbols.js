@@ -8,4 +8,4 @@ export default {
 	applyDefault: Symbol('_applyDefault'),
 	validateInput: Symbol('_validateInput'),
 	createContributionToRequestObject: Symbol('_createContributionToRequestObject')
-}
+};

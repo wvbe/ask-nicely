@@ -4,9 +4,9 @@ import symbols from './symbols';
 
 export default class NamedSyntaxPart {
 	/**
-	 * @param {String} name
+	 * @param {string} name
 	 */
-	constructor (name) {
+	constructor(name) {
 		this.name = name;
 		this.description = null;
 	}
@@ -14,9 +14,9 @@ export default class NamedSyntaxPart {
 	/**
 	 * Signals the parser that an input part matches this NamedSyntaxPart definition.
 	 * @param part
-	 * @returns {Boolean}
+	 * @return {boolean}
 	 */
-	[symbols.isMatchForPart] (part) {
+	[symbols.isMatchForPart](part) {
 		throw new Error('Not implemented.');
 	}
 
@@ -24,9 +24,9 @@ export default class NamedSyntaxPart {
 	 * Describes how the value should be temporarily stored together with it's defining NamedSyntaxPart
 	 * @param {NamedSyntaxPart} resolvedInputSpecs
 	 * @param {*} inputValue
-	 * @returns {Array}
+	 * @return {Array}
 	 */
-	[symbols.updateInputSpecsAfterMatch] (resolvedInputSpecs, inputValue) {
+	[symbols.updateInputSpecsAfterMatch](resolvedInputSpecs, inputValue) {
 		resolvedInputSpecs.push({
 			syntax: this,
 			input: inputValue
@@ -38,9 +38,9 @@ export default class NamedSyntaxPart {
 	 * Describes how to extract an input value from input parts. Is expected to mutate `parts`, and return (a temporary)
 	 * input value.
 	 * @param parts
-	 * @returns {*}
+	 * @return {*}
 	 */
-	[symbols.spliceInputFromParts] (parts) {
+	[symbols.spliceInputFromParts](parts) {
 		throw new Error('Not implemented.');
 	}
 
@@ -50,12 +50,11 @@ export default class NamedSyntaxPart {
 	 * @param {Request} request
 	 * @param {*} input
 	 */
-	[symbols.createContributionToRequestObject] (accumulated, input) {
+	[symbols.createContributionToRequestObject](accumulated, input) {
 		throw new Error('Not implemented.');
 	}
 
-
-	[symbols.applyDefault] (value, isUndefined) {
+	[symbols.applyDefault](value, isUndefined) {
 		return value;
 	}
 
@@ -63,16 +62,14 @@ export default class NamedSyntaxPart {
 	 * Validates input before it is resolved. Expected to throw an error if something is awry, return undefined
 	 * otherwise.
 	 * @param input
-	 * @returns {boolean}
+	 * @return {boolean}
 	 */
-	[symbols.validateInput] (input) {
-
-	}
+	[symbols.validateInput](input) {}
 
 	/**
 	 * Explains to the system which type of syntax it is, eg. what other syntax parts it may compete with
 	 */
-	getType () {
+	'getType'() {
 		throw new Error('Not implemented.');
 	}
 
@@ -81,25 +78,23 @@ export default class NamedSyntaxPart {
 	 * otherwise.
 	 * @param input
 	 */
-	validateValue (value) {
-
-	}
+	'validateValue'(value) {}
 
 	/**
 	 * Returns the new scope of NamedSyntaxParts to parse through after this is parsed.
 	 * @param {Array} tiers
-	 * @returns {Array}
+	 * @return {Array}
 	 */
-	[symbols.updateTiersAfterMatch] (tiers) {
+	[symbols.updateTiersAfterMatch](tiers) {
 		throw new Error('Not implemented.');
 	}
 
 	/**
 	 * Stored a descriptive string for the NamedSyntaxPart definition, or whatever it is to the end-user
-	 * @param {String} description
-	 * @returns {NamedSyntaxPart}
+	 * @param {string} description
+	 * @return {NamedSyntaxPart}
 	 */
-	setDescription (description) {
+	'setDescription'(description) {
 		this.description = description;
 		return this;
 	}

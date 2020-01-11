@@ -6,32 +6,30 @@ import InputError from './InputError';
 
 export default class VariableSyntaxPart extends NamedSyntaxPart {
 	/**
-	 * @param {String} name
+	 * @param {string} name
 	 */
-	constructor (name) {
+	constructor(name) {
 		super(name);
 
 		this.validators = [];
 	}
 
 	/**
-	 * @param {boolean|Function} required - If this is a function, acts as a short-hand for addValidator() as well
-	 * @returns {VariableSyntaxPart}
+	 * @param {boolean|function(Type, Type): Type} required - If this is a function, acts as a short-hand for addValidator() as well
+	 * @return {VariableSyntaxPart}
 	 */
-	isRequired (required) {
+	'isRequired'(required) {
 		this.required = !!required;
 
-		return (typeof required === 'function')
-			? this.addValidator(required)
-			: this;
+		return typeof required === 'function' ? this.addValidator(required) : this;
 	}
 
 	/**
 	 * Add a validator function that would check the resolved value and is expected to throw if something's awry.
-	 * @param {Function} validator
-	 * @returns {VariableSyntaxPart}
+	 * @param {function(Type, Type): Type} validator
+	 * @return {VariableSyntaxPart}
 	 */
-	addValidator (validator) {
+	'addValidator'(validator) {
 		this.validators.push(validator);
 		return this;
 	}
@@ -39,10 +37,10 @@ export default class VariableSyntaxPart extends NamedSyntaxPart {
 	/**
 	 * Define a callback that can (asynchronously) resolve user input to a value. `resolver` can return any value
 	 * synchronously or a Promise for that value.
-	 * @param {Function} resolver
-	 * @returns {VariableSyntaxPart}
+	 * @param {function(Type, Type): Type} resolver
+	 * @return {VariableSyntaxPart}
 	 */
-	setResolver (resolver) {
+	'setResolver'(resolver) {
 		this.resolver = resolver;
 		return this;
 	}
@@ -50,30 +48,30 @@ export default class VariableSyntaxPart extends NamedSyntaxPart {
 	/**
 	 * Set a value to fall back to in case VariableSyntaxPart was not defined (and not required)
 	 * @param {*} value
-	 * @returns {VariableSyntaxPart}
+	 * @return {VariableSyntaxPart}
 	 */
-	setDefault (value) {
+	'setDefault'(value) {
 		this.default = value;
 		return this;
 	}
 
-	[symbols.applyDefault] (value, isUndefined) {
+	[symbols.applyDefault](value, isUndefined) {
 		return isUndefined ? this.cloneDefault() : value;
 	}
 	// @TODO: Find a better way to clone objects, since Object.assign does not seem to do the job
 	// If clone is not done properly, actual usage of a default property could overwrite it for later usages
-	cloneDefault () {
+	'cloneDefault'() {
 		return this.default && typeof this.default === 'object' && !Array.isArray(this.default)
 			? JSON.parse(JSON.stringify(this.default))
 			: this.default;
 	}
 
-	[symbols.validateInput] (input) {
+	[symbols.validateInput](input) {
 		if (this.required && input === undefined)
 			throw new InputError(`The ${this.getType()} "${this.name}" can not be undefined.`);
 	}
 
-	validateValue (value) {
+	'validateValue'(value) {
 		this.validators.forEach(validator => validator(value));
 	}
 }

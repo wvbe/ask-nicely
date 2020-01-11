@@ -18,7 +18,7 @@ export default class Parameter extends VariableSyntaxPart {
 	}
 
 	[symbols.spliceInputFromParts](parts) {
-		let value = parts.shift();
+		const value = parts.shift();
 		return value === '-' ? undefined : value;
 	}
 
@@ -30,7 +30,7 @@ export default class Parameter extends VariableSyntaxPart {
 		};
 	}
 
-	getType() {
+	'getType'() {
 		return 'parameter';
 	}
 }

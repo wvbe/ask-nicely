@@ -77,7 +77,8 @@ describe('DeepParameter', () => {
 		expect(req.parameters.config.blaat).toBe('test');
 		expect(req.parameters.config.durka.nerf).toBe('derp');
 		expect(
-			req.command.parameters[req.command.parameters.length - 1].default.djoeken.shanken).toBe('tsjoepen');
+			req.command.parameters[req.command.parameters.length - 1].default.djoeken.shanken
+		).toBe('tsjoepen');
 	});
 	it('handles default values for unspecified deep parameters', async () => {
 		const req = await root.execute('c d.djoeken.shanken - d.yikes.argh eeks d.smack');

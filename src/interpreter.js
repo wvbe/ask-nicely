@@ -6,19 +6,19 @@ import InputError from './InputError';
 /**
  * @param {Command} root
  * @param {String|Array<String>} [parts]
- * @returns {Array<[]>}
+ * @return {Array<[]>}
  */
 function matchInputToSyntaxPaths(root, parts) {
 	if (!parts) parts = [];
 
 	if (typeof parts === 'string')
-		parts = parts.match(/(".*?"|[^"\s]+)+(?=\s*|\s*$)/g).map((str) => str.replace(/['"]+/g, ''));
+		parts = parts.match(/(".*?"|[^"\s]+)+(?=\s*|\s*$)/g).map(str => str.replace(/['"]+/g, ''));
 
 	// Tiers are two collections of syntax parts; ordered ones need to be written in order by the user, unordered syntax
 	// parts may occur at any point in a command line input
 	let tiers = {
 		// Commands, parameters
-		ordered: [ root ],
+		ordered: [root],
 		// Options
 		unordered: []
 	};
@@ -37,8 +37,8 @@ function matchInputToSyntaxPaths(root, parts) {
 		}
 	];
 	while (parts.length) {
-		let expectedScopes = [ ...tiers.unordered ].reverse().concat(tiers.ordered),
-			matchingScope = expectedScopes.find((scope) => scope[symbols.isMatchForPart](parts[0]));
+		const expectedScopes = [...tiers.unordered].reverse().concat(tiers.ordered),
+			matchingScope = expectedScopes.find(scope => scope[symbols.isMatchForPart](parts[0]));
 
 		if (!matchingScope) {
 			throw new InputError(`EINVAL: The input "${parts[0]}" was not expected`);
@@ -47,10 +47,13 @@ function matchInputToSyntaxPaths(root, parts) {
 		// Allow the SyntaxPart to modify the string that is being evaluated
 		//   eg. allow an Option to change "-abc" to "-bc" for following SyntaxParts
 		// @DEBT returns a modified matchingScope _and_ changes by reference `parts`
-		let matchingValue = matchingScope[symbols.spliceInputFromParts](parts);
+		const matchingValue = matchingScope[symbols.spliceInputFromParts](parts);
 
 		// Update the collection of parsed values (each coupled to their matchign SyntaxPart)
-		resolvedInputSpecs = matchingScope[symbols.updateInputSpecsAfterMatch](resolvedInputSpecs, matchingValue);
+		resolvedInputSpecs = matchingScope[symbols.updateInputSpecsAfterMatch](
+			resolvedInputSpecs,
+			matchingValue
+		);
 
 		// Update the tiers (ordered/unordered) for whatever is left to parse
 		tiers = matchingScope[symbols.updateTiersAfterMatch](tiers, matchingValue);
@@ -59,16 +62,16 @@ function matchInputToSyntaxPaths(root, parts) {
 	// Find everything that is still open to match, and map it to the same format as resolvedScopeValues
 	// This information is needed so that parts (like an --option) can set itself to a default conditionally of being
 	// used, or not
-	let unresolvedInputSpecs = [ ...tiers.ordered, ...tiers.unordered ]
+	const unresolvedInputSpecs = [...tiers.ordered, ...tiers.unordered]
 		.reduce((leftovers, tierOptions) => leftovers.concat(tierOptions), [])
-		.filter((syntaxPart) => !resolvedInputSpecs.find((match) => match.syntax === syntaxPart))
-		.map((unmatch) => ({
+		.filter(syntaxPart => !resolvedInputSpecs.find(match => match.syntax === syntaxPart))
+		.map(unmatch => ({
 			syntax: unmatch,
 			input: undefined,
 			isUndefined: true
 		}));
 
-	return [ resolvedInputSpecs, unresolvedInputSpecs ];
+	return [resolvedInputSpecs, unresolvedInputSpecs];
 }
 
 /**
@@ -76,22 +79,28 @@ function matchInputToSyntaxPaths(root, parts) {
  * @param {Request} request
  * @param {Array<[]>} inputSpecs
  * @param {Array<*>} rest
- * @returns {Promise}
+ * @return {Promise}
  */
 export default function interpreter(root, parts, request, ...rest) {
-	const [ resolvedInputSpecs, unresolvedInputSpecs ] = matchInputToSyntaxPaths(root, parts);
+	const [resolvedInputSpecs, unresolvedInputSpecs] = matchInputToSyntaxPaths(root, parts);
 	return (
 		[
-			...resolvedInputSpecs.map((valueSpec) => {
+			...resolvedInputSpecs.map(valueSpec => {
 				// Maybe set the default
-				valueSpec.input = valueSpec.syntax[symbols.applyDefault](valueSpec.input, valueSpec.isUndefined);
+				valueSpec.input = valueSpec.syntax[symbols.applyDefault](
+					valueSpec.input,
+					valueSpec.isUndefined
+				);
 				valueSpec.syntax[symbols.validateInput](valueSpec.input);
 				return valueSpec;
 			}),
 			...unresolvedInputSpecs
-				.map((valueSpec) => {
+				.map(valueSpec => {
 					// Maybe set the default
-					valueSpec.input = valueSpec.syntax[symbols.applyDefault](valueSpec.input, valueSpec.isUndefined);
+					valueSpec.input = valueSpec.syntax[symbols.applyDefault](
+						valueSpec.input,
+						valueSpec.isUndefined
+					);
 					valueSpec.syntax[symbols.validateInput](valueSpec.input);
 
 					return valueSpec;

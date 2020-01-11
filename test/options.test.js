@@ -192,12 +192,24 @@ describe('option inheritance', () => {
 	it('commands and subcommands use the default if the option is multiply defined', async () => {
 		const r = new ask.Command('nerf', req => req);
 
-		r.addOption(new ask.Option('foo').setDefault('bar', true));
+		const mockResolver1 = jest.fn(x => x);
+		r.addOption(new ask.Option('foo').setResolver(mockResolver1).setDefault('bar', true));
 		expect((await r.execute('')).options.foo).toBe('bar');
+		expect(mockResolver1).toHaveBeenCalledTimes(1);
 
-		r.addCommand('derp', req => req).addOption(new ask.Option('foo').setDefault('baz', true));
+		const mockResolver2 = jest.fn(x => x);
+		r.addCommand('derp', req => req).addOption(
+			new ask.Option('foo').setResolver(mockResolver2).setDefault('baz', true)
+		);
 		expect((await r.execute('derp')).options.foo).toBe('baz');
+
+		// Current expected behaviour is that the resolver for the first --foo definition gets ran even if it is super-
+		// seded by the more specific --foo definition later.
+		// @TODO Not do that, have mockResolver1 be called only once in this test:
+		expect(mockResolver1).toHaveBeenCalledTimes(2);
+		expect(mockResolver2).toHaveBeenCalledTimes(1);
 	});
+
 	it('... also resolvers etc.', async () => {
 		const r = new ask.Command('nerf', req => req);
 
