@@ -14,6 +14,7 @@ export default class MultiOption extends Option {
 	}
 
 	// @todo: infinite arg as a callback
+	// @amazement 4 years later: what the actual did i mean?
 	isInfinite (infinite) {
 		this[breakPartsOnPart] = !!infinite
 			? part => false
@@ -65,11 +66,11 @@ export default class MultiOption extends Option {
 
 		return value || [];
 	}
-	[symbols.exportWithInput] (request, value, isUndefined) {
-		if (!request.options) {
-			request.options = {};
+	[symbols.createContributionToRequestObject] (accumulated, value, isUndefined) {
+		return {
+			options: {
+				[this.name]: (accumulated?.options?.[this.name] || []).concat(value)
+			}
 		}
-
-		request.options[this.name] = (request.options[this.name] || []).concat(value);
 	}
 }

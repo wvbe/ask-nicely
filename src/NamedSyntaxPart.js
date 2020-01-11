@@ -50,7 +50,7 @@ export default class NamedSyntaxPart {
 	 * @param {Request} request
 	 * @param {*} input
 	 */
-	[symbols.exportWithInput] (request, input) {
+	[symbols.createContributionToRequestObject] (accumulated, input) {
 		throw new Error('Not implemented.');
 	}
 

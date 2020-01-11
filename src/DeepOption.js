@@ -17,7 +17,8 @@ export default class DeepOption extends Option {
 		return DeepSyntaxPart[symbols.spliceInputFromParts].call(this, parts);
 	}
 
-	[symbols.exportWithInput] (request, value) {
-		return DeepSyntaxPart[symbols.exportWithInput].call(this, 'options', request, value);
+	[symbols.createContributionToRequestObject] (...args) {
+		// Inherit the behaviour of DeepSyntaxPart with a predetermined propertyName
+		return DeepSyntaxPart[symbols.createContributionToRequestObject].call(this, 'options', ...args);
 	}
 }

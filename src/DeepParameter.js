@@ -21,7 +21,8 @@ export default class DeepParameter extends Parameter {
 		return DeepSyntaxPart[symbols.spliceInputFromParts].call(this, parts);
 	}
 
-	[symbols.exportWithInput] (request, value) {
-		return DeepSyntaxPart[symbols.exportWithInput].call(this, 'parameters', request, value);
+	[symbols.createContributionToRequestObject] (...args) {
+		// Inherit the behaviour of DeepSyntaxPart with a predetermined propertyName
+		return DeepSyntaxPart[symbols.createContributionToRequestObject].call(this, 'parameters', ...args);
 	}
 }

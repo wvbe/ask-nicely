@@ -64,7 +64,7 @@ export default class VariableSyntaxPart extends NamedSyntaxPart {
 	// If clone is not done properly, actual usage of a default property could overwrite it for later usages
 	cloneDefault () {
 		return this.default && typeof this.default === 'object' && !Array.isArray(this.default)
-			? JSON.parse(JSON.stringify(this.default || {}))
+			? JSON.parse(JSON.stringify(this.default))
 			: this.default;
 	}
 

@@ -44,9 +44,8 @@ export default class Command extends NamedSyntaxPart {
 		return this.getCommandByName(parts.shift());
 	}
 
-	[symbols.exportWithInput] (request, value) {
-		if(value)
-			request.command = value;
+	[symbols.createContributionToRequestObject] (accumulated, value) {
+		return value ? { command: value } :  null;
 	}
 
 	/**
@@ -55,9 +54,9 @@ export default class Command extends NamedSyntaxPart {
 	 * @param {Object} [request] An existing Request, if you do not want to make a new one if you want to re-use it
 	 * @returns {Promise}
 	 */
-	execute (parts, request, ...args) {
-		return interpreter(this, parts, request || new Request(), true, args)
-			.then(request => request.command.getControllerStack().apply(request.command, [request, ...args]));
+	async execute (parts, initialRequest, ...args) {
+		const request = await interpreter(this, parts, initialRequest || new Request(), true, args);
+		return request.command.getControllerStack().apply(request.command, [request, ...args]);
 	}
 
 	getType () {

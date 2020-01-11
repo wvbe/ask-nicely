@@ -7,5 +7,5 @@ export default {
 	updateTiersAfterMatch: Symbol('_updateTiersAfterMatch'),
 	applyDefault: Symbol('_applyDefault'),
 	validateInput: Symbol('_validateInput'),
-	exportWithInput: Symbol('_exportWithInput')
+	createContributionToRequestObject: Symbol('_createContributionToRequestObject')
 }

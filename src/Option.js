@@ -58,12 +58,13 @@ export default class Option extends VariableSyntaxPart {
 		}
 		return value;
 	}
-	[symbols.exportWithInput] (request, value, isUndefined) {
-		if (!request.options) {
-			request.options = {};
-		}
 
-		request.options[this.name] = value;
+	[symbols.createContributionToRequestObject] (accumulated, value, isUndefined) {
+		return {
+			options: {
+				[this.name]: value
+			}
+		}
 	}
 
 	getType () {
