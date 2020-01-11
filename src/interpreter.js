@@ -8,21 +8,19 @@ import InputError from './InputError';
  * @param {String|Array<String>} [parts]
  * @returns {Array<[]>}
  */
-function interpretInputSpecs(root, parts, throwOnFirstError = true) {
+function interpretInputSpecs(root, parts) {
 	if (!parts) parts = [];
 
 	if (typeof parts === 'string')
 		parts = parts.match(/(".*?"|[^"\s]+)+(?=\s*|\s*$)/g).map((str) => str.replace(/['"]+/g, ''));
 
-	let resolvedInputSpecs = [
-		{
-			syntax: root,
-			input: root
-		}
-	];
 
+	// Tiers are two collections of syntax parts; ordered ones need to be written in order by the user, unordered syntax
+	// parts may occur at any point in a command line input
 	let tiers = {
+		// Commands, parameters
 		ordered: [ root ],
+		// Options
 		unordered: []
 	};
 
@@ -30,23 +28,20 @@ function interpretInputSpecs(root, parts, throwOnFirstError = true) {
 	root[symbols.updateTiersAfterMatch](tiers, root);
 
 	// Match and validate syntax parts based on input
+	let resolvedInputSpecs = [
+		{
+			// The root command represents having invoked ask-nicely in the first place,
+			// or in other words, it's what happens if you were to run your script without any input
+			syntax: root,
+			input: root
+		}
+	];
 	while (parts.length) {
 		let expectedScopes = tiers.unordered.concat(tiers.ordered),
 			matchingScope = expectedScopes.find((scope) => scope[symbols.isMatchForPart](parts[0]));
 
 		if (!matchingScope) {
-			const error = new InputError(`EINVAL: The input "${parts[0]}" was not expected`);
-			if (throwOnFirstError) {
-				throw error;
-			}
-
-			resolvedInputSpecs.push({
-				syntax: null,
-				error,
-				value: parts.shift()
-			});
-
-			continue;
+			throw new InputError(`EINVAL: The input "${parts[0]}" was not expected`);
 		}
 
 		// Allow the SyntaxPart to modify the string that is being evaluated
@@ -85,53 +80,56 @@ function interpretInputSpecs(root, parts, throwOnFirstError = true) {
  * @returns {Promise}
  */
 async function resolveValueSpecs(request, inputSpecs, ...rest) {
-	const validatedInputSpecs = await Promise.all(
+	return (
 		inputSpecs
+			// Do not run for the input specs that had an error
+			// Those are also the ones that don't have a `.syntax`
+			.filter((inputSpec) => !inputSpec.error)
+			// A synchronous pass over the input before starting the expensive stuff
+			.map((valueSpec) => {
+				// Maybe set the default
+				valueSpec.input = valueSpec.syntax[symbols.applyDefault](valueSpec.input, valueSpec.undefined);
 
-		// Do not run for the input specs that had an error
-		// Those are also the ones that don't have a `.syntax`
-		.filter((inputSpec) => !inputSpec.error)
+				// Maybe throw when the thing was required but not set
+				valueSpec.syntax[symbols.validateInput](valueSpec.input);
 
-		.map(async (inputSpec) => {
-			// Maybe set the default
-			inputSpec.input = inputSpec.syntax[symbols.applyDefault](inputSpec.input, inputSpec.undefined);
+				return valueSpec;
+			})
+			// Resolve the valueSpecs in sequence with each given the output of their predecessor
+			.reduce(async (asyncLast, valueSpec) => {
+				// Run the Command#addResolver configuration
+				if (valueSpec.syntax.resolver) {
+					valueSpec.input = await valueSpec.syntax.resolver(valueSpec.input, ...rest);
+				}
 
-			inputSpec.syntax[symbols.validateInput](inputSpec.input);
+				// Run the Command#addValidator configuration
+				await valueSpec.syntax.validateValue(valueSpec.input);
 
-			if (inputSpec.syntax.resolver) {
-				inputSpec.input = await inputSpec.syntax.resolver(inputSpec.input, ...rest);
-			}
+				const mergedRequestObject = await asyncLast;
 
-			return inputSpec;
-		})
+				// This is the object a syntax part generated, to be spliced into the Request object
+				// eg. { options: { foo: 'bar' }}
+				const contribution =
+					(await valueSpec.syntax[symbols.createContributionToRequestObject](
+						mergedRequestObject,
+						valueSpec.input,
+						valueSpec.undefined
+					)) || {};
+
+				// Merge the contribution into the original Request object
+				// eg. { command: Command, options: { foo: 'bar', 'boo': 'baz' }}
+				return Object.keys(contribution).reduce((merged, key) => {
+					if (key === 'command') merged[key] = contribution[key];
+					else merged[key] = Object.assign(merged[key] || {}, contribution[key]);
+					return merged;
+				}, mergedRequestObject);
+			}, request)
 	);
-
-	// Run the valueSpecs in sequence with each given the output of their predecessor
-	return validatedInputSpecs.reduce(async (asyncLast, valueSpec) => {
-
-		// This is the input checking as per Command#addValidator configuration
-		await valueSpec.syntax.validateValue(valueSpec.input);
-
-		const mergedRequestObject = await asyncLast;
-
-		const valueSpecContribution =
-			(await valueSpec.syntax[symbols.createContributionToRequestObject](
-				mergedRequestObject,
-				valueSpec.input,
-				valueSpec.undefined
-			)) || {};
-
-		return Object.keys(valueSpecContribution).reduce((merged, key) => {
-			if (key === 'command') merged[key] = valueSpecContribution[key];
-			else merged[key] = Object.assign(merged[key] || {}, valueSpecContribution[key]);
-			return merged;
-		}, mergedRequestObject);
-	}, request);
 }
 
-export default function interpreter(root, parts, request, throwOnFirstError, rest) {
+export default function interpreter(root, parts, request, rest) {
 	try {
-		return resolveValueSpecs(request || {}, interpretInputSpecs(root, parts, throwOnFirstError), rest);
+		return resolveValueSpecs(request || {}, interpretInputSpecs(root, parts), rest);
 	} catch (e) {
 		return Promise.reject(e);
 	}

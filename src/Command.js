@@ -29,12 +29,12 @@ export default class Command extends NamedSyntaxPart {
 		return !!this.getCommandByName(value);
 	}
 
-	[symbols.updateTiersAfterMatch] (tiers, match) {
+	[symbols.updateTiersAfterMatch] (tiers, syntaxPartThatWasMatched) {
 		tiers.ordered.splice(tiers.ordered.indexOf(this), 1);
 
-		if(match.getType() === 'command') {
-			tiers.ordered.splice.apply(tiers.ordered, [0, 0].concat(match.parameters).concat(match));
-			tiers.unordered.splice.apply(tiers.unordered, [0, 0].concat(match.options));
+		if(syntaxPartThatWasMatched.getType() === 'command') {
+			tiers.ordered.splice.apply(tiers.ordered, [0, 0].concat(syntaxPartThatWasMatched.parameters).concat(syntaxPartThatWasMatched));
+			tiers.unordered.splice.apply(tiers.unordered, [0, 0].concat(syntaxPartThatWasMatched.options));
 		}
 
 		return tiers;
