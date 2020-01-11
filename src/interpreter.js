@@ -8,12 +8,11 @@ import InputError from './InputError';
  * @param {String|Array<String>} [parts]
  * @returns {Array<[]>}
  */
-function interpretInputSpecs(root, parts) {
+function matchInputToSyntaxPaths(root, parts) {
 	if (!parts) parts = [];
 
 	if (typeof parts === 'string')
 		parts = parts.match(/(".*?"|[^"\s]+)+(?=\s*|\s*$)/g).map((str) => str.replace(/['"]+/g, ''));
-
 
 	// Tiers are two collections of syntax parts; ordered ones need to be written in order by the user, unordered syntax
 	// parts may occur at any point in a command line input
@@ -33,11 +32,12 @@ function interpretInputSpecs(root, parts) {
 			// The root command represents having invoked ask-nicely in the first place,
 			// or in other words, it's what happens if you were to run your script without any input
 			syntax: root,
-			input: root
+			input: root,
+			isUndefined: false
 		}
 	];
 	while (parts.length) {
-		let expectedScopes = tiers.unordered.concat(tiers.ordered),
+		let expectedScopes = [ ...tiers.unordered ].reverse().concat(tiers.ordered),
 			matchingScope = expectedScopes.find((scope) => scope[symbols.isMatchForPart](parts[0]));
 
 		if (!matchingScope) {
@@ -59,17 +59,16 @@ function interpretInputSpecs(root, parts) {
 	// Find everything that is still open to match, and map it to the same format as resolvedScopeValues
 	// This information is needed so that parts (like an --option) can set itself to a default conditionally of being
 	// used, or not
-	let unresolvedInputSpecs = tiers.unordered
-		.concat(tiers.ordered)
+	let unresolvedInputSpecs = [ ...tiers.ordered, ...tiers.unordered ]
 		.reduce((leftovers, tierOptions) => leftovers.concat(tierOptions), [])
 		.filter((syntaxPart) => !resolvedInputSpecs.find((match) => match.syntax === syntaxPart))
 		.map((unmatch) => ({
 			syntax: unmatch,
 			input: undefined,
-			undefined: true
+			isUndefined: true
 		}));
 
-	return resolvedInputSpecs.concat(unresolvedInputSpecs);
+	return [ resolvedInputSpecs, unresolvedInputSpecs ];
 }
 
 /**
@@ -79,22 +78,26 @@ function interpretInputSpecs(root, parts) {
  * @param {Array<*>} rest
  * @returns {Promise}
  */
-async function resolveValueSpecs(request, inputSpecs, ...rest) {
+export default function interpreter(root, parts, request, ...rest) {
+	const [ resolvedInputSpecs, unresolvedInputSpecs ] = matchInputToSyntaxPaths(root, parts);
 	return (
-		inputSpecs
-			// Do not run for the input specs that had an error
-			// Those are also the ones that don't have a `.syntax`
-			.filter((inputSpec) => !inputSpec.error)
-			// A synchronous pass over the input before starting the expensive stuff
-			.map((valueSpec) => {
+		[
+			...resolvedInputSpecs.map((valueSpec) => {
 				// Maybe set the default
-				valueSpec.input = valueSpec.syntax[symbols.applyDefault](valueSpec.input, valueSpec.undefined);
-
-				// Maybe throw when the thing was required but not set
+				valueSpec.input = valueSpec.syntax[symbols.applyDefault](valueSpec.input, valueSpec.isUndefined);
 				valueSpec.syntax[symbols.validateInput](valueSpec.input);
-
 				return valueSpec;
-			})
+			}),
+			...unresolvedInputSpecs
+				.map((valueSpec) => {
+					// Maybe set the default
+					valueSpec.input = valueSpec.syntax[symbols.applyDefault](valueSpec.input, valueSpec.isUndefined);
+					valueSpec.syntax[symbols.validateInput](valueSpec.input);
+
+					return valueSpec;
+				})
+				.reverse()
+		]
 			// Resolve the valueSpecs in sequence with each given the output of their predecessor
 			.reduce(async (asyncLast, valueSpec) => {
 				// Run the Command#addResolver configuration
@@ -113,7 +116,7 @@ async function resolveValueSpecs(request, inputSpecs, ...rest) {
 					(await valueSpec.syntax[symbols.createContributionToRequestObject](
 						mergedRequestObject,
 						valueSpec.input,
-						valueSpec.undefined
+						valueSpec.isUndefined
 					)) || {};
 
 				// Merge the contribution into the original Request object
@@ -123,14 +126,6 @@ async function resolveValueSpecs(request, inputSpecs, ...rest) {
 					else merged[key] = Object.assign(merged[key] || {}, contribution[key]);
 					return merged;
 				}, mergedRequestObject);
-			}, request)
+			}, request || {})
 	);
-}
-
-export default function interpreter(root, parts, request, rest) {
-	try {
-		return resolveValueSpecs(request || {}, interpretInputSpecs(root, parts), rest);
-	} catch (e) {
-		return Promise.reject(e);
-	}
 }

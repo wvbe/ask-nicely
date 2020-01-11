@@ -198,4 +198,13 @@ describe('option inheritance', () => {
 		r.addCommand('derp', req => req).addOption(new ask.Option('foo').setDefault('baz', true));
 		expect((await r.execute('derp')).options.foo).toBe('baz');
 	});
+	it('... also resolvers etc.', async () => {
+		const r = new ask.Command('nerf', req => req);
+
+		r.addOption(new ask.Option('foo').setResolver(() => 'bar'));
+		expect((await r.execute('--foo x')).options.foo).toBe('bar');
+
+		r.addCommand('derp', req => req).addOption(new ask.Option('foo').setResolver(() => 'baz'));
+		expect((await r.execute('derp --foo x')).options.foo).toBe('baz');
+	});
 });

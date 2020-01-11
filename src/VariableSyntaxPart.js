@@ -70,7 +70,7 @@ export default class VariableSyntaxPart extends NamedSyntaxPart {
 
 	[symbols.validateInput] (input) {
 		if (this.required && input === undefined)
-			throw new InputError(`"${this.name}" can not be undefined.`);
+			throw new InputError(`The ${this.getType()} "${this.name}" can not be undefined.`);
 	}
 
 	validateValue (value) {
