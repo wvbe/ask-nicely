@@ -189,7 +189,7 @@ describe('option inheritance', () => {
 		expect((await r.execute('derp')).options.foo).toBe('bar');
 	});
 
-	xit('commands and subcommands use the default if the option is multiply defined', async () => {
+	it('commands and subcommands use the default if the option is multiply defined', async () => {
 		const r = new ask.Command('nerf', req => req);
 
 		r.addOption(new ask.Option('foo').setDefault('bar', true));
