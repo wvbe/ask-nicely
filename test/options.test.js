@@ -63,6 +63,14 @@ describe('Option', () => {
 		expect(req.options.a).toBe(undefined);
 		expect(req.options.b).toBe(undefined);
 	});
+	// it('are renamed to their long names out of order', async () => {
+	// 	const req = await root.execute('a --option1 priority -ab');
+
+	// 	expect(req.options.option1).toBe('priority'); // long name use has prio over short
+	// 	expect(req.options.option2).toBe(true);
+	// 	expect(req.options.a).toBe(undefined);
+	// 	expect(req.options.b).toBe(undefined);
+	// });
 
 	it('throws an error if required option is undefined', () => {
 		expect(root.execute('a')).rejects.toThrow('option1');

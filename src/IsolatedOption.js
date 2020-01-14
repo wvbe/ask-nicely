@@ -27,6 +27,18 @@ export default class IsolatedOption extends Option {
 		return input;
 	}
 
+	[symbols.spliceInputDetailsFromParts] (parts) {
+		let input = Option.prototype[symbols.spliceInputFromParts].apply(this, arguments);
+
+		parts.splice(0, parts.length);
+
+		return {
+			part: parts[0],
+			value: input,
+			type: 'ISOLATED_OPTION'
+		}
+	}
+
 	// By resetting the results to just the command and this instance the Request object stays clean
 	[symbols.updateInputSpecsAfterMatch] (resolvedInputSpecs, inputValue) {
 		resolvedInputSpecs = [

@@ -49,7 +49,10 @@ function interpretInputSpecs (root, parts, throwOnFirstError = true) {
 
 		// Allow the SyntaxPart to modify the string that is being evaluated
 		//   eg. allow an Option to change "-abc" to "-bc" for following SyntaxParts
-		let matchingValue = matchingScope[symbols.spliceInputFromParts](parts);
+		// let matchingValue = matchingScope[symbols.spliceInputFromParts](parts);
+		let matchingDetails = matchingScope[symbols.spliceInputDetailsFromParts](parts),
+			matchingValue = matchingDetails ? matchingDetails.value : null;
+		console.log(matchingDetails);
 
 		// Update the collection of parsed values (each coupled to their matchign SyntaxPart)
 		resolvedInputSpecs = matchingScope[symbols.updateInputSpecsAfterMatch](resolvedInputSpecs, matchingValue);

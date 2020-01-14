@@ -53,6 +53,36 @@ export default class MultiOption extends Option {
 		return input;
 	}
 
+	[symbols.spliceInputDetailsFromParts]  (parts) {
+		if (this.short && parts[0].charAt(1) === this.short) {
+			parts[0] = '-' + parts[0].substr(2);
+
+			if(parts[0] !== '-')
+				return [];
+		}
+
+		parts.shift();
+
+		let input = [];
+
+		do {
+			if(parts[0] === '-') {
+				parts.shift();
+				break;
+			}
+			if(!parts[0] || this[breakPartsOnPart](parts[0]))
+				break;
+
+			input.push(parts.shift());
+
+		} while(parts.length > 0);
+
+		return {
+			value: input,
+			type: 'MULTI_OPTION'
+		};
+	}
+
 	[symbols.applyDefault] (value, isUndefined) {
 		if(value === undefined || !value.length) {
 			if(this.useDefaultIfFlagMissing || !isUndefined) {

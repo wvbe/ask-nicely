@@ -47,6 +47,13 @@ export default class Command extends NamedSyntaxPart {
 		return this.getCommandByName(parts.shift());
 	}
 
+	[symbols.spliceInputDetailsFromParts] (parts) {
+		return {
+			value: this.getCommandByName(parts.shift()),
+			type: 'COMMAND'
+		};
+	}
+
 	[symbols.exportWithInput] (request, value) {
 		if(value)
 			request.command = value;

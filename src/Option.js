@@ -48,6 +48,46 @@ export default class Option extends VariableSyntaxPart {
 			return parts.shift();
 	}
 
+	[symbols.spliceInputDetailsFromParts]  (parts) {
+		console.log('huh', parts, parts[0]);
+		// if this is a short notation (for one or more flags)
+		if (this.short && parts[0].charAt(1) === this.short) {
+			// remove the flag signifier from group
+			parts[0] = '-' + parts[0].substr(2);//replace(this.short, '');
+
+			// if the group is not empty, stop parsing this option
+			if(parts[0] !== '-')
+				return {
+					part: this.short,
+					value: null,
+					type: 'OPTION'
+				};
+		}
+
+		// Stop caring about the flag signifier
+		parts.shift();
+
+		// if value is a dash, stop parsing
+		if(parts[0] === '-') {
+			parts.shift();
+			return;
+		}
+
+		// use next input part if it is not another option
+		if (parts[0] && parts[0].charAt(0) !== '-')
+			return {
+				part: parts[0],
+				value: parts.shift(),
+				type: 'OPTION'
+			};
+
+		return{
+			part: parts[0],
+			value: null,
+			type: 'OPTION'
+		};
+	}
+
 
 	[symbols.applyDefault] (value, isUndefined) {
 		if(this.required && isUndefined)

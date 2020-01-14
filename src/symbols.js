@@ -3,6 +3,7 @@
 export default {
 	isMatchForPart: Symbol('_isMatchForPart'),
 	spliceInputFromParts: Symbol('_spliceInputFromParts'),
+	spliceInputDetailsFromParts: Symbol('_spliceInputDetailsFromParts'),
 	updateInputSpecsAfterMatch: Symbol('_updateInputSpecsAfterMatch'),
 	updateTiersAfterMatch: Symbol('_updateTiersAfterMatch'),
 	applyDefault: Symbol('_applyDefault'),

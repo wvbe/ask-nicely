@@ -26,6 +26,17 @@ export default class Parameter extends  VariableSyntaxPart {
 			: value;
 	}
 
+	[symbols.spliceInputDetailsFromParts] (parts) {
+		let value = parts.shift();
+		return {
+			part: parts[0],
+			value: value === '-'
+				? undefined
+				: value,
+			type: 'PARAMETER'
+		};
+	}
+
 	[symbols.exportWithInput] (request, value) {
 		if (!request.parameters) {
 			request.parameters = {};
