@@ -1,6 +1,6 @@
 {
   "name": "ask-nicely",
-  "version": "3.0.4",
+  "version": "4.0.0",
   "description": "Easily create command-line applications by configuring commands, options and parameters that are supermagically parsed.",
   "repository": "wvbe/ask-nicely",
   "author": {
@@ -28,18 +28,17 @@
   },
   "scripts": {
     "test": "jest",
-    "build": "rollup AskNicely.js --format umd --name ask-nicely | babel --filename AskNicely.js --out-file dist/AskNicely.js",
+    "build": "rollup --config .rolluprc",
     "prepublishOnly": "npm run build"
   },
   "engines": {
     "node": ">=4.1.0"
   },
   "devDependencies": {
-    "@babel/cli": "^7.7.7",
-    "@babel/core": "^7.7.7",
     "@babel/plugin-proposal-optional-chaining": "^7.7.5",
     "@babel/preset-env": "^7.7.7",
     "jest": "^24.9.0",
-    "rollup": "^1.29.0"
+    "rollup": "^1.29.0",
+    "rollup-plugin-babel": "^4.3.3"
   }
 }
