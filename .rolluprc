@@ -1,0 +1,11 @@
+const babel = require('rollup-plugin-babel');
+
+module.exports = {
+	input: 'AskNicely.js',
+	output: {
+		name: 'AskNicely',
+		file: 'dist/AskNicely2.js',
+		format: 'umd'
+	},
+	plugins: [babel()]
+};

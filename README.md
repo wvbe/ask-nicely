@@ -124,6 +124,8 @@ username.
   precontrollers and controllers. This allows you to pass an application/config object along.
 
 ## Release notes
+- v 4.0.0
+  - Fixed an issue where the most specifically defined Option (ie. on the deepest command) of the same name did not win.
 - v 3.0.0
   - _Deprecate the `Root` class, any `Command` can serve as root_
   - _Refactor `Root#interpret()` to `Command#parse()`, which doesn't throw and parses more_
