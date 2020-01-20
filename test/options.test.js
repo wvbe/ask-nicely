@@ -179,6 +179,17 @@ describe('MultiOption', () => {
 });
 
 describe('option inheritance', () => {
+	it('commands and subcommands use the last value if the option is multiply defined', async () => {
+		const r = new ask.Command('nerf', req => req);
+
+		r.addOption(new ask.Option('foo'));
+		expect((await r.execute('--foo 1')).options.foo).toBe('x1');
+
+		r.addCommand('derp', req => req).addOption(new ask.Option('foo'));
+		expect((await r.execute('derp --foo 2')).options.foo).toBe('2');
+		expect((await r.execute('--foo 1 derp --foo 2')).options.foo).toBe('2');
+	});
+
 	it('commands and subcommands use the default if the option is singularly defined', async () => {
 		const r = new ask.Command('nerf', req => req);
 		r.addOption(new ask.Option('foo').setDefault('bar', true));
