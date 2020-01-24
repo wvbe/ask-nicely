@@ -33,14 +33,17 @@ export default class Command extends NamedSyntaxPart {
 		tiers.ordered.splice(tiers.ordered.indexOf(this), 1);
 
 		if (syntaxPartThatWasMatched.getType() === 'command') {
-			tiers.ordered.splice.apply(
-				tiers.ordered,
-				[0, 0].concat(syntaxPartThatWasMatched.parameters).concat(syntaxPartThatWasMatched)
+			// Remove all previously defined options of the same name
+			tiers.unordered
+				.filter(x => syntaxPartThatWasMatched.options.some(y => x.name === y.name))
+				.forEach(option => tiers.unordered.splice(tiers.unordered.indexOf(option), 1));
+
+			tiers.ordered.splice(
+				0,
+				0,
+				...syntaxPartThatWasMatched.parameters.concat(syntaxPartThatWasMatched)
 			);
-			tiers.unordered.splice.apply(
-				tiers.unordered,
-				[0, 0].concat(syntaxPartThatWasMatched.options)
-			);
+			tiers.unordered.splice(0, 0, ...syntaxPartThatWasMatched.options);
 		}
 
 		return tiers;

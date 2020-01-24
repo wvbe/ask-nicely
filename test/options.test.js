@@ -57,8 +57,7 @@ root.addCommand('a', req => req)
 describe('Option', () => {
 	it('are renamed to their long names', async () => {
 		const req = await root.execute('a -ab --option1 priority');
-
-		expect(req.options.option1).toBe('priority'); // long name use has prio over short
+		expect(req.options.option1).toBe('priority');
 		expect(req.options.option2).toBe(true);
 		expect(req.options.a).toBe(undefined);
 		expect(req.options.b).toBe(undefined);
@@ -180,54 +179,53 @@ describe('MultiOption', () => {
 
 describe('option inheritance', () => {
 	it('commands and subcommands use the last value if the option is multiply defined', async () => {
-		const r = new ask.Command('nerf', req => req);
+		const r = new ask.Command('fdt', req => req);
+		r.addOption(new ask.Option('version'));
+		expect((await r.execute('--version 1')).options.version).toBe('1');
 
-		r.addOption(new ask.Option('foo'));
-		expect((await r.execute('--foo 1')).options.foo).toBe('x1');
-
-		r.addCommand('derp', req => req).addOption(new ask.Option('foo'));
-		expect((await r.execute('derp --foo 2')).options.foo).toBe('2');
-		expect((await r.execute('--foo 1 derp --foo 2')).options.foo).toBe('2');
+		r.addCommand('init', req => req).addOption(new ask.Option('version'));
+		expect((await r.execute('init --version 2')).options.version).toBe('2');
+		expect((await r.execute('--version 1 init --version 2')).options.version).toBe('2');
+		expect((await r.execute('--version 1 --version xxxxx init --version 2 --version 3')).options.version).toBe('3');
 	});
 
 	it('commands and subcommands use the default if the option is singularly defined', async () => {
-		const r = new ask.Command('nerf', req => req);
-		r.addOption(new ask.Option('foo').setDefault('bar', true));
+		const r = new ask.Command('fdt', req => req);
+		r.addOption(new ask.Option('version').setDefault('bar', true));
 
-		expect((await r.execute('')).options.foo).toBe('bar');
+		expect((await r.execute('')).options.version).toBe('bar');
 
-		r.addCommand('derp', req => req);
-		expect((await r.execute('derp')).options.foo).toBe('bar');
+		r.addCommand('init', req => req);
+		expect((await r.execute('init')).options.version).toBe('bar');
 	});
 
 	it('commands and subcommands use the default if the option is multiply defined', async () => {
-		const r = new ask.Command('nerf', req => req);
+		const r = new ask.Command('fdt', req => req);
 
 		const mockResolver1 = jest.fn(x => x);
-		r.addOption(new ask.Option('foo').setResolver(mockResolver1).setDefault('bar', true));
-		expect((await r.execute('')).options.foo).toBe('bar');
+		r.addOption(new ask.Option('version').setResolver(mockResolver1).setDefault('bar', true));
+		expect((await r.execute('')).options.version).toBe('bar');
 		expect(mockResolver1).toHaveBeenCalledTimes(1);
 
 		const mockResolver2 = jest.fn(x => x);
-		r.addCommand('derp', req => req).addOption(
-			new ask.Option('foo').setResolver(mockResolver2).setDefault('baz', true)
+		r.addCommand('init', req => req).addOption(
+			new ask.Option('version').setResolver(mockResolver2).setDefault('baz', true)
 		);
-		expect((await r.execute('derp')).options.foo).toBe('baz');
+		expect((await r.execute('init')).options.version).toBe('baz');
 
-		// Current expected behaviour is that the resolver for the first --foo definition gets ran even if it is super-
-		// seded by the more specific --foo definition later.
-		// @TODO Not do that, have mockResolver1 be called only once in this test:
-		expect(mockResolver1).toHaveBeenCalledTimes(2);
+		// Current expected behaviour is that the resolver for the first --version definition gets ran even if it is super-
+		// seded by the more specific --version definition later.
+		expect(mockResolver1).toHaveBeenCalledTimes(1);
 		expect(mockResolver2).toHaveBeenCalledTimes(1);
 	});
 
 	it('... also resolvers etc.', async () => {
-		const r = new ask.Command('nerf', req => req);
+		const r = new ask.Command('fdt', req => req);
 
-		r.addOption(new ask.Option('foo').setResolver(() => 'bar'));
-		expect((await r.execute('--foo x')).options.foo).toBe('bar');
+		r.addOption(new ask.Option('version').setResolver(() => 'bar'));
+		expect((await r.execute('--version x')).options.version).toBe('bar');
 
-		r.addCommand('derp', req => req).addOption(new ask.Option('foo').setResolver(() => 'baz'));
-		expect((await r.execute('derp --foo x')).options.foo).toBe('baz');
+		r.addCommand('init', req => req).addOption(new ask.Option('version').setResolver(() => 'baz'));
+		expect((await r.execute('init --version x')).options.version).toBe('baz');
 	});
 });

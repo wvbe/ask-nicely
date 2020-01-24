@@ -37,7 +37,7 @@ function matchInputToSyntaxPaths(root, parts) {
 		}
 	];
 	while (parts.length) {
-		const expectedScopes = [...tiers.unordered].reverse().concat(tiers.ordered),
+		const expectedScopes = [...tiers.unordered].concat(tiers.ordered),
 			matchingScope = expectedScopes.find(scope => scope[symbols.isMatchForPart](parts[0]));
 
 		if (!matchingScope) {
