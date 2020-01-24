@@ -1,9 +1,9 @@
 'use strict';
 
 export default class AskNicelyInputError extends Error {
-	constructor(message, solution) {
+	constructor(code, message, solution) {
 		super(message);
-
+		this.code = code || null;
 		this.name = this.constructor.name;
 		this.solution = solution;
 

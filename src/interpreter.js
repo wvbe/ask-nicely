@@ -41,7 +41,7 @@ function matchInputToSyntaxPaths(root, parts) {
 			matchingScope = expectedScopes.find(scope => scope[symbols.isMatchForPart](parts[0]));
 
 		if (!matchingScope) {
-			throw new InputError(`EINVAL: The input "${parts[0]}" was not expected`);
+			throw new InputError('EINVAL', `The input "${parts[0]}" was not expected`);
 		}
 
 		// Allow the SyntaxPart to modify the string that is being evaluated
